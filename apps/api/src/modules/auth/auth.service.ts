@@ -61,7 +61,7 @@ export class AuthService {
       );
       throw new HttpException(
         { message: 'Account is locked', retry_after: retryAfter },
-        HttpStatus.LOCKED,
+        423, // Locked
       );
     }
 

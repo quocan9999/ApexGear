@@ -1,0 +1,438 @@
+// ApexGear E-commerce — Full Prisma Schema (SQL Server)
+// Source: docs/superpowers/specs/2026-07-14-apexgear-ecommerce-design.md §3.2
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTH & USERS ====================
+
+model User {
+  id                  String       @id @default(uuid())
+  email               String       @unique(map: "unique_active_email")
+  password            String? // null if Google OAuth only
+  name                String       @db.NVarChar(100)
+  phone               String?      @db.VarChar(15)
+  avatar              String?      @db.VarChar(500) // Cloudinary URL (apexgear/avatars/)
+  role                Role         @default(CUSTOMER)
+  provider            AuthProvider @default(LOCAL)
+  googleId            String?      @unique
+  isActive            Boolean      @default(true)
+  failedLoginAttempts Int          @default(0)
+  lockedUntil         DateTime?
+  tokenVersion        Int          @default(0) // For token revocation (future)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  deletedAt           DateTime? // Soft delete
+
+  addresses   Address[]
+  orders      Order[]
+  cart        Cart?
+  reviews     Review[]
+  resetTokens PasswordResetToken[]
+
+  @@index([email, deletedAt])
+  @@index([role])
+}
+
+// Note: email unique constraint ignores soft-deleted records via filtered index
+// SQL Server: CREATE UNIQUE INDEX unique_active_email ON users(email) WHERE deleted_at IS NULL
+
+enum Role {
+  CUSTOMER
+  CONTENT_MANAGER
+  INVENTORY_MANAGER
+  ORDER_MANAGER
+  ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+// ==================== CATEGORIES (2-level) ====================
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @db.NVarChar(255)
+  slug        String     @unique(map: "unique_active_category_slug")
+  description String?    @db.NVarChar(Max)
+  image       String?    @db.VarChar(500) // Cloudinary URL
+  parentId    String? // null = top-level category
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    Category[] @relation("CategoryTree")
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+
+  products Product[]
+
+  @@index([slug, deletedAt])
+  @@index([parentId])
+}
+
+// ==================== BRANDS ====================
+
+model Brand {
+  id          String    @id @default(uuid())
+  name        String    @unique(map: "unique_active_brand_name") @db.NVarChar(255)
+  slug        String    @unique(map: "unique_active_brand_slug")
+  description String?   @db.NVarChar(Max)
+  logo        String?   @db.VarChar(500) // Cloudinary URL (apexgear/brands/)
+  website     String?   @db.VarChar(500)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  products Product[]
+
+  @@index([name, deletedAt])
+  @@index([slug, deletedAt])
+}
+
+// ==================== PRODUCTS ====================
+
+model Product {
+  id               String    @id @default(uuid())
+  name             String    @db.NVarChar(500)
+  slug             String    @unique(map: "unique_active_product_slug") // Auto-generated from name
+  shortDescription String?   @db.NVarChar(500)
+  description      String?   @db.NVarChar(Max) // Rich text/HTML
+  specifications   Json? // Flexible JSON specs per product type
+  basePrice        Decimal   @db.Decimal(18, 2) // VND
+  salePrice        Decimal?  @db.Decimal(18, 2) // null = no sale
+  categoryId       String
+  category         Category  @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  brandId          String
+  brand            Brand     @relation(fields: [brandId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  metaTitle        String?   @db.NVarChar(255) // SEO
+  metaDescription  String?   @db.NVarChar(500) // SEO
+  isFeatured       Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  images      ProductImage[]
+  specs       ProductSpec[]
+  variants    ProductVariant[]
+  optionTypes ProductOptionType[]
+  reviews     Review[]
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([slug, deletedAt])
+  @@index([isActive, isFeatured])
+}
+
+// ==================== PRODUCT IMAGES ====================
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String   @db.VarChar(500) // Cloudinary URL
+  publicId  String   @db.VarChar(255) // Cloudinary public_id (for deletion)
+  alt       String?  @db.NVarChar(500)
+  isPrimary Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([isPrimary])
+}
+
+// ==================== PRODUCT SPECS ====================
+
+model ProductSpec {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  group     String? @db.NVarChar(255) // "Thông số chung", "Kết nối", "Pin & Sạc"...
+  name      String  @db.NVarChar(255) // "Trọng lượng", "Driver", "Kết nối"...
+  value     String  @db.NVarChar(500) // "250g", "50mm", "Bluetooth 5.3"...
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+// ==================== VARIANTS (Shopify-style) ====================
+
+model ProductOptionType {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String  @db.NVarChar(100) // "Màu sắc", "Kích thước", "Phiên bản"
+  sortOrder Int     @default(0)
+
+  values ProductOptionValue[]
+
+  @@unique([productId, name])
+}
+
+model ProductOptionValue {
+  id           String            @id @default(uuid())
+  optionTypeId String
+  optionType   ProductOptionType @relation(fields: [optionTypeId], references: [id], onDelete: Cascade)
+  value        String            @db.NVarChar(100) // "Đen", "Trắng", "24 inch", "27 inch"
+  sortOrder    Int               @default(0)
+
+  variantOptions VariantOption[]
+
+  @@unique([optionTypeId, value])
+}
+
+model ProductVariant {
+  id                String    @id @default(uuid())
+  productId         String
+  product           Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku               String    @unique(map: "unique_active_sku")
+  name              String    @db.NVarChar(255) // "Black", "White", "2023 Edition"
+  price             Decimal?  @db.Decimal(18, 2) // null = fallback to product.basePrice
+  stockTotal        Int       @default(0) // Tổng stock (bao gồm reserved)
+  stockAvailable    Int       @default(0) // Stock khả dụng (total - reserved by pending orders)
+  lowStockThreshold Int       @default(5) // Cảnh báo khi stockAvailable <= threshold
+  attributes        Json? // Flexible: {"color": "Black", "size": "24 inch"}
+  isDefault         Boolean   @default(false) // Exactly 1 default per product
+  isActive          Boolean   @default(true)
+  displayOrder      Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  options    VariantOption[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@index([sku, deletedAt])
+  @@index([isActive])
+}
+
+model VariantOption {
+  id            String             @id @default(uuid())
+  variantId     String
+  variant       ProductVariant     @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  optionValueId String
+  optionValue   ProductOptionValue @relation(fields: [optionValueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([variantId, optionValueId])
+}
+
+// ==================== REVIEWS ====================
+
+model Review {
+  id        String       @id @default(uuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rating    Int // 1-5
+  comment   String?      @db.NVarChar(Max)
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([productId, userId]) // 1 review per user per product
+  @@index([productId])
+  @@index([status])
+}
+
+enum ReviewStatus {
+  PENDING // Chờ admin/content manager duyệt
+  APPROVED // Đã duyệt → hiển thị trên trang sản phẩm
+  REJECTED // Bị từ chối → không hiển thị
+}
+
+// ==================== CART ====================
+
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedAt DateTime @updatedAt
+
+  items CartItem[]
+}
+
+model CartItem {
+  id        String         @id @default(uuid())
+  cartId    String
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  quantity  Int            @default(1) // Max = variant.stockAvailable
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([cartId, variantId])
+}
+
+// ==================== ORDERS ====================
+
+model Order {
+  id            String        @id @default(uuid())
+  orderNumber   String        @unique // Format: AG-YYYYMMDD-XXXX
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(UNPAID)
+
+  // Money
+  subtotal    Decimal @db.Decimal(18, 2)
+  shippingFee Decimal @db.Decimal(18, 2)
+  discount    Decimal @default(0) @db.Decimal(18, 2)
+  total       Decimal @db.Decimal(18, 2)
+
+  // Shipping address (snapshot — denormalized)
+  shippingName     String @db.NVarChar(100)
+  shippingPhone    String @db.VarChar(15)
+  shippingAddress  String @db.NVarChar(500) // Detail address (street, house number)
+  shippingWard     String @db.NVarChar(100)
+  shippingDistrict String @db.NVarChar(100)
+  shippingProvince String @db.NVarChar(100)
+
+  // References
+  couponId String?
+  coupon   Coupon? @relation(fields: [couponId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sepayRef String? @unique // SePay reference code for matching
+  note     String? @db.NVarChar(500)
+
+  // Timestamps
+  paidAt       DateTime?
+  confirmedAt  DateTime?
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  completedAt  DateTime?
+  cancelledAt  DateTime?
+  cancelReason String?   @db.NVarChar(500)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@index([createdAt])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  SEPAY
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+model OrderItem {
+  id        String         @id @default(uuid())
+  orderId   String
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  // Snapshot at order time (immutable after creation)
+  productName String  @db.NVarChar(500)
+  variantInfo String? @db.NVarChar(255) // "Đen, 24 inch" — human-readable
+  price       Decimal @db.Decimal(18, 2) // Price at order time
+  quantity    Int
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+}
+
+// ==================== ADDRESSES ====================
+
+model Address {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  name         String   @db.NVarChar(100) // Receiver name
+  phone        String   @db.VarChar(15)
+  provinceCode String   @db.VarChar(10)
+  provinceName String   @db.NVarChar(100)
+  districtCode String   @db.VarChar(10)
+  districtName String   @db.NVarChar(100)
+  wardCode     String   @db.VarChar(10)
+  wardName     String   @db.NVarChar(100)
+  detail       String   @db.NVarChar(500) // Street, house number
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ==================== COUPONS ====================
+
+model Coupon {
+  id            String     @id @default(uuid())
+  code          String     @unique @db.VarChar(50) // Uppercase, e.g. "SALE10"
+  type          CouponType
+  description   String?    @db.NVarChar(500)
+  value         Decimal    @db.Decimal(18, 2) // Percentage (e.g. 10) or fixed VND
+  minOrderValue Decimal?   @db.Decimal(18, 2) // Minimum order to apply
+  maxDiscount   Decimal?   @db.Decimal(18, 2) // Cap for percentage coupons
+  maxUses       Int? // null = unlimited
+  usedCount     Int        @default(0)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  orders Order[]
+
+  @@index([code])
+  @@index([isActive, expiresAt])
+}
+
+enum CouponType {
+  PERCENTAGE // Giảm theo %
+  FIXED // Giảm số tiền cố định (VND)
+}
+
+// ==================== SETTINGS ====================
+
+model Setting {
+  id    String @id @default(uuid())
+  key   String @unique @db.VarChar(100) // "shipping_fee", "store_name", etc.
+  value String @db.NVarChar(Max)
+}

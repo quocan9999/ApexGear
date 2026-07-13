@@ -1,0 +1,10 @@
+{
+  "name": "apexgear",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:api": "npm run dev -w apps/api",
+    "build:api": "npm run build -w apps/api",
+    "lint:api": "npm run lint -w apps/api"
+  }
+}

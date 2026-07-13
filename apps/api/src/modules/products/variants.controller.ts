@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -9,7 +9,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { Role } from '../../common/enums';
 import { VariantsService } from './variants.service';
 import { CreateVariantDto } from './dto/create-variant.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
@@ -23,12 +23,14 @@ export class VariantsController {
 
   private isStaff(user?: UserEntity): boolean {
     if (!user) return false;
-    return [
-      Role.ADMIN,
-      Role.CONTENT_MANAGER,
-      Role.INVENTORY_MANAGER,
-      Role.ORDER_MANAGER,
-    ].includes(user.role);
+    return (
+      [
+        Role.ADMIN,
+        Role.CONTENT_MANAGER,
+        Role.INVENTORY_MANAGER,
+        Role.ORDER_MANAGER,
+      ] as string[]
+    ).includes(user.role as string);
   }
 
   @Get()

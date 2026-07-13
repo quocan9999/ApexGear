@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -15,7 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { Role } from '@prisma/client';
+import { Role } from '../../common/enums';
 import { ProductImagesService } from './product-images.service';
 import { Public, Roles } from '../../common/decorators';
 

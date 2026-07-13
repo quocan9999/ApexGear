@@ -63,7 +63,9 @@ export class VariantsService {
           stockTotal,
           stockAvailable,
           lowStockThreshold: dto.lowStockThreshold ?? 5,
-          attributes: dto.attributes ?? undefined,
+          attributes: dto.attributes
+            ? JSON.stringify(dto.attributes)
+            : undefined,
           isDefault: dto.isDefault ?? false,
           displayOrder: dto.displayOrder ?? 0,
         },
@@ -106,7 +108,12 @@ export class VariantsService {
           stockTotal: dto.stockTotal,
           stockAvailable: dto.stockAvailable,
           lowStockThreshold: dto.lowStockThreshold,
-          attributes: dto.attributes,
+          attributes:
+            dto.attributes !== undefined
+              ? dto.attributes
+                ? JSON.stringify(dto.attributes)
+                : null
+              : undefined,
           isDefault: dto.isDefault,
           isActive: dto.isActive,
           displayOrder: dto.displayOrder,

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { Role } from '../../common/enums';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -25,12 +25,14 @@ export class ProductsController {
 
   private isStaff(user?: UserEntity): boolean {
     if (!user) return false;
-    return [
-      Role.ADMIN,
-      Role.CONTENT_MANAGER,
-      Role.INVENTORY_MANAGER,
-      Role.ORDER_MANAGER,
-    ].includes(user.role);
+    return (
+      [
+        Role.ADMIN,
+        Role.CONTENT_MANAGER,
+        Role.INVENTORY_MANAGER,
+        Role.ORDER_MANAGER,
+      ] as string[]
+    ).includes(user.role as string);
   }
 
   @Get()

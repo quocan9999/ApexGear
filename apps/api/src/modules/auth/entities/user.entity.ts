@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Role, AuthProvider } from '@prisma/client';
+import { Role, AuthProvider } from '../../../common/enums';
 
 export class UserEntity {
   id: string;
@@ -7,8 +7,8 @@ export class UserEntity {
   name: string;
   phone: string | null;
   avatar: string | null;
-  role: Role;
-  provider: AuthProvider;
+  role: Role | string;
+  provider: AuthProvider | string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

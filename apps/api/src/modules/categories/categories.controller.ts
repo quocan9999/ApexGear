@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { Role } from '../../common/enums';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -32,12 +32,14 @@ export class CategoriesController {
   ) {
     const isStaff =
       !!user &&
-      [
-        Role.ADMIN,
-        Role.CONTENT_MANAGER,
-        Role.INVENTORY_MANAGER,
-        Role.ORDER_MANAGER,
-      ].includes(user.role);
+      (
+        [
+          Role.ADMIN,
+          Role.CONTENT_MANAGER,
+          Role.INVENTORY_MANAGER,
+          Role.ORDER_MANAGER,
+        ] as string[]
+      ).includes(user.role as string);
     return this.categoriesService.findAll(query, isStaff);
   }
 

@@ -49,8 +49,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
       switch (exception.code) {
         case 'P2002': {
           status = HttpStatus.CONFLICT;
-          const target = (exception.meta?.target as string[]) || [];
-          message = `Unique constraint violation on: ${target.join(', ')}`;
+          const target = exception.meta?.target;
+          const targetStr = Array.isArray(target)
+            ? target.join(', ')
+            : typeof target === 'string'
+              ? target
+              : 'unknown field';
+          message = `Unique constraint violation on: ${targetStr}`;
           break;
         }
         case 'P2003':

@@ -1,6 +1,6 @@
-import { IsOptional, IsEnum, IsBoolean } from 'class-validator';
+﻿import { IsOptional, IsEnum, IsBoolean } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { Role } from '../../../common/enums';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({ enum: Role })

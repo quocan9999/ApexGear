@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Patch,
@@ -8,7 +8,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { Role } from '../../common/enums';
 import { InventoryService } from './inventory.service';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { QueryInventoryDto } from './dto/query-inventory.dto';
@@ -21,7 +21,7 @@ export class InventoryController {
 
   @Get()
   @Roles(Role.INVENTORY_MANAGER, Role.CONTENT_MANAGER, Role.ADMIN)
-  @ApiOperation({ summary: 'Inventory overview — all variants with stock' })
+  @ApiOperation({ summary: 'Inventory overview - all variants with stock' })
   overview(@Query() query: QueryInventoryDto) {
     return this.inventoryService.overview(query);
   }

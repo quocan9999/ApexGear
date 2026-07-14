@@ -22,4 +22,7 @@ export const authService = {
 
   resetPassword: (token: string, newPassword: string) =>
     api.post('/auth/reset-password', { token, newPassword }).then((r) => r.data),
+
+  changePassword: (payload: { currentPassword: string; newPassword: string }) =>
+    api.patch<ApiResponse<{ message: string }>>('/auth/change-password', payload).then((r) => r.data.data),
 };

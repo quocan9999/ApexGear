@@ -99,7 +99,10 @@
     "resetCta": "Đặt lại mật khẩu",
     "resetSuccess": "Mật khẩu đã được đặt lại thành công",
     "newPassword": "Mật khẩu mới",
-    "passwordRequirements": "Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số"
+    "passwordRequirements": "Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số",
+    "or": "hoặc",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp",
+    "resetMissingToken": "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn"
   },
   "footer": {
     "about": "Về ApexGear",

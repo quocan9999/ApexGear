@@ -130,3 +130,145 @@ export interface ProductQueryParams {
   sortBy?: 'price' | 'name' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
 }
+
+// ========== Commerce Enums ==========
+export type OrderStatus =
+  | 'PENDING' | 'CONFIRMED' | 'SHIPPING' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
+export type PaymentStatus = 'UNPAID' | 'PAID' | 'REFUNDED';
+export type PaymentMethod = 'COD' | 'SEPAY';
+export type CouponType = 'PERCENTAGE' | 'FIXED';
+
+// ========== Cart (backend) ==========
+export interface BackendCartItem {
+  id: string;
+  cartId: string;
+  variantId: string;
+  quantity: number;
+  createdAt: string;
+  variant: ProductVariant & {
+    stockAvailable?: number;
+    product: Pick<Product, 'id' | 'name' | 'slug' | 'basePrice' | 'salePrice'> & {
+      images?: ProductImage[];
+    };
+  };
+}
+
+export interface Cart {
+  id: string;
+  userId: string;
+  items: BackendCartItem[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// ========== Addresses ==========
+export interface Address {
+  id: string;
+  userId: string;
+  name: string;
+  phone: string;
+  provinceCode: string;
+  provinceName: string;
+  districtCode: string;
+  districtName: string;
+  wardCode: string;
+  wardName: string;
+  detail: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAddressPayload {
+  name: string;
+  phone: string;
+  provinceCode: string;
+  provinceName: string;
+  districtCode: string;
+  districtName: string;
+  wardCode: string;
+  wardName: string;
+  detail: string;
+  isDefault?: boolean;
+}
+
+// ========== VN location lookup ==========
+export interface Province { code: string; name: string; }
+export interface District { code: string; name: string; }
+export interface Ward { code: string; name: string; }
+
+// ========== Orders ==========
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  variantId: string;
+  productName: string;
+  variantInfo: string | null;
+  price: number;
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string;
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  subtotal: number;
+  shippingFee: number;
+  discount: number;
+  total: number;
+  shippingName: string;
+  shippingPhone: string;
+  shippingAddress: string;
+  shippingWard: string;
+  shippingDistrict: string;
+  shippingProvince: string;
+  couponId: string | null;
+  sepayRef: string | null;
+  note: string | null;
+  paidAt: string | null;
+  confirmedAt: string | null;
+  shippedAt: string | null;
+  deliveredAt: string | null;
+  completedAt: string | null;
+  cancelledAt: string | null;
+  cancelReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: OrderItem[];
+}
+
+export interface CreateOrderPayload {
+  paymentMethod: PaymentMethod;
+  addressId: string;
+  couponCode?: string;
+  note?: string;
+}
+
+export interface OrderQueryParams {
+  page?: number;
+  limit?: number;
+  status?: OrderStatus;
+  paymentStatus?: PaymentStatus;
+}
+
+// ========== Coupons ==========
+export interface CouponValidation {
+  valid: boolean;
+  discount?: number;
+  couponId?: string;
+  code?: string;
+  type?: CouponType;
+  message?: string;
+}
+
+// ========== Payments ==========
+export interface SepayQr {
+  bankAccount: string;
+  amount: number;
+  content: string;
+  orderNumber: string;
+  expiresAt: string;
+}

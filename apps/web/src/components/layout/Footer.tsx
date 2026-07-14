@@ -4,19 +4,12 @@ import { useEffect, useState } from 'react';
 import { categoriesService } from '../../services/categories.service';
 import type { Category } from '../../types';
 
-const SUPPORT_LINKS = [
-  { to: '/help', labelKey: 'support' },
-  { to: '/shipping', labelKey: 'shipping' },
-  { to: '/returns', labelKey: 'returns' },
-  { to: '/warranty', labelKey: 'warranty' },
+const SUPPORT_LINKS: { to: string; labelKey: string }[] = [
+  { to: '/help', labelKey: 'footer.supportLink' },
+  { to: '/shipping', labelKey: 'footer.shipping' },
+  { to: '/returns', labelKey: 'footer.returns' },
+  { to: '/warranty', labelKey: 'footer.warranty' },
 ];
-
-const SUPPORT_LABEL_KEYS: Record<string, string> = {
-  support: 'Hỗ trợ',
-  shipping: 'Vận chuyển',
-  returns: 'Đổi trả',
-  warranty: 'Bảo hành',
-};
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -78,7 +71,7 @@ export default function Footer() {
               {SUPPORT_LINKS.map((link) => (
                 <li key={link.to}>
                   <Link to={link.to} className="body-sm text-on-surface-variant hover:text-primary">
-                    {SUPPORT_LABEL_KEYS[link.labelKey] ?? link.labelKey}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -119,7 +112,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-xl flex flex-col items-center justify-between gap-sm border-t border-outline-variant pt-md sm:flex-row">
           <p className="body-sm text-on-surface-variant">
-            {t('footer.copyright').replace('2024', String(year))}
+            {t('footer.copyright', { year })}
           </p>
           <ul className="flex items-center gap-md body-sm text-on-surface-variant">
             <li>
@@ -129,12 +122,12 @@ export default function Footer() {
             </li>
             <li>
               <Link to="/terms" className="hover:text-primary">
-                Điều khoản
+                {t('footer.terms')}
               </Link>
             </li>
             <li>
               <Link to="/privacy" className="hover:text-primary">
-                Bảo mật
+                {t('footer.privacy')}
               </Link>
             </li>
           </ul>

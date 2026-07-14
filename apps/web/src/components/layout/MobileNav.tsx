@@ -82,7 +82,7 @@ export default function MobileNav({ open, onClose, categories, user, onLogout }:
                 type="button"
                 onClick={onClose}
                 className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-surface-container"
-                aria-label="Close menu"
+                aria-label={t('nav.closeMenu')}
               >
                 <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />

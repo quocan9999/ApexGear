@@ -3,16 +3,20 @@ import {
   UnauthorizedException,
   ConflictException,
   HttpException,
-  HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { EmailService } from '../../common/services/email.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UserEntity } from './entities/user.entity';
 
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -23,6 +27,8 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private emailService: EmailService,
+    private configService: ConfigService,
   ) {}
 
   async register(dto: RegisterDto): Promise<UserEntity> {
@@ -144,6 +150,109 @@ export class AuthService {
       where: { id: userId },
       data: { password: hashed },
     });
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
+    const user = await this.prisma.user.findFirst({
+      where: { email: dto.email, deletedAt: null },
+    });
+    // Always return success (don't reveal if email exists)
+    if (!user) return;
+
+    // Invalidate old tokens
+    await this.prisma.passwordResetToken.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+
+    const token = randomUUID();
+    await this.prisma.passwordResetToken.create({
+      data: {
+        token,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+      },
+    });
+
+    const frontendUrl = this.configService.get<string>(
+      'FRONTEND_URL',
+      'http://localhost:5173',
+    );
+    const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
+    await this.emailService.sendResetPasswordEmail(
+      user.email,
+      user.name,
+      resetUrl,
+    );
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<void> {
+    const resetToken = await this.prisma.passwordResetToken.findUnique({
+      where: { token: dto.token },
+      include: { user: true },
+    });
+
+    if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { password: hashedPassword },
+      }),
+      this.prisma.passwordResetToken.update({
+        where: { id: resetToken.id },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+  }
+
+  async googleLogin(googleUser: {
+    googleId: string;
+    email: string;
+    name: string;
+    avatar: string | null;
+  }): Promise<{ user: UserEntity; token: string }> {
+    let user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { googleId: googleUser.googleId },
+          { email: googleUser.email, deletedAt: null },
+        ],
+      },
+    });
+
+    if (user) {
+      if (!user.googleId) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            googleId: googleUser.googleId,
+            provider: 'GOOGLE',
+            avatar: user.avatar || googleUser.avatar,
+          },
+        });
+      }
+    } else {
+      user = await this.prisma.user.create({
+        data: {
+          email: googleUser.email,
+          name: googleUser.name,
+          googleId: googleUser.googleId,
+          avatar: googleUser.avatar,
+          provider: 'GOOGLE',
+        },
+      });
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is deactivated');
+    }
+
+    const token = this.generateToken(user);
+    return { user: new UserEntity(user), token };
   }
 
   private generateToken(user: {

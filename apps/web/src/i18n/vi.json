@@ -89,6 +89,60 @@
       "loginRequired": "Đăng nhập để dùng mã giảm giá"
     }
   },
+  "checkout": {
+    "title": "Thanh toán",
+    "steps": {
+      "address": "Địa chỉ",
+      "payment": "Thanh toán",
+      "review": "Xác nhận"
+    },
+    "continue": "Tiếp tục",
+    "back": "Quay lại",
+    "placeOrder": "Đặt hàng",
+    "defaultBadge": "Mặc định",
+    "addNewAddress": "＋ Thêm địa chỉ mới",
+    "emptyCartRedirect": "Giỏ hàng trống, đang chuyển hướng...",
+    "addressForm": {
+      "name": "Họ tên",
+      "phone": "Số điện thoại",
+      "province": "Tỉnh/Thành phố",
+      "district": "Quận/Huyện",
+      "ward": "Phường/Xã",
+      "detail": "Địa chỉ chi tiết",
+      "detailPlaceholder": "Số nhà, tên đường...",
+      "selectProvince": "Chọn tỉnh/thành",
+      "selectDistrict": "Chọn quận/huyện",
+      "selectWard": "Chọn phường/xã",
+      "setDefault": "Đặt làm mặc định",
+      "save": "Lưu địa chỉ",
+      "required": "Vui lòng nhập thông tin này",
+      "tooLong": "Nội dung quá dài",
+      "invalidPhone": "Số điện thoại không hợp lệ"
+    },
+    "payment": {
+      "cod": "Thanh toán khi nhận hàng",
+      "codDesc": "Trả tiền mặt khi nhận được hàng",
+      "sepay": "Chuyển khoản QR (SePay)",
+      "sepayDesc": "Quét mã QR để chuyển khoản qua ngân hàng"
+    },
+    "note": {
+      "label": "Ghi chú đơn hàng",
+      "placeholder": "Ghi chú cho người bán (không bắt buộc)"
+    },
+    "summary": {
+      "title": "Tóm tắt đơn hàng"
+    },
+    "review": {
+      "shipTo": "Giao đến",
+      "paymentMethod": "Phương thức thanh toán",
+      "items": "Sản phẩm",
+      "subtotal": "Tạm tính",
+      "discount": "Giảm giá",
+      "shipping": "Phí vận chuyển",
+      "shippingComputed": "Được tính khi đặt hàng",
+      "total": "Tổng cộng"
+    }
+  },
   "review": {
     "writeReview": "Viết đánh giá",
     "ratingLabel": "Đánh giá:",

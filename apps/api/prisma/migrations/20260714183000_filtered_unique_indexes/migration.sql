@@ -1,6 +1,8 @@
--- Manual / re-runnable version of migration 20260714183000_filtered_unique_indexes.
--- Prefer: npx prisma migrate deploy
--- Fallback: sqlcmd -S localhost -d apexgear -E -I -i apps/api/prisma/filtered_indexes.sql
+-- Soft-delete friendly unique indexes for SQL Server.
+-- Prisma cannot express filtered uniques; init migration creates plain UNIQUE
+-- constraints which block reusing email/slug/sku after soft-delete.
+-- Also drop User_googleId_key (multiple NULL googleId must be allowed) and
+-- replace with a filtered unique only when googleId IS NOT NULL.
 
 SET QUOTED_IDENTIFIER ON;
 SET ANSI_NULLS ON;
@@ -13,7 +15,7 @@ IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'unique_active_email' AND obj
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'unique_active_email' AND object_id = OBJECT_ID(N'[dbo].[User]') AND has_filter = 1)
   CREATE UNIQUE NONCLUSTERED INDEX [unique_active_email] ON [dbo].[User]([email]) WHERE [deletedAt] IS NULL;
 
--- User.googleId
+-- User.googleId: drop plain unique; allow many NULL; unique only when set
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = N'User_googleId_key' AND parent_object_id = OBJECT_ID(N'[dbo].[User]'))
   ALTER TABLE [dbo].[User] DROP CONSTRAINT [User_googleId_key];
 IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'User_googleId_key' AND object_id = OBJECT_ID(N'[dbo].[User]'))
@@ -61,8 +63,3 @@ IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'unique_active_sku' AND objec
   DROP INDEX [unique_active_sku] ON [dbo].[ProductVariant];
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'unique_active_sku' AND object_id = OBJECT_ID(N'[dbo].[ProductVariant]') AND has_filter = 1)
   CREATE UNIQUE NONCLUSTERED INDEX [unique_active_sku] ON [dbo].[ProductVariant]([sku]) WHERE [deletedAt] IS NULL;
-
-SELECT name, OBJECT_NAME(object_id) AS table_name, has_filter, filter_definition
-FROM sys.indexes
-WHERE name LIKE N'unique_active_%'
-ORDER BY name;

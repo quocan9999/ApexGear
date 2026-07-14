@@ -1,0 +1,87 @@
+{
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra",
+    "retry": "Thử lại",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "search": "Tìm kiếm",
+    "noResults": "Không tìm thấy kết quả",
+    "viewAll": "Xem tất cả",
+    "continueShopping": "Tiếp tục mua sắm",
+    "outOfStock": "Hết hàng",
+    "inStock": "Còn hàng",
+    "lowStock": "Sắp hết hàng"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "products": "Sản phẩm",
+    "categories": "Danh mục",
+    "cart": "Giỏ hàng",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất",
+    "profile": "Tài khoản",
+    "orders": "Đơn hàng"
+  },
+  "home": {
+    "heroTitle": "Tech Gear Cho Game Thủ Việt",
+    "heroSubtitle": "Thiết bị công nghệ chính hãng, giá tốt nhất",
+    "heroCta": "Khám phá ngay",
+    "featuredCategories": "Danh mục nổi bật",
+    "featuredProducts": "Sản phẩm nổi bật",
+    "brands": "Thương hiệu"
+  },
+  "product": {
+    "addToCart": "Thêm vào giỏ hàng",
+    "buyNow": "Mua ngay",
+    "specifications": "Thông số kỹ thuật",
+    "description": "Mô tả sản phẩm",
+    "reviews": "Đánh giá",
+    "relatedProducts": "Sản phẩm liên quan",
+    "quantity": "Số lượng",
+    "selectVariant": "Chọn phiên bản",
+    "price": "Giá",
+    "originalPrice": "Giá gốc",
+    "filters": "Bộ lọc",
+    "sort": "Sắp xếp",
+    "sortOptions": {
+      "newest": "Mới nhất",
+      "priceAsc": "Giá tăng dần",
+      "priceDesc": "Giá giảm dần",
+      "nameAsc": "Tên A-Z"
+    }
+  },
+  "auth": {
+    "loginTitle": "Đăng nhập",
+    "registerTitle": "Đăng ký tài khoản",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "name": "Họ tên",
+    "forgotPassword": "Quên mật khẩu?",
+    "noAccount": "Chưa có tài khoản?",
+    "hasAccount": "Đã có tài khoản?",
+    "loginWithGoogle": "Đăng nhập với Google",
+    "registerCta": "Đăng ký",
+    "loginCta": "Đăng nhập",
+    "forgotTitle": "Quên mật khẩu",
+    "forgotSubtitle": "Nhập email để nhận link đặt lại mật khẩu",
+    "forgotCta": "Gửi email",
+    "forgotSuccess": "Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu",
+    "resetTitle": "Đặt lại mật khẩu",
+    "resetCta": "Đặt lại mật khẩu",
+    "resetSuccess": "Mật khẩu đã được đặt lại thành công",
+    "newPassword": "Mật khẩu mới",
+    "passwordRequirements": "Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số"
+  },
+  "footer": {
+    "about": "Về ApexGear",
+    "aboutText": "ApexGear là cửa hàng trực tuyến chuyên cung cấp thiết bị công nghệ & gaming chính hãng cho game thủ Việt.",
+    "support": "Hỗ trợ",
+    "contact": "Liên hệ",
+    "policy": "Chính sách",
+    "copyright": "© 2024 ApexGear. All rights reserved."
+  }
+}

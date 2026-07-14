@@ -143,10 +143,10 @@ export default function MobileNav({ open, onClose, categories, user, onLogout }:
                   <li>
                     <button
                       type="button"
-                      onClick={() => handleNavigate('/profile')}
+                      onClick={() => handleNavigate('/account')}
                       className="block w-full rounded-md px-md py-sm text-left body-md text-on-surface hover:bg-surface-container"
                     >
-                      {t('nav.profile')}
+                      {t('nav.account')}
                     </button>
                   </li>
                   <li>

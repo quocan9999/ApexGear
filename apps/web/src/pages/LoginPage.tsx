@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/auth.store';
+import { useCartStore } from '../stores/cart.store';
 import { Button, Input } from '../components/ui';
 
 export default function LoginPage() {
@@ -16,7 +17,16 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login({ email, password });
-      navigate(searchParams.get('returnUrl') || '/', { replace: true });
+      // Merge the guest (localStorage) cart into the server cart on login.
+      // Guard so a merge failure never blocks navigation into the app.
+      try {
+        await useCartStore.getState().mergeGuestCart();
+      } catch {
+        // Non-blocking: cart merge failure should not trap the user on login
+      }
+      navigate(searchParams.get('redirect') || searchParams.get('returnUrl') || '/', {
+        replace: true,
+      });
     } catch {
       // Error handled by store
     }

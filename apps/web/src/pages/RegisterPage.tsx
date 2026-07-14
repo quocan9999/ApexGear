@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/auth.store';
+import { useCartStore } from '../stores/cart.store';
 import { Button, Input } from '../components/ui';
 
 function passwordMeetsRequirements(pwd: string): boolean {
@@ -34,7 +35,16 @@ export default function RegisterPage() {
 
     try {
       await register({ name, email, password });
-      navigate(searchParams.get('returnUrl') || '/', { replace: true });
+      // Register auto-logs-in; merge the guest cart into the server cart.
+      // Guard so a merge failure never blocks navigation into the app.
+      try {
+        await useCartStore.getState().mergeGuestCart();
+      } catch {
+        // Non-blocking
+      }
+      navigate(searchParams.get('redirect') || searchParams.get('returnUrl') || '/', {
+        replace: true,
+      });
     } catch {
       // Error handled by store
     }

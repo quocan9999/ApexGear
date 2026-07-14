@@ -159,7 +159,7 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-md px-md py-xxl text-center">
-        <h1 className="headline-lg text-on-surface">Không tìm thấy sản phẩm</h1>
+        <h1 className="headline-lg text-on-surface">{t('product.notFound')}</h1>
         <p className="body-md text-on-surface-variant">{error || ''}</p>
         <Link to="/products">
           <Button variant="primary" size="md">
@@ -256,7 +256,7 @@ export default function ProductDetailPage() {
               disabled={isOutOfStock || !selectedVariant}
               className="min-w-[180px]"
             >
-              {added ? 'Đã thêm vào giỏ' : t('product.addToCart')}
+              {added ? t('product.addedToCart') : t('product.addToCart')}
             </Button>
           </div>
         </div>

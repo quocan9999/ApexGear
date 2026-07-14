@@ -111,12 +111,12 @@ export default function ProductReviews({
         <div className="rounded-xl bg-surface-container-lowest p-md">
           {!showForm ? (
             <Button variant="outline" size="md" onClick={() => setShowForm(true)}>
-              Viết đánh giá
+              {t('review.writeReview')}
             </Button>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-md">
               <div className="flex items-center gap-sm">
-                <span className="label-md text-on-surface">Đánh giá:</span>
+                <span className="label-md text-on-surface">{t('review.ratingLabel')}</span>
                 <StarPicker value={rating} onChange={setRating} />
               </div>
               <textarea
@@ -124,7 +124,7 @@ export default function ProductReviews({
                 onChange={(e) => setComment(e.target.value)}
                 rows={4}
                 maxLength={1000}
-                placeholder="Chia sẻ trải nghiệm của bạn..."
+                placeholder={t('review.commentPlaceholder')}
                 className={cn(
                   'w-full rounded-md border bg-surface-container-lowest px-md py-sm body-sm',
                   'border-outline-variant placeholder:text-outline',
@@ -136,7 +136,7 @@ export default function ProductReviews({
               )}
               <div className="flex gap-sm">
                 <Button type="submit" size="md" isLoading={submitting} disabled={submitting}>
-                  Gửi đánh giá
+                  {t('review.submit')}
                 </Button>
                 <Button
                   type="button"
@@ -157,7 +157,7 @@ export default function ProductReviews({
         </div>
       ) : (
         <p className="body-sm text-on-surface-variant">
-          Đăng nhập để viết đánh giá.
+          {t('review.loginToReview')}
         </p>
       )}
 
@@ -176,7 +176,7 @@ export default function ProductReviews({
         <p className="body-md text-red-600">{error}</p>
       ) : reviews.length === 0 ? (
         <p className="body-md text-on-surface-variant">
-          Chưa có đánh giá nào.
+          {t('review.noReviewsYet')}
         </p>
       ) : (
         <ul className="flex flex-col gap-md">
@@ -216,7 +216,7 @@ export default function ProductReviews({
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
-            Trước
+            {t('review.previous')}
           </Button>
           <span className="body-sm text-on-surface-variant">
             {page} / {totalPages}
@@ -227,7 +227,7 @@ export default function ProductReviews({
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           >
-            Sau
+            {t('review.next')}
           </Button>
         </div>
       )}
@@ -236,15 +236,16 @@ export default function ProductReviews({
 }
 
 function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
+    <div className="flex items-center gap-1" role="radiogroup" aria-label={t('review.ratingAriaLabel')}>
       {[1, 2, 3, 4, 5].map((n) => (
         <button
           key={n}
           type="button"
           role="radio"
           aria-checked={n === value}
-          aria-label={`${n} stars`}
+          aria-label={t('review.starsAriaLabel', { count: n })}
           onClick={() => onChange(n)}
           className={cn(
             'transition-transform hover:scale-110',

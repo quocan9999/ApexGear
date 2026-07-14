@@ -56,12 +56,27 @@
     "showingResults": "Hiển thị {{count}} sản phẩm",
     "page": "Trang {{page}} / {{totalPages}}",
     "filterButton": "Bộ lọc",
+    "notFound": "Không tìm thấy sản phẩm",
+    "addedToCart": "Đã thêm vào giỏ",
+    "outOfStockSuffix": "(hết hàng)",
     "sortOptions": {
       "newest": "Mới nhất",
       "priceAsc": "Giá tăng dần",
       "priceDesc": "Giá giảm dần",
       "nameAsc": "Tên A-Z"
     }
+  },
+  "review": {
+    "writeReview": "Viết đánh giá",
+    "ratingLabel": "Đánh giá:",
+    "ratingAriaLabel": "Mức đánh giá",
+    "starsAriaLabel": "{{count}} sao",
+    "commentPlaceholder": "Chia sẻ trải nghiệm của bạn...",
+    "submit": "Gửi đánh giá",
+    "loginToReview": "Đăng nhập để viết đánh giá.",
+    "noReviewsYet": "Chưa có đánh giá nào.",
+    "previous": "Trước",
+    "next": "Sau"
   },
   "auth": {
     "loginTitle": "Đăng nhập",

@@ -2,11 +2,13 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
+import ProtectedRoute from './ProtectedRoute';
 
 const HomePage = lazy(() => import('../pages/HomePage'));
 const ProductListPage = lazy(() => import('../pages/ProductListPage'));
 const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage'));
 const CartPage = lazy(() => import('../pages/CartPage'));
+const CheckoutPage = lazy(() => import('../pages/CheckoutPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
@@ -29,6 +31,11 @@ export default function AppRoutes() {
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/:slug" element={<ProductDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
+
+          {/* Authenticated-only routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/checkout" element={<CheckoutPage />} />
+          </Route>
         </Route>
 
         {/* Auth layout */}

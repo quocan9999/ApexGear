@@ -143,6 +143,26 @@
       "total": "Tổng cộng"
     }
   },
+  "payment": {
+    "scanQr": "Quét mã QR để thanh toán",
+    "bankAccount": "Số tài khoản",
+    "amount": "Số tiền chuyển",
+    "content": "Nội dung chuyển khoản",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "waiting": "Đang chờ thanh toán, đơn hàng sẽ tự động cập nhật sau khi nhận được tiền.",
+    "expiresIn": "Hết hạn sau",
+    "expired": "Đơn hàng đã hết hạn thanh toán"
+  },
+  "orderSuccess": {
+    "title": "Đặt hàng thành công",
+    "codMessage": "Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ để xác nhận và giao hàng sớm nhất.",
+    "paidMessage": "Chúng tôi đã nhận được thanh toán của bạn. Cảm ơn bạn đã mua sắm tại ApexGear.",
+    "orderNumber": "Mã đơn hàng",
+    "total": "Tổng cộng",
+    "viewOrder": "Xem đơn hàng",
+    "continueShopping": "Tiếp tục mua sắm"
+  },
   "review": {
     "writeReview": "Viết đánh giá",
     "ratingLabel": "Đánh giá:",

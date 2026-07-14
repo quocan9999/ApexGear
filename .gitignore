@@ -1,7 +1,9 @@
 node_modules/
 dist/
 .env
-uploads/
+/uploads/
+apps/api/uploads/
 *.log
 .superpowers/
 .worktrees/
+.claude/

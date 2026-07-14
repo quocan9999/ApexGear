@@ -127,11 +127,9 @@ export default function CheckoutPage() {
     };
     try {
       const order = await ordersService.create(payload);
-      if (order.paymentMethod === 'SEPAY') {
-        navigate(`/orders/${order.id}?pay=1`);
-      } else {
-        navigate(`/checkout/success/${order.id}`);
-      }
+      // Both COD and SEPAY land on the success page; it renders the SePay QR
+      // panel when the order is SEPAY + unpaid, and the thank-you copy otherwise.
+      navigate(`/checkout/success/${order.id}`);
     } catch (err) {
       setError((err as { message?: string }).message ?? t('common.error'));
       setPlacing(false);

@@ -184,12 +184,12 @@ export default function Header() {
                   )}
                 >
                   <Link
-                    to="/profile"
+                    to="/account"
                     onClick={() => setUserMenuOpen(false)}
                     className="block px-md py-sm body-md text-on-surface hover:bg-surface-container"
                     role="menuitem"
                   >
-                    {t('nav.profile')}
+                    {t('nav.account')}
                   </Link>
                   <Link
                     to="/orders"

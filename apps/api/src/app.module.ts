@@ -13,6 +13,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { AddressesModule } from './modules/addresses/addresses.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 
@@ -31,6 +32,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     ProductsModule,
     UsersModule,
     InventoryModule,
+    AddressesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

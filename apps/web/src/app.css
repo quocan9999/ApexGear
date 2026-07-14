@@ -1,0 +1,145 @@
+@import 'tailwindcss';
+
+/* ========== DESIGN.MD TOKENS ========== */
+
+@theme {
+  /* Colors */
+  --color-primary: #0058BE;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2170E4;
+  --color-on-primary-container: #FEFCFF;
+  --color-inverse-primary: #ADC6FF;
+
+  --color-surface: #F8F9FF;
+  --color-surface-dim: #D0DBED;
+  --color-surface-bright: #F8F9FF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #EFF4FF;
+  --color-surface-container: #E6EEFF;
+  --color-surface-container-high: #DEE9FC;
+  --color-surface-container-highest: #D9E3F6;
+
+  --color-on-surface: #121C2A;
+  --color-on-surface-variant: #424754;
+  --color-inverse-surface: #27313F;
+  --color-inverse-on-surface: #EAF1FF;
+
+  --color-outline: #727785;
+  --color-outline-variant: #C2C6D6;
+
+  --color-secondary: #5C5F60;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #E1E3E4;
+
+  --color-error: #BA1A1A;
+  --color-on-error: #ffffff;
+  --color-error-container: #FFDAD6;
+  --color-on-error-container: #93000A;
+
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 48px;
+  --spacing-xxl: 80px;
+
+  /* Border Radius */
+  --radius-sm: 0.125rem;
+  --radius-DEFAULT: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+
+  /* Shadows (Elevation) */
+  --shadow-level-1: 0px 4px 20px rgba(0, 0, 0, 0.03);
+  --shadow-level-2: 0px 8px 30px rgba(0, 0, 0, 0.06);
+
+  /* Container */
+  --container-max: 1280px;
+}
+
+/* ========== BASE STYLES ========== */
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus ring */
+  *:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* ========== TYPOGRAPHY UTILITIES ========== */
+
+@utility headline-xl {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+}
+
+@utility headline-xl-mobile {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+
+@utility headline-lg {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: -0.01em;
+}
+
+@utility headline-md {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+@utility body-lg {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+}
+
+@utility body-md {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+@utility body-sm {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+@utility label-md {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+}
+
+@utility label-sm {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}

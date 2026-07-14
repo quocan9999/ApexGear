@@ -87,4 +87,30 @@ describe('CheckoutPage', () => {
     );
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(expect.stringContaining('o1')));
   });
+
+  it('routes a SEPAY order to the success page (which renders the QR panel)', async () => {
+    vi.mocked(ordersService.create).mockResolvedValueOnce({
+      id: 'o2',
+      orderNumber: 'AG-2',
+      paymentMethod: 'SEPAY',
+      total: 530000,
+    } as Awaited<ReturnType<typeof ordersService.create>>);
+    render(
+      <MemoryRouter>
+        <CheckoutPage />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByText(/^A$/)).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: /tiếp tục/i })); // to payment
+    // pick SEPAY payment method
+    await userEvent.click(screen.getByLabelText(/sepay/i));
+    await userEvent.click(screen.getByRole('button', { name: /tiếp tục/i })); // to review
+    await userEvent.click(screen.getByRole('button', { name: /đặt hàng/i }));
+    await waitFor(() =>
+      expect(ordersService.create).toHaveBeenCalledWith(
+        expect.objectContaining({ paymentMethod: 'SEPAY' }),
+      ),
+    );
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/checkout/success/o2'));
+  });
 });

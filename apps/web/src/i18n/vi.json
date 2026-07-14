@@ -247,6 +247,44 @@
     "passwordMismatch": "Mật khẩu xác nhận không khớp",
     "resetMissingToken": "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn"
   },
+  "account": {
+    "title": "Tài khoản của tôi",
+    "tabs": {
+      "profile": "Hồ sơ",
+      "password": "Đổi mật khẩu",
+      "addresses": "Sổ địa chỉ"
+    },
+    "profile": {
+      "name": "Họ tên",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "noPhone": "Chưa cập nhật",
+      "edit": "Chỉnh sửa",
+      "save": "Lưu thay đổi",
+      "success": "Cập nhật hồ sơ thành công"
+    },
+    "password": {
+      "current": "Mật khẩu hiện tại",
+      "new": "Mật khẩu mới",
+      "confirm": "Xác nhận mật khẩu",
+      "submit": "Đổi mật khẩu",
+      "required": "Vui lòng nhập thông tin này",
+      "tooShort": "Mật khẩu mới phải có ít nhất 8 ký tự",
+      "mismatch": "Mật khẩu xác nhận không khớp",
+      "success": "Đổi mật khẩu thành công"
+    },
+    "address": {
+      "add": "Thêm địa chỉ",
+      "edit": "Sửa",
+      "delete": "Xoá",
+      "deleteConfirm": "Bạn có chắc muốn xoá địa chỉ này?",
+      "confirmDelete": "Xác nhận",
+      "setDefault": "Đặt làm mặc định",
+      "default": "Mặc định",
+      "empty": "Bạn chưa có địa chỉ nào.",
+      "max": "Bạn đã đạt tối đa 10 địa chỉ. Hãy xoá bớt trước khi thêm mới."
+    }
+  },
   "footer": {
     "about": "Về ApexGear",
     "aboutText": "ApexGear là cửa hàng trực tuyến chuyên cung cấp thiết bị công nghệ & gaming chính hãng cho game thủ Việt.",

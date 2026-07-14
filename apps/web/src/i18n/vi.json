@@ -23,7 +23,9 @@
     "register": "Đăng ký",
     "logout": "Đăng xuất",
     "profile": "Tài khoản",
-    "orders": "Đơn hàng"
+    "orders": "Đơn hàng",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu"
   },
   "home": {
     "heroTitle": "Tech Gear Cho Game Thủ Việt",
@@ -80,8 +82,14 @@
     "about": "Về ApexGear",
     "aboutText": "ApexGear là cửa hàng trực tuyến chuyên cung cấp thiết bị công nghệ & gaming chính hãng cho game thủ Việt.",
     "support": "Hỗ trợ",
+    "supportLink": "Hỗ trợ",
+    "shipping": "Vận chuyển",
+    "returns": "Đổi trả",
+    "warranty": "Bảo hành",
     "contact": "Liên hệ",
     "policy": "Chính sách",
-    "copyright": "© 2024 ApexGear. All rights reserved."
+    "terms": "Điều khoản",
+    "privacy": "Bảo mật",
+    "copyright": "© {{year}} ApexGear. Đã đăng ký bản quyền."
   }
 }

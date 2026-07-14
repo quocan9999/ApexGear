@@ -3,57 +3,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useAuthStore } from '../../stores/auth.store';
+import { useCartStore } from '../../stores/cart.store';
 import { categoriesService } from '../../services/categories.service';
 import type { Category } from '../../types';
 import MobileNav from './MobileNav';
 import Button from '../ui/Button';
 
-const CART_STORAGE_KEY = 'apexgear_cart';
-
-function getGuestCartCount(): number {
-  if (typeof window === 'undefined') return 0;
-  try {
-    const raw = window.localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) return 0;
-    const parsed = JSON.parse(raw) as { items?: { quantity?: number }[] };
-    if (!parsed?.items || !Array.isArray(parsed.items)) return 0;
-    return parsed.items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
-  } catch {
-    return 0;
-  }
-}
-
 export default function Header() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const cartCount = useCartStore((s) => s.itemCount);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchValue, setSearchValue] = useState('');
-  const [cartCount, setCartCount] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const debounceTimerRef = useRef<number | null>(null);
-  const lastSubmittedRef = useRef('');
-
-  // Debounce auto-submit search navigation by 300ms
-  useEffect(() => {
-    if (debounceTimerRef.current !== null) {
-      window.clearTimeout(debounceTimerRef.current);
-    }
-    const trimmed = searchValue.trim();
-    if (!trimmed || trimmed === lastSubmittedRef.current) return;
-    debounceTimerRef.current = window.setTimeout(() => {
-      lastSubmittedRef.current = trimmed;
-      navigate(`/products?search=${encodeURIComponent(trimmed)}`);
-    }, 300);
-    return () => {
-      if (debounceTimerRef.current !== null) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, [searchValue, navigate]);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -68,18 +34,6 @@ export default function Header() {
       });
     return () => {
       mounted = false;
-    };
-  }, []);
-
-  // Sync cart count from localStorage (guest) — basic, no store available
-  useEffect(() => {
-    const update = () => setCartCount(getGuestCartCount());
-    update();
-    window.addEventListener('storage', update);
-    window.addEventListener('apexgear_cart:change', update);
-    return () => {
-      window.removeEventListener('storage', update);
-      window.removeEventListener('apexgear_cart:change', update);
     };
   }, []);
 
@@ -122,7 +76,7 @@ export default function Header() {
             type="button"
             onClick={() => setMobileOpen(true)}
             className="flex h-10 w-10 items-center justify-center rounded-md text-on-surface hover:bg-surface-container lg:hidden"
-            aria-label="Open menu"
+            aria-label={t('nav.openMenu')}
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -135,7 +89,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop category nav */}
-          <nav className="hidden lg:flex items-center gap-sm" aria-label="Categories">
+          <nav className="hidden lg:flex items-center gap-sm" aria-label={t('nav.categories')}>
             {categories.slice(0, 6).map((cat) => (
               <Link
                 key={cat.id}

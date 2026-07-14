@@ -163,6 +163,52 @@
     "viewOrder": "Xem đơn hàng",
     "continueShopping": "Tiếp tục mua sắm"
   },
+  "orderStatus": {
+    "PENDING": "Chờ xử lý",
+    "CONFIRMED": "Đã xác nhận",
+    "SHIPPING": "Đang giao",
+    "DELIVERED": "Đã giao",
+    "COMPLETED": "Hoàn thành",
+    "CANCELLED": "Đã huỷ",
+    "REFUNDED": "Đã hoàn tiền"
+  },
+  "orders": {
+    "title": "Đơn hàng của tôi",
+    "empty": "Bạn chưa có đơn hàng nào",
+    "filterAll": "Tất cả",
+    "viewDetail": "Xem chi tiết",
+    "cancel": "Huỷ đơn hàng",
+    "cancelConfirm": "Bạn có chắc chắn muốn huỷ đơn hàng này? Hành động này không thể hoàn tác.",
+    "cancelError": "Không thể huỷ đơn hàng. Vui lòng thử lại.",
+    "confirm": "Xác nhận huỷ",
+    "dismiss": "Đóng",
+    "pay": "Thanh toán",
+    "itemCount": "{{count}} sản phẩm",
+    "placedOn": "Ngày đặt",
+    "shippingInfo": "Thông tin giao hàng",
+    "note": "Ghi chú",
+    "items": "Sản phẩm",
+    "summary": "Tóm tắt đơn hàng",
+    "timelineTitle": "Trạng thái đơn hàng",
+    "backToList": "Quay lại danh sách",
+    "paymentMethod": "Phương thức thanh toán",
+    "paymentMethods": {
+      "COD": "Thanh toán khi nhận hàng",
+      "SEPAY": "Chuyển khoản QR (SePay)"
+    },
+    "subtotal": "Tạm tính",
+    "shippingFee": "Phí vận chuyển",
+    "discount": "Giảm giá",
+    "total": "Tổng cộng",
+    "timeline": {
+      "created": "Đã đặt hàng",
+      "confirmed": "Đã xác nhận",
+      "shipped": "Đang giao hàng",
+      "delivered": "Đã giao hàng",
+      "completed": "Hoàn thành",
+      "cancelled": "Đã huỷ"
+    }
+  },
   "review": {
     "writeReview": "Viết đánh giá",
     "ratingLabel": "Đánh giá:",

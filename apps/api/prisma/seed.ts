@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { Role } from '../src/common/enums';
+import { Role, CouponType } from '../src/common/enums';
 
 const prisma = new PrismaClient();
 
@@ -123,6 +123,21 @@ async function main() {
     });
     console.log(`✅ Setting: ${s.key}=${s.value}`);
   }
+
+  // 6. Sample coupon
+  await prisma.coupon.upsert({
+    where: { code: 'WELCOME10' },
+    update: {},
+    create: {
+      code: 'WELCOME10',
+      type: CouponType.PERCENTAGE,
+      value: 10,
+      description: 'Welcome discount 10%',
+      maxDiscount: 50000,
+      isActive: true,
+    },
+  });
+  console.log('✅ Coupon: WELCOME10');
 
   console.log('🎉 Seed complete!');
 }

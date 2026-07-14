@@ -49,6 +49,13 @@
     "originalPrice": "Giá gốc",
     "filters": "Bộ lọc",
     "sort": "Sắp xếp",
+    "clearAll": "Xóa tất cả",
+    "brand": "Thương hiệu",
+    "minPrice": "Giá tối thiểu",
+    "maxPrice": "Giá tối đa",
+    "showingResults": "Hiển thị {{count}} sản phẩm",
+    "page": "Trang {{page}} / {{totalPages}}",
+    "filterButton": "Bộ lọc",
     "sortOptions": {
       "newest": "Mới nhất",
       "priceAsc": "Giá tăng dần",

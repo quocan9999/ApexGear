@@ -127,6 +127,6 @@ export interface ProductQueryParams {
   minPrice?: number;
   maxPrice?: number;
   isFeatured?: boolean;
-  sort?: string;
-  order?: 'asc' | 'desc';
+  sortBy?: 'price' | 'name' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
 }

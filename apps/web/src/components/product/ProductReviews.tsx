@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 import { formatDate } from '../../utils/format';
 import StarRating from '../ui/StarRating';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
+import ReviewForm from './ReviewForm';
 import { reviewsService } from '../../services/reviews.service';
 import { useAuthStore } from '../../stores/auth.store';
 import type { Review } from '../../types';
@@ -25,6 +27,7 @@ export default function ProductReviews({
   className,
 }: ProductReviewsProps) {
   const { t } = useTranslation();
+  const location = useLocation();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -32,13 +35,7 @@ export default function ProductReviews({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<string | null>(null);
-
-  // Review form
-  const [showForm, setShowForm] = useState(false);
-  const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -62,32 +59,15 @@ export default function ProductReviews({
     return () => {
       mounted = false;
     };
-  }, [productId, page, t]);
+  }, [productId, page, refreshKey, t]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setSubmitError(null);
-    try {
-      await reviewsService.create({
-        productId,
-        rating,
-        comment: comment.trim() || undefined,
-      });
-      setComment('');
-      setRating(5);
-      setShowForm(false);
-      // Reload first page to surface the new review (if approved backend-side).
-      setPage(1);
-      const res = await reviewsService.getByProduct(productId, { page: 1, limit: PAGE_SIZE });
-      setReviews(res.data ?? []);
-      setTotalPages(res.meta?.totalPages ?? 1);
-    } catch (err: any) {
-      setSubmitError(err?.message || t('common.error'));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const handleSubmitted = useCallback(() => {
+    // Return to the first page and refetch so the new review surfaces.
+    setPage(1);
+    setRefreshKey((k) => k + 1);
+  }, []);
+
+  const loginHref = `/login?redirect=${encodeURIComponent(location.pathname + location.search)}`;
 
   return (
     <section className={cn('flex flex-col gap-md', className)} aria-labelledby="reviews-heading">
@@ -106,58 +86,14 @@ export default function ProductReviews({
         )}
       </div>
 
-      {/* Write a review form (authenticated only) */}
+      {/* Write a review (authenticated only; not gated on purchase/delivery) */}
       {isAuthenticated ? (
-        <div className="rounded-xl bg-surface-container-lowest p-md">
-          {!showForm ? (
-            <Button variant="outline" size="md" onClick={() => setShowForm(true)}>
-              {t('review.writeReview')}
-            </Button>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-md">
-              <div className="flex items-center gap-sm">
-                <span className="label-md text-on-surface">{t('review.ratingLabel')}</span>
-                <StarPicker value={rating} onChange={setRating} />
-              </div>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={4}
-                maxLength={1000}
-                placeholder={t('review.commentPlaceholder')}
-                className={cn(
-                  'w-full rounded-md border bg-surface-container-lowest px-md py-sm body-sm',
-                  'border-outline-variant placeholder:text-outline',
-                  'focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none',
-                )}
-              />
-              {submitError && (
-                <p className="body-sm text-red-600">{submitError}</p>
-              )}
-              <div className="flex gap-sm">
-                <Button type="submit" size="md" isLoading={submitting} disabled={submitting}>
-                  {t('review.submit')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="md"
-                  onClick={() => {
-                    setShowForm(false);
-                    setComment('');
-                    setRating(5);
-                    setSubmitError(null);
-                  }}
-                >
-                  {t('common.cancel')}
-                </Button>
-              </div>
-            </form>
-          )}
-        </div>
+        <ReviewForm productId={productId} onSubmitted={handleSubmitted} />
       ) : (
         <p className="body-sm text-on-surface-variant">
-          {t('review.loginToReview')}
+          <Link to={loginHref} className="text-primary hover:underline">
+            {t('reviews.form.loginPrompt')}
+          </Link>
         </p>
       )}
 
@@ -173,7 +109,7 @@ export default function ProductReviews({
           ))}
         </ul>
       ) : error ? (
-        <p className="body-md text-red-600">{error}</p>
+        <p className="body-md text-error">{error}</p>
       ) : reviews.length === 0 ? (
         <p className="body-md text-on-surface-variant">
           {t('review.noReviewsYet')}
@@ -232,31 +168,5 @@ export default function ProductReviews({
         </div>
       )}
     </section>
-  );
-}
-
-function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center gap-1" role="radiogroup" aria-label={t('review.ratingAriaLabel')}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          role="radio"
-          aria-checked={n === value}
-          aria-label={t('review.starsAriaLabel', { count: n })}
-          onClick={() => onChange(n)}
-          className={cn(
-            'transition-transform hover:scale-110',
-            n <= value ? 'text-amber-400' : 'text-outline-variant',
-          )}
-        >
-          <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        </button>
-      ))}
-    </div>
   );
 }

@@ -221,6 +221,20 @@
     "previous": "Trước",
     "next": "Sau"
   },
+  "reviews": {
+    "form": {
+      "title": "Viết đánh giá của bạn",
+      "rating": "Đánh giá của bạn",
+      "starLabel": "{{count}} sao",
+      "ratingRequired": "Vui lòng chọn số sao.",
+      "comment": "Nhận xét",
+      "commentPlaceholder": "Chia sẻ trải nghiệm của bạn về sản phẩm...",
+      "submit": "Gửi đánh giá",
+      "success": "Cảm ơn bạn đã đánh giá sản phẩm.",
+      "alreadyReviewed": "Bạn đã đánh giá sản phẩm này",
+      "loginPrompt": "Đăng nhập để đánh giá"
+    }
+  },
   "auth": {
     "loginTitle": "Đăng nhập",
     "registerTitle": "Đăng ký tài khoản",

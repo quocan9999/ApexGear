@@ -66,6 +66,29 @@
       "nameAsc": "Tên A-Z"
     }
   },
+  "cart": {
+    "title": "Giỏ hàng",
+    "empty": "Giỏ hàng trống",
+    "emptyCta": "Tiếp tục mua sắm",
+    "continueShopping": "Tiếp tục mua sắm",
+    "guestNotice": "Đăng nhập để xem đầy đủ giỏ hàng của bạn.",
+    "summaryTitle": "Tóm tắt đơn hàng",
+    "subtotal": "Tạm tính",
+    "discount": "Giảm giá",
+    "shipping": "Phí vận chuyển",
+    "shippingAtCheckout": "Tính khi thanh toán",
+    "total": "Tổng cộng",
+    "checkout": "Tiến hành thanh toán",
+    "remove": "Xóa",
+    "quantity": "Số lượng",
+    "coupon": {
+      "placeholder": "Nhập mã giảm giá",
+      "apply": "Áp dụng",
+      "applied": "Đã áp dụng mã {{code}}",
+      "invalid": "Mã không hợp lệ",
+      "loginRequired": "Đăng nhập để dùng mã giảm giá"
+    }
+  },
   "review": {
     "writeReview": "Viết đánh giá",
     "ratingLabel": "Đánh giá:",

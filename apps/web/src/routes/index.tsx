@@ -6,6 +6,7 @@ import AuthLayout from '../layouts/AuthLayout';
 const HomePage = lazy(() => import('../pages/HomePage'));
 const ProductListPage = lazy(() => import('../pages/ProductListPage'));
 const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage'));
+const CartPage = lazy(() => import('../pages/CartPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
@@ -27,6 +28,7 @@ export default function AppRoutes() {
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/:slug" element={<ProductDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
         </Route>
 
         {/* Auth layout */}

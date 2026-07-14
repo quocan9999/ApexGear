@@ -14,6 +14,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { AddressesModule } from './modules/addresses/addresses.module';
+import { CartModule } from './modules/cart/cart.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 
@@ -33,6 +34,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     UsersModule,
     InventoryModule,
     AddressesModule,
+    CartModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

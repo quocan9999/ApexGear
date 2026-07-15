@@ -6,16 +6,17 @@ describe('TransformInterceptor', () => {
   const interceptor = new TransformInterceptor();
   const context = {} as ExecutionContext;
 
-  it('wraps plain responses in { data, meta }', async () => {
+  it('wraps plain responses in { success, data, meta }', async () => {
     const next: CallHandler = { handle: () => of({ id: 1 }) };
     const result = await lastValueFrom(interceptor.intercept(context, next));
+    expect(result.success).toEqual(true);
     expect(result.data).toEqual({ id: 1 });
     expect(result.meta).toEqual(
       expect.objectContaining({ timestamp: expect.any(String) }),
     );
   });
 
-  it('passes through paginated { data, meta } and adds timestamp', async () => {
+  it('passes through paginated { data, meta } and adds timestamp and success', async () => {
     const next: CallHandler = {
       handle: () =>
         of({
@@ -24,6 +25,7 @@ describe('TransformInterceptor', () => {
         }),
     };
     const result = await lastValueFrom(interceptor.intercept(context, next));
+    expect(result.success).toEqual(true);
     expect(result.data).toEqual([1, 2]);
     expect(result.meta).toEqual(
       expect.objectContaining({

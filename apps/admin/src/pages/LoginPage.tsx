@@ -12,14 +12,6 @@ function safeRedirect(value: string | null): string {
   return value;
 }
 
-function errorMessage(error: unknown): string | null {
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    const message = (error as { message?: unknown }).message;
-    return typeof message === 'string' && message.trim() ? message : null;
-  }
-  return null;
-}
-
 function MailIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -71,10 +63,8 @@ export default function LoginPage() {
         return;
       }
       navigate(safeRedirect(searchParams.get('redirect')), { replace: true });
-    } catch (error) {
-      setFormError(
-        useAuthStore.getState().error || errorMessage(error) || t('login.genericError'),
-      );
+    } catch {
+      setFormError(useAuthStore.getState().error || t('login.genericError'));
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

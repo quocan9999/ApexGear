@@ -1,9 +1,12 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Spinner } from '../components/ui';
+import { Badge, Spinner } from '../components/ui';
 import { dashboardService } from '../services/dashboard.service';
-import { formatPrice } from '../utils/format';
-import type { DashboardStats, RevenuePoint } from '../types';
+import { ordersService } from '../services/orders.service';
+import { formatDateTime, formatPrice } from '../utils/format';
+import type { DashboardStats, Order, RevenuePoint } from '../types';
+import { orderStatusVariant } from './orders/OrderListPage';
 
 const RevenueChart = lazy(() =>
   import('../components/charts/RevenueChart').then((mod) => ({
@@ -50,14 +53,20 @@ export function DashboardPage() {
   const [revenue, setRevenue] = useState<RevenuePoint[]>([]);
   const [days, setDays] = useState<Range>(7);
   const [revenueLoading, setRevenueLoading] = useState(false);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([dashboardService.getStats(), dashboardService.getRevenue(7)])
-      .then(([nextStats, nextRevenue]) => {
+    Promise.all([
+      dashboardService.getStats(),
+      dashboardService.getRevenue(7),
+      ordersService.list({ limit: 5 }).catch(() => ({ data: [] })),
+    ])
+      .then(([nextStats, nextRevenue, ordersPage]) => {
         if (cancelled) return;
         setStats(nextStats);
         setRevenue(nextRevenue);
+        setRecentOrders(ordersPage.data);
       })
       .catch(() => {
         if (cancelled) return;
@@ -70,6 +79,7 @@ export function DashboardPage() {
           lowStockCount: 0,
         });
         setRevenue([]);
+        setRecentOrders([]);
       });
     return () => {
       cancelled = true;
@@ -202,6 +212,62 @@ export function DashboardPage() {
             </Suspense>
           )}
         </div>
+      </section>
+
+      <section
+        className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md shadow-level-1 md:p-lg"
+        aria-label={t('dashboard.recentOrders.title')}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="body-lg font-semibold text-on-surface">
+            {t('dashboard.recentOrders.title')}
+          </h3>
+          <Link to="/orders" className="label-sm text-primary hover:underline">
+            {t('dashboard.recentOrders.viewAll')}
+          </Link>
+        </div>
+        {recentOrders.length === 0 ? (
+          <p className="body-md text-on-surface-variant">{t('dashboard.recentOrders.empty')}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left body-sm">
+              <caption className="sr-only">{t('dashboard.recentOrders.title')}</caption>
+              <thead className="border-b border-outline-variant body-sm text-on-surface-variant">
+                <tr>
+                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.orderNumber')}</th>
+                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.customer')}</th>
+                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.total')}</th>
+                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.status')}</th>
+                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.createdAt')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr key={order.id} className="border-b border-outline-variant last:border-b-0">
+                    <td className="px-2 py-2">
+                      <Link
+                        to={`/orders/${order.id}`}
+                        className="label-sm text-primary hover:underline"
+                      >
+                        {order.orderNumber}
+                      </Link>
+                    </td>
+                    <td className="px-2 py-2 text-on-surface">{order.shippingName}</td>
+                    <td className="px-2 py-2 text-on-surface">{formatPrice(order.total)}</td>
+                    <td className="px-2 py-2">
+                      <Badge variant={orderStatusVariant(order.status)}>
+                        {t(`orders.status.${order.status}`)}
+                      </Badge>
+                    </td>
+                    <td className="px-2 py-2 text-on-surface-variant">
+                      {formatDateTime(order.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );

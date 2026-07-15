@@ -51,7 +51,6 @@ export interface TransformedProduct {
   brandSlug: string;
   name: string;
   slug: string;
-  shortDescription: string | null;
   descriptionHtml: string | null;
   basePrice: number;
   salePrice: number | null;

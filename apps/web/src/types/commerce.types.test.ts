@@ -18,7 +18,6 @@ describe('commerce types', () => {
       shippingPhone: '0900000000',
       shippingAddress: '12 Le Loi',
       shippingWard: 'Ben Nghe',
-      shippingDistrict: 'Quan 1',
       shippingProvince: 'TP HCM',
       couponId: null,
       sepayRef: 'AG1234567890AB',
@@ -46,7 +45,7 @@ describe('commerce types', () => {
     const cart: Cart = { id: 'k1', userId: 'u1', items: [] };
     const addr: Address = {
       id: 'a1', userId: 'u1', name: 'A', phone: '0900000000',
-      provinceCode: '79', provinceName: 'TP HCM', districtCode: '760', districtName: 'Quan 1',
+      provinceCode: '79', provinceName: 'TP HCM',
       wardCode: '26734', wardName: 'Ben Nghe', detail: '12 Le Loi', isDefault: true,
       createdAt: '2026-07-14T00:00:00.000Z', updatedAt: '2026-07-14T00:00:00.000Z',
     };

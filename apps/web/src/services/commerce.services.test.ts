@@ -87,7 +87,7 @@ describe('addressesService', () => {
     expect(await addressesService.getAll()).toHaveLength(1);
     await addressesService.create({
       name: 'A', phone: '0900000000', provinceCode: '79', provinceName: 'HCM',
-      districtCode: '760', districtName: 'Q1', wardCode: '1', wardName: 'W', detail: 'd',
+      wardCode: '1', wardName: 'W', detail: 'd',
     });
     expect(mockApi.post).toHaveBeenCalledWith('/addresses', expect.objectContaining({ name: 'A' }));
     await addressesService.update('a1', { detail: 'new' });
@@ -100,14 +100,21 @@ describe('addressesService', () => {
 });
 
 describe('provincesService', () => {
-  it('loads provinces, districts, wards', async () => {
+  it('loads provinces and wards', async () => {
     mockApi.get.mockResolvedValue({ data: { data: [{ code: '79', name: 'HCM' }] } });
     await provincesService.getProvinces();
     expect(mockApi.get).toHaveBeenCalledWith('/provinces');
-    await provincesService.getDistricts('79');
-    expect(mockApi.get).toHaveBeenCalledWith('/provinces/79/districts');
-    await provincesService.getWards('760');
-    expect(mockApi.get).toHaveBeenCalledWith('/districts/760/wards');
+    await provincesService.getWards('79');
+    expect(mockApi.get).toHaveBeenCalledWith('/provinces/79/wards');
+  });
+
+  it('coerces numeric codes from the upstream API to strings', async () => {
+    // The VN provinces open-api returns `code` as a number; the <select>
+    // value is always a string, so codes must be normalized or selection breaks.
+    mockApi.get.mockResolvedValue({ data: { data: [{ code: 1, name: 'Hà Nội' }] } });
+    const provinces = await provincesService.getProvinces();
+    expect(provinces).toEqual([{ code: '1', name: 'Hà Nội' }]);
+    expect(typeof provinces[0].code).toBe('string');
   });
 });
 

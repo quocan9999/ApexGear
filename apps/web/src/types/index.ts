@@ -169,8 +169,6 @@ export interface Address {
   phone: string;
   provinceCode: string;
   provinceName: string;
-  districtCode: string;
-  districtName: string;
   wardCode: string;
   wardName: string;
   detail: string;
@@ -184,8 +182,6 @@ export interface CreateAddressPayload {
   phone: string;
   provinceCode: string;
   provinceName: string;
-  districtCode: string;
-  districtName: string;
   wardCode: string;
   wardName: string;
   detail: string;
@@ -194,7 +190,6 @@ export interface CreateAddressPayload {
 
 // ========== VN location lookup ==========
 export interface Province { code: string; name: string; }
-export interface District { code: string; name: string; }
 export interface Ward { code: string; name: string; }
 
 // ========== Orders ==========
@@ -223,7 +218,6 @@ export interface Order {
   shippingPhone: string;
   shippingAddress: string;
   shippingWard: string;
-  shippingDistrict: string;
   shippingProvince: string;
   couponId: string | null;
   sepayRef: string | null;

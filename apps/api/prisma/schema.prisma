@@ -283,7 +283,6 @@ model Order {
   shippingPhone    String @db.VarChar(15)
   shippingAddress  String @db.NVarChar(500)
   shippingWard     String @db.NVarChar(100)
-  shippingDistrict String @db.NVarChar(100)
   shippingProvince String @db.NVarChar(100)
 
   couponId String?
@@ -337,8 +336,6 @@ model Address {
   phone        String   @db.VarChar(15)
   provinceCode String   @db.VarChar(10)
   provinceName String   @db.NVarChar(100)
-  districtCode String   @db.VarChar(10)
-  districtName String   @db.NVarChar(100)
   wardCode     String   @db.VarChar(10)
   wardName     String   @db.NVarChar(100)
   detail       String   @db.NVarChar(500)

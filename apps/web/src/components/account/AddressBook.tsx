@@ -152,7 +152,7 @@ export default function AddressBook() {
                   {address.isDefault && <Badge>{t('account.address.default')}</Badge>}
                 </div>
                 <p className="mt-xs body-sm text-on-surface-variant">
-                  {address.detail}, {address.wardName}, {address.districtName}, {address.provinceName}
+                  {address.detail}, {address.wardName}, {address.provinceName}
                 </p>
                 <div className="mt-sm flex flex-wrap gap-xs">
                   {!address.isDefault && (

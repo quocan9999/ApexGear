@@ -15,8 +15,6 @@ describe('AddressesService', () => {
     phone: '090',
     provinceCode: '01',
     provinceName: 'HN',
-    districtCode: '001',
-    districtName: 'D',
     wardCode: '0001',
     wardName: 'W',
     detail: '1 St',

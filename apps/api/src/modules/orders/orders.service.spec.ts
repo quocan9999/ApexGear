@@ -24,7 +24,6 @@ describe('OrdersService', () => {
     phone: '090',
     detail: '1 St',
     wardName: 'W',
-    districtName: 'D',
     provinceName: 'P',
   };
 

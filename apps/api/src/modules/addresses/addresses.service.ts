@@ -45,8 +45,6 @@ export class AddressesService {
         phone: dto.phone,
         provinceCode: dto.provinceCode,
         provinceName: dto.provinceName,
-        districtCode: dto.districtCode,
-        districtName: dto.districtName,
         wardCode: dto.wardCode,
         wardName: dto.wardName,
         detail: dto.detail,

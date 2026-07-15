@@ -140,8 +140,7 @@ export default function OrderDetailPage() {
               <p className="text-on-surface">{order.shippingName}</p>
               <p>{order.shippingPhone}</p>
               <p>
-                {order.shippingAddress}, {order.shippingWard}, {order.shippingDistrict},{' '}
-                {order.shippingProvince}
+                {order.shippingAddress}, {order.shippingWard}, {order.shippingProvince}
               </p>
               {order.note && (
                 <p>

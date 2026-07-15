@@ -20,8 +20,6 @@ vi.mock('../services/addresses.service', () => ({
         phone: '0900000000',
         provinceCode: '79',
         provinceName: 'HCM',
-        districtCode: '760',
-        districtName: 'Q1',
         wardCode: '1',
         wardName: 'W',
         detail: 'd',

@@ -46,7 +46,7 @@ export default function AddressPicker({
                 {address.isDefault && <Badge variant="success">{t('checkout.defaultBadge')}</Badge>}
               </span>
               <span className="body-sm text-on-surface-variant">
-                {address.detail}, {address.wardName}, {address.districtName}, {address.provinceName}
+                {address.detail}, {address.wardName}, {address.provinceName}
               </span>
             </span>
           </label>

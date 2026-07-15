@@ -8,15 +8,15 @@ vi.mock('../../services/addresses.service', () => ({
   addressesService: { getAll: vi.fn(), remove: vi.fn(), setDefault: vi.fn(), create: vi.fn(), update: vi.fn() },
 }));
 vi.mock('../../hooks/useProvinces', () => ({
-  useProvinces: () => ({ provinces: [], districts: [], wards: [], selectProvince: vi.fn(),
-    selectDistrict: vi.fn(), selectWard: vi.fn(), selectedProvince: null, selectedDistrict: null,
+  useProvinces: () => ({ provinces: [], wards: [], selectProvince: vi.fn(),
+    selectWard: vi.fn(), selectedProvince: null,
     selectedWard: null, loading: false }),
 }));
 import { addressesService } from '../../services/addresses.service';
 
 const addr = {
   id: 'a1', userId: 'u1', name: 'Nguyen Van A', phone: '0900000000', provinceCode: '79', provinceName: 'HCM',
-  districtCode: '760', districtName: 'Q1', wardCode: '1', wardName: 'W', detail: '12 Le Loi', isDefault: true,
+  wardCode: '1', wardName: 'W', detail: '12 Le Loi', isDefault: true,
   createdAt: 'x', updatedAt: 'x',
 };
 

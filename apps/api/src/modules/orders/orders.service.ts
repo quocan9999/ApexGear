@@ -169,7 +169,6 @@ export class OrdersService {
           shippingPhone: address.phone,
           shippingAddress: address.detail,
           shippingWard: address.wardName,
-          shippingDistrict: address.districtName,
           shippingProvince: address.provinceName,
           couponId,
           sepayRef,

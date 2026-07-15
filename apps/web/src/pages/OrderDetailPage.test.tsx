@@ -12,7 +12,7 @@ const baseOrder = {
   id: 'o1', orderNumber: 'AG-20260714-0001', userId: 'u1', status: 'PENDING',
   paymentMethod: 'COD', paymentStatus: 'UNPAID', subtotal: 500000, shippingFee: 30000, discount: 0, total: 530000,
   shippingName: 'A', shippingPhone: '0900000000', shippingAddress: '12 Le Loi', shippingWard: 'W',
-  shippingDistrict: 'Q1', shippingProvince: 'HCM', couponId: null, sepayRef: null, note: null,
+  shippingProvince: 'HCM', couponId: null, sepayRef: null, note: null,
   paidAt: null, confirmedAt: null, shippedAt: null, deliveredAt: null, completedAt: null,
   cancelledAt: null, cancelReason: null, createdAt: '2026-07-14T00:00:00.000Z', updatedAt: '2026-07-14T00:00:00.000Z',
   items: [{ id: 'oi1', orderId: 'o1', variantId: 'v1', productName: 'Bàn phím', variantInfo: 'Đen', price: 500000, quantity: 1 }],

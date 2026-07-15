@@ -32,16 +32,6 @@ export class CreateAddressDto {
   @ApiProperty()
   @IsString()
   @MaxLength(10)
-  districtCode: string;
-
-  @ApiProperty()
-  @IsString()
-  @MaxLength(100)
-  districtName: string;
-
-  @ApiProperty()
-  @IsString()
-  @MaxLength(10)
   wardCode: string;
 
   @ApiProperty()

@@ -18,11 +18,21 @@ let checkAuthInFlight: Promise<void> | null = null;
 let authEpoch = 0;
 
 function normalizeError(error: unknown): string {
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    const message = (error as { message?: unknown }).message;
-    if (typeof message === 'string' && message.trim()) return message;
+  const candidate = error as { message?: unknown; status?: unknown } | null;
+  const message = typeof candidate?.message === 'string' ? candidate.message : null;
+
+  switch (message) {
+    case 'Invalid credentials':
+      return i18n.t('login.invalidCredentials');
+    case 'Account is locked':
+      return i18n.t('login.accountLocked');
+    case 'Account is deactivated':
+      return i18n.t('login.accountDeactivated');
+    default:
+      return candidate?.status === 423
+        ? i18n.t('login.accountLocked')
+        : i18n.t('login.genericError');
   }
-  return i18n.t('login.genericError');
 }
 
 export const useAuthStore = create<AuthState>((set) => ({

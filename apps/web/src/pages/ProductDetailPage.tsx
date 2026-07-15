@@ -21,8 +21,6 @@ import ProductReviews from '../components/product/ProductReviews';
 import RelatedProducts from '../components/product/RelatedProducts';
 import type { Product, ProductVariant } from '../types';
 
-const CART_STORAGE_KEY = 'apexgear_cart';
-const CART_CHANGE_EVENT = 'apexgear_cart:change';
 const MAX_QUANTITY = 99;
 
 const STOCK_BADGE: Record<StockStatus, { variant: 'success' | 'warning' | 'error'; labelKey: string }> = {
@@ -49,20 +47,10 @@ function safeHtml(input: string | null | undefined): string {
     .replace(/javascript:/gi, '');
 }
 
-function persistCart(items: { variantId: string; quantity: number }[]) {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify({ items }));
-    window.dispatchEvent(new Event(CART_CHANGE_EVENT));
-  } catch {
-    // ignore quota errors
-  }
-}
-
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { t } = useTranslation();
-  const hydrateCart = useCartStore((s) => s.hydrateFromLocalStorage);
+  const addItem = useCartStore((s) => s.addItem);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,28 +116,21 @@ export default function ProductDetailPage() {
     return null;
   }, [selectedVariant, product]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product || isOutOfStock) return;
     if (!selectedVariant) return;
-    const variantId = selectedVariant.id;
-    let items: { variantId: string; quantity: number }[] = [];
+    // Route through the store so state updates reactively (badge + cart page)
+    // for both guest (localStorage) and authenticated (server cart) sessions.
+    // Previously this wrote localStorage directly, so an authenticated add
+    // never hit the server cart and the badge only refreshed on reload (F5).
+    const qty = Math.min(MAX_QUANTITY, quantity);
     try {
-      const raw = window.localStorage.getItem(CART_STORAGE_KEY);
-      const parsed = raw ? JSON.parse(raw) : null;
-      if (parsed?.items && Array.isArray(parsed.items)) items = parsed.items;
+      await addItem(selectedVariant.id, qty);
+      setAdded(true);
+      window.setTimeout(() => setAdded(false), 2000);
     } catch {
-      items = [];
+      // Surface nothing here; store keeps prior state on failure.
     }
-    const existing = items.find((i) => i.variantId === variantId);
-    if (existing) {
-      existing.quantity = Math.min(MAX_QUANTITY, existing.quantity + quantity);
-    } else {
-      items.push({ variantId, quantity });
-    }
-    persistCart(items);
-    hydrateCart();
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 2000);
   };
 
   if (loading) {

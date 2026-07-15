@@ -1,0 +1,149 @@
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import i18n from '../../i18n';
+import { resetAuthStore, useAuthStore } from '../../stores/auth.store';
+import type { Role, User } from '../../types';
+import AdminLayout from './AdminLayout';
+
+const baseUser: User = {
+  id: 'staff-1',
+  email: 'staff@apexgear.vn',
+  name: 'Nguyen Staff',
+  phone: null,
+  avatar: null,
+  role: 'ADMIN',
+  provider: 'LOCAL',
+  isActive: true,
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+};
+
+function LocationProbe() {
+  const location = useLocation();
+  return <div data-testid="location">{location.pathname}</div>;
+}
+
+function renderLayout(role: Role = 'ADMIN', entry = '/orders', logout = vi.fn()) {
+  useAuthStore.setState({
+    user: { ...baseUser, role },
+    isAuthenticated: true,
+    isLoading: false,
+    logout,
+  });
+
+  render(
+    <MemoryRouter initialEntries={[entry]}>
+      <Routes>
+        <Route element={<AdminLayout />}>
+          <Route path="/orders" element={<div>{i18n.t('pages.orders.description')}</div>} />
+          <Route path="/inventory" element={<div>{i18n.t('pages.inventory.description')}</div>} />
+        </Route>
+        <Route path="/login" element={<LocationProbe />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  return { logout };
+}
+
+describe('AdminLayout', () => {
+  beforeEach(() => {
+    resetAuthStore();
+    vi.clearAllMocks();
+  });
+
+  it('renders the complete admin navigation, active state, user identity, role, breadcrumb, and content', () => {
+    renderLayout();
+
+    const sidebar = screen.getByRole('complementary', { name: i18n.t('layout.sidebar') });
+    expect(sidebar).toHaveClass('w-60', 'lg:visible', 'lg:static');
+    const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
+    expect(within(navigation).getAllByRole('link')).toHaveLength(10);
+    expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByText(baseUser.name)).toBeInTheDocument();
+    expect(screen.getByText(i18n.t('roles.ADMIN'))).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: i18n.t('layout.breadcrumb') })).toHaveTextContent(
+      i18n.t('nav.orders'),
+    );
+    expect(screen.getByText(i18n.t('pages.orders.description'))).toBeInTheDocument();
+  });
+
+  it('only renders links allowed for an order manager', () => {
+    renderLayout('ORDER_MANAGER');
+
+    const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
+    expect(within(navigation).getAllByRole('link')).toHaveLength(2);
+    expect(within(navigation).getByRole('link', { name: i18n.t('nav.dashboard') })).toBeInTheDocument();
+    expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toBeInTheDocument();
+    expect(within(navigation).queryByRole('link', { name: i18n.t('nav.products') })).not.toBeInTheDocument();
+  });
+
+  it('supports keyboard-operable desktop collapse and persists the preference', async () => {
+    const user = userEvent.setup();
+    renderLayout();
+
+    const toggle = screen.getByRole('button', { name: i18n.t('layout.collapseSidebar') });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    toggle.focus();
+    await user.keyboard('{Enter}');
+
+    expect(screen.getByRole('complementary', { name: i18n.t('layout.sidebar') })).toHaveAttribute(
+      'data-collapsed',
+      'true',
+    );
+    expect(screen.getByRole('complementary', { name: i18n.t('layout.sidebar') })).toHaveClass(
+      'lg:w-20',
+    );
+    expect(screen.getByRole('button', { name: i18n.t('layout.expandSidebar') })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(localStorage.getItem('admin.sidebar.collapsed')).toBe('true');
+  });
+
+  it('opens and closes the mobile navigation with its button, backdrop, and Escape', async () => {
+    const user = userEvent.setup();
+    renderLayout();
+
+    const open = screen.getByRole('button', { name: i18n.t('layout.openMenu') });
+    expect(open).toHaveAttribute('aria-expanded', 'false');
+    await user.click(open);
+
+    expect(open).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('complementary', { name: i18n.t('layout.sidebar') })).toHaveAttribute(
+      'data-mobile-open',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: i18n.t('layout.closeMenu') })).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(open).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: i18n.t('layout.closeMenu') })).not.toBeInTheDocument();
+
+    await user.click(open);
+    await user.click(
+      screen.getByRole('button', { name: i18n.t('layout.closeMenuBackdrop') }),
+    );
+    expect(open).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(open);
+    await user.click(screen.getByRole('button', { name: i18n.t('layout.closeMenu') }));
+    expect(open).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('logs out and navigates to the public login page', async () => {
+    const user = userEvent.setup();
+    const logout = vi.fn().mockResolvedValue(undefined);
+    renderLayout('ADMIN', '/orders', logout);
+
+    await user.click(screen.getByRole('button', { name: i18n.t('nav.logout') }));
+
+    await waitFor(() => expect(logout).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId('location')).toHaveTextContent('/login');
+  });
+});

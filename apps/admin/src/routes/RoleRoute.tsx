@@ -29,6 +29,10 @@ export default function RoleRoute({ allow }: RoleRouteProps) {
     return <Navigate to={`/login?redirect=${redirect}`} replace />;
   }
 
+  if (!isStaffRole(user.role)) {
+    return <Navigate to="/login" replace />;
+  }
+
   const allowedRoles = allow ?? STAFF_ROLES;
   if (!allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
 

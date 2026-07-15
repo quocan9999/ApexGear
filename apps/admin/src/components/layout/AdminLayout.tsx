@@ -9,6 +9,7 @@ import TopBar from './TopBar';
 import { navItemForPath } from './nav-config';
 
 const SIDEBAR_STORAGE_KEY = 'admin.sidebar.collapsed';
+export const DESKTOP_BREAKPOINT_QUERY = '(min-width: 1024px)';
 
 export default function AdminLayout() {
   const { t } = useTranslation();
@@ -21,14 +22,34 @@ export default function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const wasMobileOpenRef = useRef(false);
+  const skipMobileFocusRestoreRef = useRef(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+
+    const desktopQuery = window.matchMedia(DESKTOP_BREAKPOINT_QUERY);
+    const closeMobileDrawerAtDesktop = ({ matches }: MediaQueryListEvent | MediaQueryList) => {
+      if (!matches) return;
+      setMobileOpen((isOpen) => {
+        if (!isOpen) return isOpen;
+        skipMobileFocusRestoreRef.current = true;
+        return false;
+      });
+    };
+
+    closeMobileDrawerAtDesktop(desktopQuery);
+    desktopQuery.addEventListener('change', closeMobileDrawerAtDesktop);
+    return () => desktopQuery.removeEventListener('change', closeMobileDrawerAtDesktop);
+  }, []);
+
+  useEffect(() => {
     if (wasMobileOpenRef.current && !mobileOpen) {
-      menuButtonRef.current?.focus();
+      if (!skipMobileFocusRestoreRef.current) menuButtonRef.current?.focus();
+      skipMobileFocusRestoreRef.current = false;
     }
     wasMobileOpenRef.current = mobileOpen;
   }, [mobileOpen]);

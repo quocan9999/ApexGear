@@ -1,6 +1,6 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import i18n from '../../i18n';
 import { resetAuthStore, useAuthStore } from '../../stores/auth.store';
@@ -20,6 +20,42 @@ const baseUser: User = {
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
 
+function installMatchMedia(initialMatches = false) {
+  const eventTarget = new EventTarget();
+  const mediaQueryList: MediaQueryList = {
+    matches: initialMatches,
+    media: '',
+    onchange: null,
+    addListener: vi.fn((listener) => eventTarget.addEventListener('change', listener)),
+    removeListener: vi.fn((listener) => eventTarget.removeEventListener('change', listener)),
+    addEventListener: vi.fn((type, listener, options) =>
+      eventTarget.addEventListener(type, listener, options),
+    ),
+    removeEventListener: vi.fn((type, listener, options) =>
+      eventTarget.removeEventListener(type, listener, options),
+    ),
+    dispatchEvent: (event) => eventTarget.dispatchEvent(event),
+  };
+
+  vi.stubGlobal('matchMedia', vi.fn((query: string) => {
+    Object.defineProperty(mediaQueryList, 'media', { configurable: true, value: query });
+    return mediaQueryList;
+  }));
+
+  return {
+    mediaQueryList,
+    setMatches(matches: boolean) {
+      Object.defineProperty(mediaQueryList, 'matches', { configurable: true, value: matches });
+      const event = new Event('change') as MediaQueryListEvent;
+      Object.defineProperties(event, {
+        matches: { value: matches },
+        media: { value: mediaQueryList.media },
+      });
+      mediaQueryList.dispatchEvent(event);
+    },
+  };
+}
+
 function LocationProbe() {
   const location = useLocation();
   return <div data-testid="location">{location.pathname}</div>;
@@ -33,7 +69,7 @@ function renderLayout(role: Role = 'ADMIN', entry = '/orders', logout = vi.fn())
     logout,
   });
 
-  render(
+  const view = render(
     <MemoryRouter initialEntries={[entry]}>
       <Routes>
         <Route element={<AdminLayout />}>
@@ -45,13 +81,18 @@ function renderLayout(role: Role = 'ADMIN', entry = '/orders', logout = vi.fn())
     </MemoryRouter>,
   );
 
-  return { logout };
+  return { logout, unmount: view.unmount };
 }
 
 describe('AdminLayout', () => {
   beforeEach(() => {
     resetAuthStore();
     vi.clearAllMocks();
+    installMatchMedia();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('renders the complete admin navigation, active state, user identity, role, breadcrumb, and content', () => {
@@ -104,6 +145,36 @@ describe('AdminLayout', () => {
       'false',
     );
     expect(localStorage.getItem('admin.sidebar.collapsed')).toBe('true');
+  });
+
+  it('clears mobile modal state when the viewport crosses the desktop breakpoint', async () => {
+    const { mediaQueryList, setMatches } = installMatchMedia(false);
+    const user = userEvent.setup();
+    const { unmount } = renderLayout();
+
+    const open = screen.getByRole('button', { name: i18n.t('layout.openMenu') });
+    await user.click(open);
+
+    expect(screen.getByRole('dialog', { name: i18n.t('layout.sidebar') })).toHaveAttribute(
+      'aria-modal',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: i18n.t('layout.closeMenuBackdrop') })).toBeInTheDocument();
+    expect(open.closest('[inert]')).not.toBeNull();
+
+    act(() => setMatches(true));
+
+    const sidebar = screen.getByRole('complementary', { name: i18n.t('layout.sidebar') });
+    expect(sidebar).not.toHaveAttribute('aria-modal');
+    expect(sidebar).toHaveAttribute('data-mobile-open', 'false');
+    expect(screen.queryByRole('button', { name: i18n.t('layout.closeMenuBackdrop') })).not.toBeInTheDocument();
+    expect(open.closest('[inert]')).toBeNull();
+    expect(open.closest('[aria-hidden="true"]')).toBeNull();
+    expect(open).not.toHaveFocus();
+
+    expect(mediaQueryList.addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+    unmount();
+    expect(mediaQueryList.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
   });
 
   it('contains focus in the modal mobile navigation and restores it for every close path', async () => {

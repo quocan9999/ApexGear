@@ -60,7 +60,7 @@ export function SettingsPage() {
     try {
       await settingsService.update(key, value);
       setSettings((prev) => prev.map((s) => (s.key === key ? { ...s, value } : s)));
-      setToast({ message: t('settings.updated', { key: t(`settings.key.${key}` as const) }), type: 'success' });
+      setToast({ message: t('pages.settings.updated', { key: t(`pages.settings.key.${key}` as const) }), type: 'success' });
     } catch (err) {
       const message =
         err && typeof err === 'object' && 'message' in err
@@ -105,7 +105,7 @@ export function SettingsPage() {
             return (
               <div key={group.groupKey}>
                 <h3 className="headline-sm text-on-surface mb-md">
-                  {t(`settings.group.${group.groupKey as 'general' | 'shipping'}` as const)}
+                  {t(`pages.settings.group.${group.groupKey as 'general' | 'shipping'}` as const)}
                 </h3>
                 <div className="flex flex-col gap-md">
                   {visibleKeys.map((key) => {
@@ -120,14 +120,14 @@ export function SettingsPage() {
                       >
                         <div className="flex-1">
                           <p className="label-md text-on-surface mb-xs">
-                            {t(`settings.key.${key as 'store_name' | 'shipping_fee'}` as const)}
+                            {t(`pages.settings.key.${key as 'store_name' | 'shipping_fee'}` as const)}
                           </p>
                           <Input
                             value={current}
                             onChange={(event) =>
                               setDirty((prev) => ({ ...prev, [key]: event.target.value }))
                             }
-                            aria-label={t(`settings.key.${key as 'store_name' | 'shipping_fee'}` as const)}
+                            aria-label={t(`pages.settings.key.${key as 'store_name' | 'shipping_fee'}` as const)}
                           />
                           {isDirty && (
                             <p className="body-sm text-warning mt-xs">
@@ -143,7 +143,7 @@ export function SettingsPage() {
                           loadingLabel={t('common.loading')}
                           disabled={!isDirty || isSaving}
                         >
-                          {t('settings.save')}
+                          {t('pages.settings.save')}
                         </Button>
                       </div>
                     );

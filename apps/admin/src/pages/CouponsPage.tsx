@@ -137,31 +137,31 @@ export function CouponsPage() {
     setFormError(null);
 
     if (!form.code.trim() || !form.value) {
-      setFormError(t('coupons.form.validationRequired'));
+      setFormError(t('pages.coupons.form.validationRequired'));
       return;
     }
 
     const value = Number(form.value);
     if (!Number.isFinite(value) || value < 0) {
-      setFormError(t('coupons.form.validationValue'));
+      setFormError(t('pages.coupons.form.validationValue'));
       return;
     }
 
     const minOrderValue = form.minOrderValue ? Number(form.minOrderValue) : undefined;
     if (form.minOrderValue && (!Number.isFinite(minOrderValue) || minOrderValue! < 0)) {
-      setFormError(t('coupons.form.validationMinOrder'));
+      setFormError(t('pages.coupons.form.validationMinOrder'));
       return;
     }
 
     const maxDiscount = form.maxDiscount ? Number(form.maxDiscount) : undefined;
     if (form.maxDiscount && (!Number.isFinite(maxDiscount) || maxDiscount! < 0)) {
-      setFormError(t('coupons.form.validationMaxDiscount'));
+      setFormError(t('pages.coupons.form.validationMaxDiscount'));
       return;
     }
 
     const maxUses = form.maxUses ? Number(form.maxUses) : undefined;
     if (form.maxUses && (!Number.isInteger(maxUses) || maxUses! < 1)) {
-      setFormError(t('coupons.form.validationMaxUses'));
+      setFormError(t('pages.coupons.form.validationMaxUses'));
       return;
     }
 
@@ -216,7 +216,7 @@ export function CouponsPage() {
     () => [
       {
         key: 'code',
-        header: t('coupons.columns.code'),
+        header: t('pages.coupons.columns.code'),
         render: (row) => (
           <div className="min-w-0">
             <div className="label-md text-on-surface">{row.code}</div>
@@ -226,32 +226,32 @@ export function CouponsPage() {
       },
       {
         key: 'type',
-        header: t('coupons.columns.type'),
+        header: t('pages.coupons.columns.type'),
         render: (row) => (
           <Badge variant={row.type === 'PERCENTAGE' ? 'primary' : 'default'}>
-            {t(`coupons.type.${row.type}`)}
+            {t(`pages.coupons.type.${row.type}`)}
           </Badge>
         ),
       },
       {
         key: 'value',
-        header: t('coupons.columns.value'),
+        header: t('pages.coupons.columns.value'),
         render: (row) =>
           row.type === 'PERCENTAGE' ? `${row.value}%` : formatPrice(row.value),
       },
       {
         key: 'minOrderValue',
-        header: t('coupons.columns.minOrderValue'),
+        header: t('pages.coupons.columns.minOrderValue'),
         render: (row) => (row.minOrderValue != null ? formatPrice(row.minOrderValue) : '—'),
       },
       {
         key: 'maxDiscount',
-        header: t('coupons.columns.maxDiscount'),
+        header: t('pages.coupons.columns.maxDiscount'),
         render: (row) => (row.maxDiscount != null ? formatPrice(row.maxDiscount) : '—'),
       },
       {
         key: 'used',
-        header: t('coupons.columns.used'),
+        header: t('pages.coupons.columns.used'),
         render: (row) =>
           row.maxUses != null ? `${row.usedCount}/${row.maxUses}` : String(row.usedCount),
       },
@@ -260,23 +260,23 @@ export function CouponsPage() {
         header: t('common.status'),
         render: (row) => (
           <Badge variant={row.isActive ? 'success' : 'error'}>
-            {row.isActive ? t('coupons.status.active') : t('coupons.status.inactive')}
+            {row.isActive ? t('pages.coupons.status.active') : t('pages.coupons.status.inactive')}
           </Badge>
         ),
       },
       {
         key: 'startsAt',
-        header: t('coupons.columns.startsAt'),
+        header: t('pages.coupons.columns.startsAt'),
         render: (row) => (row.startsAt ? formatDate(row.startsAt) : '—'),
       },
       {
         key: 'expiresAt',
-        header: t('coupons.columns.expiresAt'),
+        header: t('pages.coupons.columns.expiresAt'),
         render: (row) => (row.expiresAt ? formatDate(row.expiresAt) : '—'),
       },
       {
         key: 'createdAt',
-        header: t('coupons.columns.date'),
+        header: t('pages.coupons.columns.date'),
         render: (row) => formatDate(row.createdAt),
       },
       {
@@ -313,20 +313,20 @@ export function CouponsPage() {
           {t('pages.coupons.title')}
         </h2>
         <Button type="button" onClick={openCreate}>
-          {t('coupons.create')}
+          {t('pages.coupons.create')}
         </Button>
       </div>
 
       <div className="flex flex-wrap items-end gap-md">
         <div className="w-40">
           <Select
-            label={t('coupons.filters.status')}
+            label={t('pages.coupons.filters.status')}
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
           >
-            <option value="">{t('coupons.filters.all')}</option>
-            <option value="active">{t('coupons.filters.active')}</option>
-            <option value="inactive">{t('coupons.filters.inactive')}</option>
+            <option value="">{t('pages.coupons.filters.all')}</option>
+            <option value="active">{t('pages.coupons.filters.active')}</option>
+            <option value="inactive">{t('pages.coupons.filters.inactive')}</option>
           </Select>
         </div>
       </div>
@@ -357,7 +357,7 @@ export function CouponsPage() {
       <Modal
         isOpen={formOpen}
         onClose={closeForm}
-        title={editing ? t('coupons.form.editTitle') : t('coupons.form.createTitle')}
+        title={editing ? t('pages.coupons.form.editTitle') : t('pages.coupons.form.createTitle')}
       >
         <form className="flex flex-col gap-md" onSubmit={(event) => void handleSubmit(event)}>
           {formError && (
@@ -367,7 +367,7 @@ export function CouponsPage() {
           )}
 
           <Input
-            label={t('coupons.form.code')}
+            label={t('pages.coupons.form.code')}
             value={form.code}
             onChange={(event) => setForm((prev) => ({ ...prev, code: event.target.value }))}
             required
@@ -375,21 +375,21 @@ export function CouponsPage() {
           />
 
           <Select
-            label={t('coupons.form.type')}
+            label={t('pages.coupons.form.type')}
             value={form.type}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, type: event.target.value as 'PERCENTAGE' | 'FIXED' }))
             }
           >
-            <option value="PERCENTAGE">{t('coupons.type.PERCENTAGE')}</option>
-            <option value="FIXED">{t('coupons.type.FIXED')}</option>
+            <option value="PERCENTAGE">{t('pages.coupons.type.PERCENTAGE')}</option>
+            <option value="FIXED">{t('pages.coupons.type.FIXED')}</option>
           </Select>
 
           <Input
             label={
               form.type === 'PERCENTAGE'
-                ? t('coupons.form.valuePercent')
-                : t('coupons.form.valueFixed')
+                ? t('pages.coupons.form.valuePercent')
+                : t('pages.coupons.form.valueFixed')
             }
             type="number"
             min="0"
@@ -400,13 +400,13 @@ export function CouponsPage() {
           />
 
           <Input
-            label={t('coupons.form.description')}
+            label={t('pages.coupons.form.description')}
             value={form.description}
             onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
           />
 
           <Input
-            label={t('coupons.form.minOrderValue')}
+            label={t('pages.coupons.form.minOrderValue')}
             type="number"
             min="0"
             step="1000"
@@ -416,7 +416,7 @@ export function CouponsPage() {
 
           {form.type === 'PERCENTAGE' && (
             <Input
-              label={t('coupons.form.maxDiscount')}
+              label={t('pages.coupons.form.maxDiscount')}
               type="number"
               min="0"
               step="1000"
@@ -426,7 +426,7 @@ export function CouponsPage() {
           )}
 
           <Input
-            label={t('coupons.form.maxUses')}
+            label={t('pages.coupons.form.maxUses')}
             type="number"
             min="1"
             step="1"
@@ -435,14 +435,14 @@ export function CouponsPage() {
           />
 
           <Input
-            label={t('coupons.form.startsAt')}
+            label={t('pages.coupons.form.startsAt')}
             type="datetime-local"
             value={form.startsAt}
             onChange={(event) => setForm((prev) => ({ ...prev, startsAt: event.target.value }))}
           />
 
           <Input
-            label={t('coupons.form.expiresAt')}
+            label={t('pages.coupons.form.expiresAt')}
             type="datetime-local"
             value={form.expiresAt}
             onChange={(event) => setForm((prev) => ({ ...prev, expiresAt: event.target.value }))}
@@ -457,7 +457,7 @@ export function CouponsPage() {
                   setForm((prev) => ({ ...prev, isActive: event.target.checked }))
                 }
               />
-              {t('coupons.form.isActive')}
+              {t('pages.coupons.form.isActive')}
             </label>
           )}
 
@@ -474,9 +474,9 @@ export function CouponsPage() {
 
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
-        title={t('coupons.deleteTitle')}
+        title={t('pages.coupons.deleteTitle')}
         description={
-          deleteTarget ? t('coupons.deleteDescription', { code: deleteTarget.code }) : ''
+          deleteTarget ? t('pages.coupons.deleteDescription', { code: deleteTarget.code }) : ''
         }
         variant="danger"
         confirmLabel={t('common.delete')}

@@ -116,12 +116,12 @@ export function ReviewsPage() {
     () => [
       {
         key: 'product',
-        header: t('reviews.columns.product'),
+        header: t('pages.reviews.columns.product'),
         render: (row) => row.product?.name ?? '—',
       },
       {
         key: 'user',
-        header: t('reviews.columns.user'),
+        header: t('pages.reviews.columns.user'),
         render: (row) => (
           <div className="min-w-0">
             <div className="label-md text-on-surface">{row.user?.name}</div>
@@ -131,12 +131,12 @@ export function ReviewsPage() {
       },
       {
         key: 'rating',
-        header: t('reviews.columns.rating'),
+        header: t('pages.reviews.columns.rating'),
         render: (row) => <StarRating rating={row.rating} />,
       },
       {
         key: 'comment',
-        header: t('reviews.columns.comment'),
+        header: t('pages.reviews.columns.comment'),
         cellClassName: 'max-w-xs',
         render: (row) => (
           <span className="body-sm text-on-surface line-clamp-2">{row.comment ?? '—'}</span>
@@ -147,13 +147,13 @@ export function ReviewsPage() {
         header: t('common.status'),
         render: (row) => (
           <Badge variant={statusVariant(row.status)}>
-            {t(`reviews.status.${row.status}`)}
+            {t(`pages.reviews.status.${row.status}`)}
           </Badge>
         ),
       },
       {
         key: 'createdAt',
-        header: t('reviews.columns.date'),
+        header: t('pages.reviews.columns.date'),
         render: (row) => formatDateTime(row.createdAt),
       },
       {
@@ -172,7 +172,7 @@ export function ReviewsPage() {
                 disabled={actionLoading[row.id]}
                 onClick={() => void handleApprove(row.id)}
               >
-                {t('reviews.approve')}
+                {t('pages.reviews.approve')}
               </Button>
               <Button
                 type="button"
@@ -184,12 +184,12 @@ export function ReviewsPage() {
                 onClick={() => void handleReject(row.id)}
                 className="border-error text-error hover:bg-error/5"
               >
-                {t('reviews.reject')}
+                {t('pages.reviews.reject')}
               </Button>
             </div>
           ) : (
             <Badge variant={statusVariant(row.status)}>
-              {t(`reviews.status.${row.status}`)}
+              {t(`pages.reviews.status.${row.status}`)}
             </Badge>
           ),
       },
@@ -207,14 +207,14 @@ export function ReviewsPage() {
 
       <div className="md:w-64">
         <Select
-          label={t('reviews.filters.status')}
+          label={t('pages.reviews.filters.status')}
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value)}
         >
-          <option value="">{t('reviews.filters.allStatuses')}</option>
+          <option value="">{t('pages.reviews.filters.allStatuses')}</option>
           {STATUSES.map((value) => (
             <option key={value} value={value}>
-              {t(`reviews.status.${value}`)}
+              {t(`pages.reviews.status.${value}`)}
             </option>
           ))}
         </Select>

@@ -62,9 +62,9 @@ describe('ReviewsPage', () => {
   it('pending review has approve/reject buttons', async () => {
     renderPage();
     await screen.findByText('Sony WH-1000XM5');
-    expect(screen.getByRole('button', { name: i18n.t('reviews.approve') })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: i18n.t('reviews.reject') })).toBeInTheDocument();
-    expect(screen.queryAllByRole('button', { name: i18n.t('reviews.approve') })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: i18n.t('pages.reviews.approve') })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: i18n.t('pages.reviews.reject') })).toBeInTheDocument();
+    expect(screen.queryAllByRole('button', { name: i18n.t('pages.reviews.approve') })).toHaveLength(1);
   });
 
   it('filters by PENDING', async () => {
@@ -72,7 +72,7 @@ describe('ReviewsPage', () => {
     renderPage();
     await screen.findByText('Sony WH-1000XM5');
 
-    await user.selectOptions(screen.getByLabelText(i18n.t('reviews.filters.status')), 'PENDING');
+    await user.selectOptions(screen.getByLabelText(i18n.t('pages.reviews.filters.status')), 'PENDING');
 
     await waitFor(() => {
       expect(reviewsService.list).toHaveBeenCalledWith(
@@ -86,7 +86,7 @@ describe('ReviewsPage', () => {
     renderPage();
     await screen.findByText('Sony WH-1000XM5');
 
-    await user.click(screen.getByRole('button', { name: i18n.t('reviews.approve') }));
+    await user.click(screen.getByRole('button', { name: i18n.t('pages.reviews.approve') }));
 
     await waitFor(() => {
       expect(reviewsService.updateStatus).toHaveBeenCalledWith('r1', 'APPROVED');

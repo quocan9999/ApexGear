@@ -124,6 +124,17 @@ export interface Product {
   updatedAt: string;
 }
 
+export interface ProductQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  categoryId?: string;
+  brandId?: string;
+  isFeatured?: boolean;
+  sortBy?: 'price' | 'name' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
 export interface Category {
   id: string;
   name: string;

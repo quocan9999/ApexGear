@@ -122,6 +122,31 @@
     "usersSuffix": "người",
     "ordersSuffix": "đơn"
   },
+  "products": {
+    "create": "Tạo sản phẩm",
+    "searchPlaceholder": "Tìm theo tên hoặc slug...",
+    "columns": {
+      "image": "Ảnh",
+      "name": "Tên sản phẩm",
+      "brand": "Thương hiệu",
+      "category": "Danh mục",
+      "price": "Giá",
+      "status": "Trạng thái",
+      "stock": "Tồn kho"
+    },
+    "status": {
+      "active": "Đang bán",
+      "inactive": "Ngừng bán"
+    },
+    "filters": {
+      "category": "Danh mục",
+      "brand": "Thương hiệu",
+      "allCategories": "Tất cả danh mục",
+      "allBrands": "Tất cả thương hiệu"
+    },
+    "deleteTitle": "Xóa sản phẩm",
+    "deleteDescription": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác."
+  },
   "login": {
     "title": "Đăng nhập quản trị",
     "description": "Khu vực quản trị dành cho nhân viên hệ thống. Vui lòng đăng nhập để tiếp tục.",

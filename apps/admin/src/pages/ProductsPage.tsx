@@ -1,5 +1,5 @@
-import StubPage from './StubPage';
+import { ProductListPage } from './products/ProductListPage';
 
 export default function ProductsPage() {
-  return <StubPage page="products" />;
+  return <ProductListPage />;
 }

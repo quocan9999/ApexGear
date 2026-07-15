@@ -20,6 +20,31 @@ vi.mock('../services/dashboard.service', () => ({
   },
 }));
 
+vi.mock('../services/products.service', () => ({
+  productsService: {
+    list: vi.fn().mockResolvedValue({
+      data: [],
+      meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    }),
+    remove: vi.fn(),
+  },
+}));
+
+vi.mock('../services/categories.service', () => ({
+  categoriesService: {
+    list: vi.fn().mockResolvedValue([]),
+  },
+}));
+
+vi.mock('../services/brands.service', () => ({
+  brandsService: {
+    list: vi.fn().mockResolvedValue({
+      data: [],
+      meta: { page: 1, limit: 100, total: 0, totalPages: 0 },
+    }),
+  },
+}));
+
 const baseUser: User = {
   id: 'staff-1',
   email: 'staff@apexgear.vn',

@@ -6,6 +6,9 @@ import type { Cart } from '../types';
 const CART_STORAGE_KEY = 'apexgear_cart';
 const CART_CHANGE_EVENT = 'apexgear_cart:change';
 
+// Shared so concurrent reconcile callers reuse one merge instead of racing.
+let mergeInFlight: Promise<void> | null = null;
+
 export interface CartItem {
   variantId: string;
   quantity: number;
@@ -67,6 +70,13 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   hydrateFromLocalStorage: () => {
     const items = readFromStorage();
+    // When authenticated the badge must reflect the SERVER cart. Guest
+    // localStorage may still hold stale items (e.g. added before the session
+    // was restored), so never let it overwrite the server-derived itemCount.
+    if (useAuthStore.getState().isAuthenticated) {
+      set({ items });
+      return;
+    }
     set({ items, itemCount: computeCount(items) });
   },
 
@@ -120,16 +130,26 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   mergeGuestCart: async () => {
-    const guest = readFromStorage();
-    if (guest.length > 0) {
-      const cart = await cartService.merge(
-        guest.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
-      );
-      if (typeof window !== 'undefined') window.localStorage.removeItem(CART_STORAGE_KEY);
-      set({ cart, items: [], itemCount: countServerCart(cart) });
-      return;
-    }
-    await get().loadServerCart();
+    // Reuse an in-flight reconcile so concurrent callers (root reconcile +
+    // LoginPage/RegisterPage/AuthCallbackPage) can't double-merge guest items.
+    if (mergeInFlight) return mergeInFlight;
+    mergeInFlight = (async () => {
+      try {
+        const guest = readFromStorage();
+        if (guest.length > 0) {
+          const cart = await cartService.merge(
+            guest.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+          );
+          if (typeof window !== 'undefined') window.localStorage.removeItem(CART_STORAGE_KEY);
+          set({ cart, items: [], itemCount: countServerCart(cart) });
+          return;
+        }
+        await get().loadServerCart();
+      } finally {
+        mergeInFlight = null;
+      }
+    })();
+    return mergeInFlight;
   },
 }));
 

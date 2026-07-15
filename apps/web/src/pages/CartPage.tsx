@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
@@ -6,10 +6,9 @@ import { useCartStore } from '../stores/cart.store';
 import { useAuth } from '../hooks/useAuth';
 import CartLineItem from '../components/cart/CartLineItem';
 import CartSummary from '../components/cart/CartSummary';
-import CouponInput from '../components/cart/CouponInput';
 import Button from '../components/ui/Button';
 import Skeleton from '../components/ui/Skeleton';
-import type { BackendCartItem, Cart, CouponValidation } from '../types';
+import type { BackendCartItem, Cart } from '../types';
 
 function unitPrice(item: BackendCartItem): number {
   const { variant } = item;
@@ -29,8 +28,6 @@ export default function CartPage() {
   const updateItem = useCartStore((s) => s.updateItem);
   const removeItem = useCartStore((s) => s.removeItem);
 
-  const [coupon, setCoupon] = useState<CouponValidation | null>(null);
-
   useEffect(() => {
     if (authLoading) return;
     if (isAuthenticated) {
@@ -46,26 +43,16 @@ export default function CartPage() {
     [items],
   );
 
-  const discount = coupon?.valid ? coupon.discount ?? 0 : 0;
-  const total = Math.max(0, subtotal - discount);
-
-  // A cart mutation changes the subtotal, so any applied coupon is no longer
-  // authoritative. Clear it and let the user re-apply against the new subtotal
-  // (checkout re-validates regardless).
   const handleQuantityChange = (id: string, qty: number) => {
-    setCoupon(null);
     updateItem(id, qty);
   };
 
   const handleRemove = (id: string) => {
-    setCoupon(null);
     removeItem(id);
   };
 
   const handleCheckout = () => {
-    navigate('/checkout', {
-      state: coupon?.valid ? { couponCode: coupon.code, discount } : undefined,
-    });
+    navigate('/checkout');
   };
 
   if (isAuthenticated && isSyncing && items.length === 0) {
@@ -141,17 +128,10 @@ export default function CartPage() {
         </section>
 
         <aside className="flex flex-col gap-md">
-          <div className="rounded-xl bg-surface-container-lowest p-lg">
-            <CouponInput
-              subtotal={subtotal}
-              onApplied={setCoupon}
-              onCleared={() => setCoupon(null)}
-            />
-          </div>
           <CartSummary
             subtotal={subtotal}
-            discount={discount}
-            total={total}
+            discount={0}
+            total={subtotal}
             onCheckout={handleCheckout}
             checkoutDisabled={isSyncing || items.length === 0}
           />

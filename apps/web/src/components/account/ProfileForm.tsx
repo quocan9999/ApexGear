@@ -50,7 +50,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="flex max-w-md flex-col gap-md"
+      className="flex w-full max-w-md flex-col gap-md"
     >
       {status && (
         <Toast variant={status.type} className="self-start">

@@ -61,7 +61,7 @@ export default function ChangePasswordForm() {
       transition={{ duration: 0.3, ease: 'easeOut' }}
       onSubmit={handleSubmit}
       noValidate
-      className="flex max-w-md flex-col gap-md"
+      className="flex w-full max-w-md flex-col gap-md"
     >
       <Input
         id="current-password"

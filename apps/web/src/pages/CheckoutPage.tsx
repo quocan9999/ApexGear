@@ -27,6 +27,32 @@ interface CheckoutLocationState {
   discount?: number;
 }
 
+interface CheckoutApiError {
+  message?: string;
+  status?: number;
+}
+
+// Map server errors to friendly Vietnamese copy. The raw backend message
+// (e.g. "Insufficient stock for Default") is intentionally dropped — it leaks
+// internal variant names and is in English. Status-based mapping keeps the UX
+// consistent and lets the customer know whether to retry or fix an input.
+function checkoutErrorKey(err: unknown): string {
+  const apiErr = (err ?? {}) as CheckoutApiError;
+  const raw = (apiErr.message ?? '').toLowerCase();
+  const status = apiErr.status;
+
+  if (status === 401) return 'checkout.error.unauthorized';
+  if (status === 409) return 'checkout.error.conflict';
+  if (status && status >= 500) return 'checkout.error.serverError';
+
+  // Backend BadRequest messages usually mention stock, coupon, or address.
+  if (raw.includes('stock')) return 'checkout.error.outOfStock';
+  if (raw.includes('coupon')) return 'checkout.error.invalidCoupon';
+  if (raw.includes('address')) return 'checkout.error.invalidAddress';
+
+  return 'checkout.error.generic';
+}
+
 function unitPrice(item: BackendCartItem): number {
   const { variant } = item;
   if (variant.price != null) return variant.price;
@@ -109,7 +135,7 @@ export default function CheckoutPage() {
       setSelectedAddressId(created.id);
       setShowAddressForm(false);
     } catch (err) {
-      setError((err as { message?: string }).message ?? t('common.error'));
+      setError(t(checkoutErrorKey(err)));
     } finally {
       setSavingAddress(false);
     }
@@ -131,7 +157,7 @@ export default function CheckoutPage() {
       // panel when the order is SEPAY + unpaid, and the thank-you copy otherwise.
       navigate(`/checkout/success/${order.id}`);
     } catch (err) {
-      setError((err as { message?: string }).message ?? t('common.error'));
+      setError(t(checkoutErrorKey(err)));
       setPlacing(false);
     }
   };

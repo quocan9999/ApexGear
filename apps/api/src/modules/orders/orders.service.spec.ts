@@ -231,6 +231,84 @@ describe('OrdersService', () => {
         }),
       ).rejects.toBeInstanceOf(BadRequestException);
     });
+
+    it('retries checkout when orderNumber unique constraint collides (P2002)', async () => {
+      prisma.address.findFirst.mockResolvedValue(address);
+      prisma.productVariant.findFirst.mockResolvedValue({
+        id: 'v1',
+        name: 'Black',
+        stockAvailable: 10,
+        price: 100000,
+      });
+      prisma.setting.findUnique.mockResolvedValue({
+        key: 'shipping_fee',
+        value: '30000',
+      });
+      prisma.productVariant.updateMany.mockResolvedValue({ count: 1 });
+      prisma.cartItem.deleteMany.mockResolvedValue({ count: 1 });
+      prisma.user.findUnique.mockResolvedValue(null);
+
+      const collision = Object.assign(new Error('Unique constraint'), {
+        code: 'P2002',
+        meta: { target: ['orderNumber'] },
+      });
+      const successOrder = {
+        id: 'o1',
+        orderNumber: 'AG-20260714-DEADBEEF',
+        paymentMethod: PaymentMethod.COD,
+        subtotal: 200000,
+        shippingFee: 30000,
+        discount: 0,
+        total: 230000,
+        items: [],
+        coupon: null,
+      };
+
+      // First transaction attempt throws P2002, second succeeds.
+      (prisma.$transaction as jest.Mock)
+        .mockRejectedValueOnce(collision)
+        .mockImplementationOnce(
+          async (arg: unknown) =>
+            typeof arg === 'function'
+              ? (arg as (tx: typeof prisma) => Promise<unknown>)(prisma)
+              : arg,
+        );
+      prisma.order.create.mockResolvedValue(successOrder);
+
+      const result = await service.checkout('u1', {
+        addressId: 'a1',
+        paymentMethod: PaymentMethod.COD,
+      });
+
+      expect(result.id).toBe('o1');
+      // Two transaction attempts were made (first collided, second succeeded).
+      expect(prisma.$transaction).toHaveBeenCalledTimes(2);
+    });
+
+    it('throws when orderNumber keeps colliding after retries', async () => {
+      prisma.address.findFirst.mockResolvedValue(address);
+      prisma.productVariant.findFirst.mockResolvedValue({
+        id: 'v1',
+        name: 'Black',
+        stockAvailable: 10,
+        price: 100000,
+      });
+
+      const collision = Object.assign(new Error('Unique constraint'), {
+        code: 'P2002',
+        meta: { target: ['orderNumber'] },
+      });
+      (prisma.$transaction as jest.Mock).mockRejectedValue(collision);
+
+      await expect(
+        service.checkout('u1', {
+          addressId: 'a1',
+          paymentMethod: PaymentMethod.COD,
+        }),
+      ).rejects.toThrow();
+      // Bounded retries — never thrash the DB forever.
+      expect(prisma.$transaction).toHaveBeenCalledTimes(3);
+    });
   });
 
   describe('cancelOrder', () => {

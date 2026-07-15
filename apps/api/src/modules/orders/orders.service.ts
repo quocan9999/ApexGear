@@ -17,6 +17,12 @@ import {
 } from '../../common/enums';
 import { randomBytes } from 'crypto';
 
+// Retry budget for transient unique-constraint collisions on orderNumber / sepayRef.
+// With 8 hex chars (~4.3B/day) the chance of any single collision is negligible,
+// but a buggy prior order sitting in the DB can still trigger it. Cap retries so
+// a real DB issue surfaces fast instead of looping forever.
+const MAX_ORDER_COLLISION_RETRIES = 3;
+
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
   [OrderStatus.CONFIRMED]: [OrderStatus.SHIPPING, OrderStatus.CANCELLED],
@@ -124,65 +130,43 @@ export class OrdersService {
       Math.round((subtotal + shippingFee - discount) * 100) / 100,
     );
 
-    const orderNumber = await this.generateOrderNumber();
-    const sepayRef =
-      dto.paymentMethod === PaymentMethod.SEPAY
-        ? `AG${randomBytes(6).toString('hex').toUpperCase()}`
-        : null;
-
-    const order = await this.prisma.$transaction(async (tx) => {
-      // Deduct stock
-      for (const item of cart.items) {
-        const updated = await tx.productVariant.updateMany({
-          where: {
-            id: item.variantId,
-            stockAvailable: { gte: item.quantity },
-          },
-          data: { stockAvailable: { decrement: item.quantity } },
-        });
-        if (updated.count === 0) {
-          throw new BadRequestException(
-            `Insufficient stock for ${item.variant.name}`,
-          );
-        }
-      }
-
-      if (couponId) {
-        await tx.coupon.update({
-          where: { id: couponId },
-          data: { usedCount: { increment: 1 } },
-        });
-      }
-
-      const created = await tx.order.create({
-        data: {
-          orderNumber,
-          userId,
-          status: OrderStatus.PENDING,
-          paymentMethod: dto.paymentMethod,
-          paymentStatus: PaymentStatus.UNPAID,
+    // Retry the whole transaction on a rare P2002 collision
+    // (orderNumber / sepayRef) so a busy day or a duplicate from a stuck
+    // previous checkout doesn't surface as a 500 to the customer.
+    let order: Awaited<ReturnType<OrdersService['createOrderTx']>> | null = null;
+    let lastError: unknown = null;
+    for (let attempt = 1; attempt <= MAX_ORDER_COLLISION_RETRIES; attempt++) {
+      const orderNumber = await this.generateOrderNumber();
+      const sepayRef =
+        dto.paymentMethod === PaymentMethod.SEPAY
+          ? `AG${randomBytes(6).toString('hex').toUpperCase()}`
+          : null;
+      try {
+        order = await this.createOrderTx({
+          cart,
+          lineItems,
           subtotal,
           shippingFee,
           discount,
           total,
-          shippingName: address.name,
-          shippingPhone: address.phone,
-          shippingAddress: address.detail,
-          shippingWard: address.wardName,
-          shippingProvince: address.provinceName,
           couponId,
+          orderNumber,
           sepayRef,
+          userId,
+          address,
+          paymentMethod: dto.paymentMethod,
           note: dto.note,
-          items: {
-            create: lineItems,
-          },
-        },
-        include: orderInclude,
-      });
-
-      await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
-      return created;
-    });
+        });
+        break;
+      } catch (err) {
+        lastError = err;
+        if (!this.isUniqueCollision(err)) throw err;
+        // collision → loop and regenerate orderNumber / sepayRef
+      }
+    }
+    if (!order) {
+      throw lastError ?? new Error('Failed to create order');
+    }
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (user) {
@@ -407,8 +391,102 @@ export class OrdersService {
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
     const prefix = `AG-${y}${m}${d}-`;
-    const suffix = randomBytes(2).toString('hex').toUpperCase();
+    // 8 hex chars = 4.29B combos/day — collision probability is ~1e-7
+    // even at 10k orders/day. Combined with the retry loop below,
+    // duplicate orderNumbers should never reach the customer.
+    const suffix = randomBytes(4).toString('hex').toUpperCase();
     return `${prefix}${suffix}`;
+  }
+
+  private isUniqueCollision(err: unknown): boolean {
+    return (
+      !!err &&
+      typeof err === 'object' &&
+      'code' in err &&
+      (err as { code: string }).code === 'P2002'
+    );
+  }
+
+  private async createOrderTx(params: {
+    cart: { id: string; items: { variantId: string; quantity: number; variant: { name: string } }[] };
+    lineItems: {
+      variantId: string;
+      productName: string;
+      variantInfo: string;
+      price: number;
+      quantity: number;
+    }[];
+    subtotal: number;
+    shippingFee: number;
+    discount: number;
+    total: number;
+    couponId: string | null;
+    orderNumber: string;
+    sepayRef: string | null;
+    userId: string;
+    address: {
+      name: string;
+      phone: string;
+      detail: string;
+      wardName: string;
+      provinceName: string;
+    };
+    paymentMethod: PaymentMethod;
+    note: string | undefined;
+  }) {
+    return this.prisma.$transaction(async (tx) => {
+      // Deduct stock
+      for (const item of params.cart.items) {
+        const updated = await tx.productVariant.updateMany({
+          where: {
+            id: item.variantId,
+            stockAvailable: { gte: item.quantity },
+          },
+          data: { stockAvailable: { decrement: item.quantity } },
+        });
+        if (updated.count === 0) {
+          throw new BadRequestException(
+            `Insufficient stock for ${item.variant.name}`,
+          );
+        }
+      }
+
+      if (params.couponId) {
+        await tx.coupon.update({
+          where: { id: params.couponId },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
+
+      const created = await tx.order.create({
+        data: {
+          orderNumber: params.orderNumber,
+          userId: params.userId,
+          status: OrderStatus.PENDING,
+          paymentMethod: params.paymentMethod,
+          paymentStatus: PaymentStatus.UNPAID,
+          subtotal: params.subtotal,
+          shippingFee: params.shippingFee,
+          discount: params.discount,
+          total: params.total,
+          shippingName: params.address.name,
+          shippingPhone: params.address.phone,
+          shippingAddress: params.address.detail,
+          shippingWard: params.address.wardName,
+          shippingProvince: params.address.provinceName,
+          couponId: params.couponId,
+          sepayRef: params.sepayRef,
+          note: params.note,
+          items: {
+            create: params.lineItems,
+          },
+        },
+        include: orderInclude,
+      });
+
+      await tx.cartItem.deleteMany({ where: { cartId: params.cart.id } });
+      return created;
+    });
   }
 
   private serialize(order: any) {

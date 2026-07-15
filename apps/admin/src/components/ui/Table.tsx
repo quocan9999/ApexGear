@@ -10,18 +10,45 @@ export interface TableColumn<T> {
   cellClassName?: string;
 }
 
+export type TableRowKey<T> =
+  | { [K in keyof T]: T[K] extends string | number | bigint ? K : never }[keyof T]
+  | ((row: T) => Key);
+
 export interface TableProps<T> {
   columns: readonly TableColumn<T>[];
   data: readonly T[];
-  rowKey: keyof T | ((row: T) => Key);
+  rowKey: TableRowKey<T>;
   emptyState?: ReactNode;
   caption?: ReactNode;
   className?: string;
   rowClassName?: string | ((row: T) => string | undefined);
 }
 
-function getRowKey<T>(row: T, rowKey: TableProps<T>['rowKey']): Key {
-  return typeof rowKey === 'function' ? rowKey(row) : (row[rowKey] as Key);
+function isValidKey(value: unknown): value is Key {
+  return (
+    typeof value === 'string'
+    || typeof value === 'number'
+    || typeof value === 'bigint'
+  );
+}
+
+function getRowKey<T>(row: T, rowKey: TableRowKey<T>): Key {
+  if (typeof rowKey === 'function') {
+    const value = rowKey(row);
+    if (!isValidKey(value)) {
+      throw new TypeError(
+        `Table rowKey callback must return a primitive React.Key (string, number, or bigint); received ${typeof value}.`,
+      );
+    }
+    return value;
+  }
+  const value = (row as Record<string, unknown>)[rowKey as string];
+  if (!isValidKey(value)) {
+    throw new TypeError(
+      `Table rowKey property "${String(rowKey)}" must hold a primitive React.Key (string, number, or bigint); received ${typeof value}.`,
+    );
+  }
+  return value;
 }
 
 export default function Table<T>({
@@ -34,6 +61,8 @@ export default function Table<T>({
   rowClassName,
 }: TableProps<T>) {
   const { t } = useTranslation();
+
+  const showFallbackRow = columns.length === 0 && data.length > 0;
 
   return (
     <div className={cn('admin-scrollbar overflow-x-auto rounded-lg border border-outline-variant', className)}>
@@ -56,7 +85,7 @@ export default function Table<T>({
           </tr>
         </thead>
         <tbody>
-          {data.length === 0 ? (
+          {data.length === 0 || showFallbackRow ? (
             <tr>
               <td colSpan={Math.max(columns.length, 1)} className="body-md px-md py-xl text-center text-on-surface-variant">
                 {emptyState ?? t('common.empty')}

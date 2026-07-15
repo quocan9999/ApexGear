@@ -10,7 +10,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 const variantStyles: Record<BadgeVariant, string> = {
   default: 'bg-surface-container text-on-surface-variant',
   primary: 'bg-primary/10 text-primary',
-  success: 'bg-success/10 text-success',
+  success: 'bg-success/10 text-on-surface',
   warning: 'bg-warning/10 text-on-surface',
   error: 'bg-error-container text-on-error-container',
 };

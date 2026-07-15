@@ -10,6 +10,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '../../utils/cn';
 
 const modalStack: symbol[] = [];
+const focusStack: HTMLElement[] = [];
 let bodyLockCount = 0;
 let originalBodyOverflow = '';
 
@@ -80,6 +81,7 @@ export default function Modal({
     previousFocusRef.current = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null;
+    if (previousFocusRef.current) focusStack.push(previousFocusRef.current);
     modalStack.push(modalId);
     lockBody();
 
@@ -97,8 +99,35 @@ export default function Modal({
       if (index >= 0) modalStack.splice(index, 1);
       unlockBody();
 
-      const previousFocus = previousFocusRef.current;
-      if (wasTopModal && previousFocus?.isConnected) previousFocus.focus();
+      // Out-of-order closure: this modal is closing while a nested one is
+      // still open. Leave the focus stack alone — the nested modal still
+      // owns focus and will pop its own entry when it closes.
+      if (!wasTopModal) return;
+
+      // Pop our entry from the focus stack before walking, so a stale
+      // disconnected opener doesn't block the walk from reaching a still-
+      // connected ancestor.
+      if (previousFocusRef.current) {
+        const focusIndex = focusStack.lastIndexOf(previousFocusRef.current);
+        if (focusIndex >= 0) focusStack.splice(focusIndex, 1);
+      }
+
+      // Restore focus: prefer the direct previous-focus target if still
+      // connected; otherwise walk the focus stack to find the next surviving
+      // ancestor opener (used when an outer modal was removed while nested
+      // modals were still open).
+      const direct = previousFocusRef.current;
+      if (direct && direct.isConnected) {
+        direct.focus();
+        return;
+      }
+      for (let i = focusStack.length - 1; i >= 0; i -= 1) {
+        const candidate = focusStack[i];
+        if (candidate && candidate.isConnected) {
+          candidate.focus();
+          return;
+        }
+      }
     };
   }, [initialFocusRef, isOpen]);
 

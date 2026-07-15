@@ -115,7 +115,8 @@
       "title": "Biểu đồ doanh thu",
       "loading": "Đang tải dữ liệu biểu đồ...",
       "empty": "Chưa có dữ liệu",
-      "viewDetail": "Xem chi tiết"
+      "compactBillion": "{{value}} tỷ",
+      "compactMillion": "{{value}} tr"
     },
     "lowStockSuffix": "SP",
     "usersSuffix": "người",

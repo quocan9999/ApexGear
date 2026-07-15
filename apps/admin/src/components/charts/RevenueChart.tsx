@@ -16,12 +16,6 @@ interface RevenueChartProps {
   height?: number;
 }
 
-function compactCurrency(value: number): string {
-  if (value >= 1e9) return `${value / 1e9} tỷ`;
-  if (value >= 1e6) return `${value / 1e6} tr`;
-  return formatPrice(value);
-}
-
 function formatAxisDate(date: string): string {
   // YYYY-MM-DD → DD/MM
   return `${date.slice(8, 10)}/${date.slice(5, 7)}`;
@@ -29,6 +23,16 @@ function formatAxisDate(date: string): string {
 
 export function RevenueChart({ data, height = 320 }: RevenueChartProps) {
   const { t } = useTranslation();
+
+  const compactCurrency = (value: number): string => {
+    if (value >= 1e9) {
+      return t('dashboard.chart.compactBillion', { value: value / 1e9 });
+    }
+    if (value >= 1e6) {
+      return t('dashboard.chart.compactMillion', { value: value / 1e6 });
+    }
+    return formatPrice(value);
+  };
 
   if (data.length === 0) {
     return (

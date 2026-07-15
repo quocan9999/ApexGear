@@ -10,6 +10,7 @@ const ProductFormPage = lazy(() => import('../pages/products/ProductFormPage'));
 const CategoriesPage = lazy(() => import('../pages/CategoriesPage'));
 const BrandsPage = lazy(() => import('../pages/BrandsPage'));
 const OrdersPage = lazy(() => import('../pages/OrdersPage'));
+const OrderDetailPage = lazy(() => import('../pages/orders/OrderDetailPage'));
 const InventoryPage = lazy(() => import('../pages/InventoryPage'));
 const ReviewsPage = lazy(() => import('../pages/ReviewsPage'));
 const UsersPage = lazy(() => import('../pages/UsersPage'));
@@ -45,6 +46,7 @@ export default function AppRoutes() {
 
           <Route element={<RoleRoute allow={ORDER_ROLES} />}>
             <Route path="orders" element={<OrdersPage />} />
+            <Route path="orders/:id" element={<OrderDetailPage />} />
           </Route>
 
           <Route element={<RoleRoute allow={ADMIN_ONLY} />}>

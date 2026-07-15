@@ -222,6 +222,15 @@ export interface Order {
   user?: Pick<User, 'id' | 'email' | 'name'>;
 }
 
+export interface OrderQueryParams {
+  page?: number;
+  limit?: number;
+  status?: OrderStatus;
+  paymentStatus?: PaymentStatus;
+  paymentMethod?: PaymentMethod;
+  search?: string;
+}
+
 // ========== Promotions and moderation ==========
 export interface Coupon {
   id: string;

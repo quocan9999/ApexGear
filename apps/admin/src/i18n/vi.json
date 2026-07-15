@@ -199,7 +199,18 @@
     },
     "settings": {
       "title": "Cài đặt",
-      "description": "Cấu hình các thiết lập của hệ thống."
+      "description": "Cấu hình các thiết lập của hệ thống.",
+      "group": {
+        "general": "Chung",
+        "shipping": "Vận chuyển"
+      },
+      "key": {
+        "store_name": "Tên cửa hàng",
+        "shipping_fee": "Phí vận chuyển"
+      },
+      "updated": "Đã cập nhật {{key}}",
+      "save": "Lưu",
+      "saving": "Đang lưu..."
     }
   },
   "dashboard": {

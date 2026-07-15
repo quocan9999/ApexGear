@@ -209,6 +209,31 @@
       "validationSortOrder": "Thứ tự phải là số nguyên ≥ 0."
     }
   },
+  "brands": {
+    "create": "Tạo thương hiệu",
+    "columns": {
+      "logo": "Logo",
+      "name": "Tên thương hiệu",
+      "website": "Website"
+    },
+    "status": {
+      "active": "Đang dùng",
+      "inactive": "Ngừng dùng"
+    },
+    "deleteTitle": "Xóa thương hiệu",
+    "deleteDescription": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác nếu còn sản phẩm gán thương hiệu.",
+    "form": {
+      "createTitle": "Tạo thương hiệu",
+      "editTitle": "Sửa thương hiệu",
+      "name": "Tên thương hiệu",
+      "slug": "Slug (tự tạo)",
+      "logo": "URL logo",
+      "website": "Website",
+      "description": "Mô tả",
+      "isActive": "Đang dùng",
+      "validationRequired": "Vui lòng nhập tên thương hiệu."
+    }
+  },
 
   "login": {
     "title": "Đăng nhập quản trị",

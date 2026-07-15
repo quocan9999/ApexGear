@@ -161,6 +161,40 @@
   line-height: 16px;
 }
 
+/* ========== PRODUCT DESCRIPTION (TipTap) ========== */
+
+.product-description {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-on-surface);
+}
+
+.product-description p {
+  margin: 0 0 0.75em;
+}
+
+.product-description h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1em 0 0.5em;
+}
+
+.product-description ul,
+.product-description ol {
+  margin: 0 0 0.75em;
+  padding-left: 1.25rem;
+}
+
+.product-description img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-DEFAULT);
+}
+
+.product-description:focus {
+  outline: none;
+}
+
 /* ========== ADMIN UTILITIES ========== */
 
 /* Thin scrollbar for admin data panels / sidebars. */

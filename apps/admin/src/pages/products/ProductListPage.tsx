@@ -203,7 +203,7 @@ export function ProductListPage() {
         render: (row) => (
           <div className="flex flex-wrap items-center gap-sm">
             <Link
-              to={`/products/${row.id}/edit`}
+              to={`/products/${row.slug}/edit`}
               className="label-sm text-primary hover:underline"
             >
               {t('common.edit')}

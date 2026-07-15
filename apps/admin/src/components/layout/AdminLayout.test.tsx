@@ -106,7 +106,7 @@ describe('AdminLayout', () => {
     expect(localStorage.getItem('admin.sidebar.collapsed')).toBe('true');
   });
 
-  it('opens and closes the mobile navigation with its button, backdrop, and Escape', async () => {
+  it('contains focus in the modal mobile navigation and restores it for every close path', async () => {
     const user = userEvent.setup();
     renderLayout();
 
@@ -114,26 +114,38 @@ describe('AdminLayout', () => {
     expect(open).toHaveAttribute('aria-expanded', 'false');
     await user.click(open);
 
-    expect(open).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('complementary', { name: i18n.t('layout.sidebar') })).toHaveAttribute(
-      'data-mobile-open',
-      'true',
-    );
-    expect(screen.getByRole('button', { name: i18n.t('layout.closeMenu') })).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog', { name: i18n.t('layout.sidebar') });
+    const close = within(dialog).getByRole('button', { name: i18n.t('layout.closeMenu') });
+    const links = within(dialog).getAllByRole('link');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAttribute('data-mobile-open', 'true');
+    expect(close).toHaveFocus();
+    expect(open.closest('[inert]')).not.toBeNull();
+
+    await user.tab({ shift: true });
+    expect(links.at(-1)).toHaveFocus();
+    await user.tab();
+    expect(close).toHaveFocus();
 
     await user.keyboard('{Escape}');
     expect(open).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByRole('button', { name: i18n.t('layout.closeMenu') })).not.toBeInTheDocument();
+    expect(open).toHaveFocus();
 
     await user.click(open);
-    await user.click(
-      screen.getByRole('button', { name: i18n.t('layout.closeMenuBackdrop') }),
-    );
+    await user.click(screen.getByRole('button', { name: i18n.t('layout.closeMenuBackdrop') }));
     expect(open).toHaveAttribute('aria-expanded', 'false');
+    expect(open).toHaveFocus();
 
     await user.click(open);
     await user.click(screen.getByRole('button', { name: i18n.t('layout.closeMenu') }));
     expect(open).toHaveAttribute('aria-expanded', 'false');
+    expect(open).toHaveFocus();
+
+    await user.click(open);
+    await user.click(within(screen.getByRole('dialog')).getByRole('link', { name: i18n.t('nav.inventory') }));
+    expect(open).toHaveAttribute('aria-expanded', 'false');
+    expect(open).toHaveFocus();
+    expect(screen.getByText(i18n.t('pages.inventory.description'))).toBeInTheDocument();
   });
 
   it('logs out and navigates to the public login page', async () => {

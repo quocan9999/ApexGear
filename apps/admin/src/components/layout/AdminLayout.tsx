@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Spinner } from '../ui';
@@ -19,10 +19,19 @@ export default function AdminLayout() {
     () => localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true',
   );
   const [mobileOpen, setMobileOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const wasMobileOpenRef = useRef(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (wasMobileOpenRef.current && !mobileOpen) {
+      menuButtonRef.current?.focus();
+    }
+    wasMobileOpenRef.current = mobileOpen;
+  }, [mobileOpen]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -56,7 +65,7 @@ export default function AdminLayout() {
           type="button"
           aria-label={t('layout.closeMenuBackdrop')}
           onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 z-30 bg-inverse-surface/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-inverse-surface/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary lg:hidden"
         />
       )}
 
@@ -68,11 +77,16 @@ export default function AdminLayout() {
         onCloseMobile={() => setMobileOpen(false)}
       />
 
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+      <div
+        className="flex min-h-screen min-w-0 flex-1 flex-col"
+        inert={mobileOpen ? true : undefined}
+        aria-hidden={mobileOpen || undefined}
+      >
         <TopBar
           user={user}
           title={t(`nav.${current.key}`)}
           mobileOpen={mobileOpen}
+          menuButtonRef={menuButtonRef}
           onOpenMobile={() => setMobileOpen(true)}
           onLogout={handleLogout}
         />

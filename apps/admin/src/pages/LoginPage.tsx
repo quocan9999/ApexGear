@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Input } from '../components/ui';
 import { isStaffRole } from '../routes/RoleRoute';
 import { useAuthStore } from '../stores/auth.store';
@@ -33,6 +33,7 @@ function LockIcon() {
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const login = useAuthStore((state) => state.login);
   const logout = useAuthStore((state) => state.logout);
@@ -42,7 +43,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(() => {
+    const routeState = location.state as { unauthorized?: unknown } | null;
+    return routeState?.unauthorized === true ? t('login.unauthorized') : null;
+  });
   const submittingRef = useRef(false);
   const busy = storeLoading || submitting;
 

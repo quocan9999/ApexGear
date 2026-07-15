@@ -79,10 +79,10 @@ export interface ProductVariant {
 
 export interface ProductSpec {
   id: string;
-  key: string;
+  name: string;
   value: string;
   group: string | null;
-  displayOrder: number;
+  sortOrder: number;
 }
 
 // ========== Categories ==========

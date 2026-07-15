@@ -68,3 +68,27 @@ export interface CrawlLimits {
   maxImagesPerProduct: number;
   requestDelayMs: number;
 }
+
+/**
+ * A single scraped product as tier 1 writes it to the `gearvn_raw` DB — verbatim,
+ * no cleaning. All JSON payloads are stored as strings (SQL Server NVarChar(Max)).
+ */
+export interface RawCapture {
+  categoryKey: CategoryKey;
+  brandSlug: string;           // configured ?hang= slug (lowercase)
+  brandName: string;           // Haravan vendor, else configured brand
+  sourceUrl: string;
+  handle: string | null;
+  title: string;
+  haravanJson: string;         // Haravan product object (body.product) as JSON string
+  specsJson: string;           // DOM specs [{name,value}] as JSON string
+  descriptionHtml: string;     // Haravan body_html (rich text)
+  imageUrlsJson: string;       // absolute image URLs, primary first, as JSON string
+}
+
+/** A RawProduct row as read back from the raw store in tier 2. */
+export interface RawProductRow extends RawCapture {
+  id: string;
+  runId: string;
+  crawledAt: Date;
+}

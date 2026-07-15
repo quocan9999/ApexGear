@@ -18,6 +18,12 @@
     "crawl:test": "cross-env-shell CRAWL_TEST=true ts-node scripts/crawler/index.ts",
     "crawl": "ts-node scripts/crawler/index.ts",
     "seed:crawled": "ts-node scripts/crawler/seed-crawled.ts",
+    "db:reset:catalog": "ts-node scripts/reset-catalog.ts",
+    "db:raw:generate": "prisma generate --schema prisma/raw-schema.prisma",
+    "db:raw:push": "prisma db push --schema prisma/raw-schema.prisma",
+    "crawl:raw:test": "cross-env-shell CRAWL_TEST=true ts-node scripts/crawler/crawl-raw.ts",
+    "crawl:raw": "ts-node scripts/crawler/crawl-raw.ts",
+    "raw:transform": "ts-node scripts/crawler/raw-to-apex.ts",
     "test:crawler": "jest --config jest.crawler.config.js --passWithNoTests"
   },
   "dependencies": {

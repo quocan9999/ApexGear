@@ -84,7 +84,25 @@
     },
     "reviews": {
       "title": "Đánh giá",
-      "description": "Kiểm duyệt đánh giá sản phẩm."
+      "description": "Kiểm duyệt đánh giá sản phẩm.",
+      "columns": {
+        "product": "Sản phẩm",
+        "user": "Người dùng",
+        "rating": "Đánh giá",
+        "comment": "Nội dung",
+        "date": "Ngày tạo"
+      },
+      "filters": {
+        "status": "Trạng thái",
+        "allStatuses": "Tất cả trạng thái"
+      },
+      "status": {
+        "PENDING": "Chờ duyệt",
+        "APPROVED": "Đã duyệt",
+        "REJECTED": "Từ chối"
+      },
+      "approve": "Duyệt",
+      "reject": "Từ chối"
     },
     "users": {
       "title": "Người dùng",

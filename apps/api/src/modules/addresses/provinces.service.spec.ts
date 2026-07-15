@@ -28,22 +28,31 @@ describe('ProvincesService', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('fetchDistricts maps 404 to NotFoundException', async () => {
+  it('fetchWards maps 404 to NotFoundException', async () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: false,
       status: 404,
     });
-    await expect(service.fetchDistricts('999')).rejects.toBeInstanceOf(
+    await expect(service.fetchWards('999')).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
 
-  it('fetchWards returns wards array from payload', async () => {
+  it('fetchWards returns the wards array from the v2 province payload (depth=2)', async () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ wards: [{ code: 'w1' }] }),
+      json: async () => ({ code: 1, wards: [{ code: 1, name: 'Phường Ba Đình' }] }),
     });
-    const result = await service.fetchWards('d1');
-    expect(result).toEqual([{ code: 'w1' }]);
+    const result = await service.fetchWards('1');
+    expect(result).toEqual([{ code: 1, name: 'Phường Ba Đình' }]);
+  });
+
+  it('fetchWards returns [] (never the raw object) when wards is absent', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ code: 1, name: 'Hà Nội' }),
+    });
+    const result = await service.fetchWards('1');
+    expect(result).toEqual([]);
   });
 });

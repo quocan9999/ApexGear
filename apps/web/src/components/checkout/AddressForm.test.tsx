@@ -7,13 +7,10 @@ import AddressForm from './AddressForm';
 vi.mock('../../hooks/useProvinces', () => ({
   useProvinces: () => ({
     provinces: [{ code: '79', name: 'TP HCM' }],
-    districts: [{ code: '760', name: 'Quan 1' }],
     wards: [{ code: '26734', name: 'Ben Nghe' }],
     selectedProvince: { code: '79', name: 'TP HCM' },
-    selectedDistrict: { code: '760', name: 'Quan 1' },
     selectedWard: { code: '26734', name: 'Ben Nghe' },
     selectProvince: vi.fn(),
-    selectDistrict: vi.fn(),
     selectWard: vi.fn(),
     loading: false,
   }),
@@ -29,7 +26,7 @@ describe('AddressForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('submits a well-formed payload with province/district/ward names', async () => {
+  it('submits a well-formed payload with province/ward names', async () => {
     const onSubmit = vi.fn();
     render(<AddressForm onSubmit={onSubmit} />);
     await userEvent.type(screen.getByLabelText(/họ tên/i), 'Nguyen Van A');
@@ -43,7 +40,6 @@ describe('AddressForm', () => {
           phone: '0900000000',
           detail: '12 Le Loi',
           provinceName: 'TP HCM',
-          districtName: 'Quan 1',
           wardName: 'Ben Nghe',
         }),
       ),

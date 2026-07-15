@@ -12,7 +12,8 @@
     "continueShopping": "Tiếp tục mua sắm",
     "outOfStock": "Hết hàng",
     "inStock": "Còn hàng",
-    "lowStock": "Sắp hết hàng"
+    "lowStock": "Sắp hết hàng",
+    "back": "Quay lại"
   },
   "nav": {
     "home": "Trang chủ",
@@ -106,12 +107,10 @@
       "name": "Họ tên",
       "phone": "Số điện thoại",
       "province": "Tỉnh/Thành phố",
-      "district": "Quận/Huyện",
       "ward": "Phường/Xã",
       "detail": "Địa chỉ chi tiết",
       "detailPlaceholder": "Số nhà, tên đường...",
       "selectProvince": "Chọn tỉnh/thành",
-      "selectDistrict": "Chọn quận/huyện",
       "selectWard": "Chọn phường/xã",
       "setDefault": "Đặt làm mặc định",
       "save": "Lưu địa chỉ",

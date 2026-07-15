@@ -39,7 +39,7 @@ export default function OrderReview({
           {address.name} <span className="font-normal text-on-surface-variant">{address.phone}</span>
         </p>
         <p className="body-sm text-on-surface-variant">
-          {address.detail}, {address.wardName}, {address.districtName}, {address.provinceName}
+          {address.detail}, {address.wardName}, {address.provinceName}
         </p>
       </section>
 

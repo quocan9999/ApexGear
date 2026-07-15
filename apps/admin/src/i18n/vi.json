@@ -106,7 +106,42 @@
     },
     "users": {
       "title": "Người dùng",
-      "description": "Quản lý tài khoản và quyền truy cập."
+      "description": "Quản lý tài khoản và quyền truy cập.",
+      "columns": {
+        "name": "Tên",
+        "email": "Email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "actions": "Thao tác"
+      },
+      "filters": {
+        "role": "Vai trò",
+        "allRoles": "Tất cả vai trò",
+        "isActive": "Kích hoạt",
+        "allStatus": "Tất cả",
+        "active": "Đang hoạt động",
+        "inactive": "Đã vô hiệu",
+        "isLocked": "Khóa",
+        "allLocked": "Tất cả",
+        "locked": "Đã khóa",
+        "notLocked": "Không khóa"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Vô hiệu",
+        "locked": "Đã khóa",
+        "deleted": "Đã xóa"
+      },
+      "actions": {
+        "changeRole": "Đổi vai trò",
+        "toggleActive": "Kích hoạt/Vô hiệu",
+        "unlock": "Mở khóa",
+        "restore": "Khôi phục",
+        "delete": "Xóa",
+        "deleteConfirm": "Xóa người dùng {{name}}?",
+        "deleteWarning": "Hành động này sẽ soft-delete người dùng. Có thể khôi phục sau."
+      }
     },
     "coupons": {
       "title": "Mã giảm giá",

@@ -58,6 +58,8 @@ export interface User {
   role: Role;
   provider: string;
   isActive: boolean;
+  lockedUntil?: string | null;
+  deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

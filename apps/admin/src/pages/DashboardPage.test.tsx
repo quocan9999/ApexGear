@@ -18,7 +18,14 @@ vi.mock('../services/orders.service', () => ({
   },
 }));
 
+vi.mock('../services/inventory.service', () => ({
+  inventoryService: {
+    lowStock: vi.fn(),
+  },
+}));
+
 import { dashboardService } from '../services/dashboard.service';
+import { inventoryService } from '../services/inventory.service';
 import { ordersService } from '../services/orders.service';
 
 const stats = {
@@ -39,6 +46,7 @@ describe('DashboardPage', () => {
     vi.mocked(dashboardService.getStats).mockReset().mockResolvedValue(stats);
     vi.mocked(dashboardService.getRevenue).mockReset().mockResolvedValue(revenue7);
     vi.mocked(ordersService.list).mockReset().mockResolvedValue({ data: [], meta: { page: 1, limit: 5, total: 0, totalPages: 0 } });
+    vi.mocked(inventoryService.lowStock).mockReset().mockResolvedValue({ data: [], meta: { page: 1, limit: 5, total: 0, totalPages: 0 } });
   });
 
   it('renders four stat cards with localized labels', async () => {
@@ -46,9 +54,11 @@ describe('DashboardPage', () => {
     expect(
       await screen.findByRole('heading', { level: 2, name: i18n.t('pages.dashboard.title') }),
     ).toBeInTheDocument();
+    // lowStock text now appears twice: once as stat card label, once as section heading
+    const lowStockElements = screen.getAllByText(i18n.t('dashboard.stats.lowStock'));
+    expect(lowStockElements.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(i18n.t('dashboard.stats.totalRevenue'))).toBeInTheDocument();
     expect(screen.getByText(i18n.t('dashboard.stats.totalOrders'))).toBeInTheDocument();
-    expect(screen.getByText(i18n.t('dashboard.stats.lowStock'))).toBeInTheDocument();
     expect(screen.getByText(i18n.t('dashboard.stats.totalUsers'))).toBeInTheDocument();
   });
 

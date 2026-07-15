@@ -17,14 +17,75 @@
   },
   "nav": {
     "dashboard": "Tổng quan",
-    "orders": "Đơn hàng",
     "products": "Sản phẩm",
+    "categories": "Danh mục",
+    "brands": "Thương hiệu",
+    "orders": "Đơn hàng",
     "inventory": "Kho hàng",
-    "users": "Người dùng",
     "reviews": "Đánh giá",
+    "users": "Người dùng",
     "coupons": "Mã giảm giá",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
+  },
+  "layout": {
+    "sidebar": "Thanh điều hướng quản trị",
+    "primaryNavigation": "Điều hướng chính",
+    "breadcrumb": "Đường dẫn trang",
+    "collapseSidebar": "Thu gọn thanh điều hướng",
+    "expandSidebar": "Mở rộng thanh điều hướng",
+    "openMenu": "Mở trình đơn",
+    "closeMenu": "Đóng trình đơn",
+    "closeMenuBackdrop": "Đóng lớp phủ trình đơn"
+  },
+  "roles": {
+    "ADMIN": "Quản trị viên",
+    "CONTENT_MANAGER": "Quản lý nội dung",
+    "INVENTORY_MANAGER": "Quản lý kho",
+    "ORDER_MANAGER": "Quản lý đơn hàng",
+    "CUSTOMER": "Khách hàng"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Tổng quan",
+      "description": "Theo dõi hoạt động quản trị của ApexGear."
+    },
+    "products": {
+      "title": "Sản phẩm",
+      "description": "Quản lý danh sách và thông tin sản phẩm."
+    },
+    "categories": {
+      "title": "Danh mục",
+      "description": "Quản lý cấu trúc danh mục sản phẩm."
+    },
+    "brands": {
+      "title": "Thương hiệu",
+      "description": "Quản lý các thương hiệu sản phẩm."
+    },
+    "orders": {
+      "title": "Đơn hàng",
+      "description": "Theo dõi và xử lý đơn hàng."
+    },
+    "inventory": {
+      "title": "Kho hàng",
+      "description": "Theo dõi số lượng và trạng thái tồn kho."
+    },
+    "reviews": {
+      "title": "Đánh giá",
+      "description": "Kiểm duyệt đánh giá sản phẩm."
+    },
+    "users": {
+      "title": "Người dùng",
+      "description": "Quản lý tài khoản và quyền truy cập."
+    },
+    "coupons": {
+      "title": "Mã giảm giá",
+      "description": "Quản lý chương trình và mã giảm giá."
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "description": "Cấu hình các thiết lập của hệ thống."
+    }
   },
   "login": {
     "title": "Đăng nhập quản trị",

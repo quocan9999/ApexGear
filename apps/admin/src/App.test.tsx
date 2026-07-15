@@ -7,6 +7,11 @@ import i18n from './i18n';
 
 vi.mock('./hooks/useAuth', () => ({
   useAuthInit: vi.fn(),
+  useAuth: () => ({
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+  }),
 }));
 
 const adminTitle = i18n.t('admin.title');
@@ -18,7 +23,7 @@ afterEach(() => {
 beforeEach(() => vi.clearAllMocks());
 
 describe('App', () => {
-  it('initializes auth and renders the localized admin placeholder', () => {
+  it('initializes auth and renders the localized public login route', () => {
     i18n.addResource('vi', 'translation', 'admin.title', 'Bảng quản trị thử nghiệm');
 
     render(

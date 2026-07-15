@@ -84,7 +84,7 @@ describe('RoleRoute', () => {
     },
   );
 
-  it('redirects customers to the admin root', async () => {
+  it('redirects customers to the public login page', async () => {
     useAuthStore.setState({
       user: { ...baseUser, role: 'CUSTOMER' },
       isAuthenticated: true,
@@ -93,7 +93,7 @@ describe('RoleRoute', () => {
 
     renderRoute();
 
-    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/$/));
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/login'));
   });
 
   it('honors an explicit role allow-list', async () => {

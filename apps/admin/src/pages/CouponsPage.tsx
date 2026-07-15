@@ -12,7 +12,7 @@ import {
   Table,
   type TableColumn,
 } from '../components/ui';
-import { couponsService } from '../services/coupons.service';
+import { couponsService, type CouponPayload } from '../services/coupons.service';
 import type { Coupon, PageMeta } from '../types';
 import { formatDate, formatPrice } from '../utils/format';
 
@@ -182,7 +182,7 @@ export function CouponsPage() {
       if (editing) {
         await couponsService.update(editing.id, { ...payload, isActive: form.isActive });
       } else {
-        await couponsService.create(payload as Parameters<typeof couponsService.create>[0]);
+        await couponsService.create(payload as unknown as CouponPayload);
       }
       setFormOpen(false);
       setEditing(null);

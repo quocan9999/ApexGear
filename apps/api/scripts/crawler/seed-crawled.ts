@@ -65,7 +65,10 @@ export async function seedCrawled(): Promise<void> {
       }
       await prisma.productSpec.deleteMany({ where: { productId: product.id } });
       if (p.specs.length) {
-        await prisma.productSpec.createMany({ data: p.specs.map((s) => ({ productId: product.id, group: s.group, name: s.name, value: s.value, sortOrder: s.sortOrder })) });
+        // Clamp to schema column limits: group/name NVarChar(255), value NVarChar(500).
+        const clamp = (s: string | null | undefined, max: number) =>
+          s == null ? s : s.length > max ? s.slice(0, max) : s;
+        await prisma.productSpec.createMany({ data: p.specs.map((s) => ({ productId: product.id, group: clamp(s.group, 255), name: clamp(s.name, 255)!, value: clamp(s.value, 500)!, sortOrder: s.sortOrder })) });
       }
 
       // Option types & values (upsert; variants may be order-referenced so never deleted).

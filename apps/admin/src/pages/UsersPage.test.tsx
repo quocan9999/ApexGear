@@ -83,8 +83,8 @@ describe('UsersPage', () => {
   it('locked user shows locked badge and unlock button', async () => {
     renderPage();
     await screen.findByText('Admin');
-    expect(screen.getByText(i18n.t('users.status.locked'))).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: i18n.t('users.actions.unlock') })).toBeInTheDocument();
+    expect(screen.getAllByText(i18n.t('pages.users.status.locked')).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByRole('button', { name: i18n.t('pages.users.actions.unlock') })).toBeInTheDocument();
   });
 
   it('change role calls update', async () => {
@@ -92,7 +92,7 @@ describe('UsersPage', () => {
     renderPage();
     await screen.findByText('Admin');
 
-    const selects = screen.getAllByLabelText(i18n.t('users.actions.changeRole'));
+    const selects = screen.getAllByLabelText(i18n.t('pages.users.actions.changeRole'));
     // Find the one for the non-self user (u-cm, not disabled)
     const cmSelect = selects[1]; // second user
     await user.selectOptions(cmSelect, 'ORDER_MANAGER');
@@ -111,7 +111,7 @@ describe('UsersPage', () => {
     // click delete for the content manager (not self)
     await user.click(deleteButtons[1]);
 
-    expect(screen.getByText(i18n.t('users.actions.deleteWarning'))).toBeInTheDocument();
+    expect(screen.getByText(i18n.t('pages.users.actions.deleteWarning'))).toBeInTheDocument();
 
     const confirmButtons = screen.getAllByRole('button', { name: i18n.t('common.delete') });
     await user.click(confirmButtons[confirmButtons.length - 1]); // confirm in dialog

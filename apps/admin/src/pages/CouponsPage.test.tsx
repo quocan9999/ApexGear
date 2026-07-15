@@ -80,11 +80,11 @@ describe('CouponsPage', () => {
     renderPage();
 
     await screen.findByText('WELCOME10');
-    await user.click(screen.getByRole('button', { name: i18n.t('coupons.create') }));
+    await user.click(screen.getByRole('button', { name: i18n.t('pages.coupons.create') }));
 
     const dialog = await screen.findByRole('dialog');
-    await user.type(within(dialog).getByLabelText(i18n.t('coupons.form.code')), 'SALE20');
-    await user.type(within(dialog).getByLabelText(i18n.t('coupons.form.valuePercent')), '20');
+    await user.type(within(dialog).getByLabelText(i18n.t('pages.coupons.form.code')), 'SALE20');
+    await user.type(within(dialog).getByLabelText(i18n.t('pages.coupons.form.valuePercent')), '20');
 
     await user.click(within(dialog).getByRole('button', { name: i18n.t('common.save') }));
 
@@ -107,7 +107,7 @@ describe('CouponsPage', () => {
     await user.click(editButtons[0]);
 
     const dialog = await screen.findByRole('dialog');
-    const valueInput = within(dialog).getByLabelText(i18n.t('coupons.form.valuePercent'));
+    const valueInput = within(dialog).getByLabelText(i18n.t('pages.coupons.form.valuePercent'));
     await user.clear(valueInput);
     await user.type(valueInput, '15');
 

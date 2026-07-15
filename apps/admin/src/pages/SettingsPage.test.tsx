@@ -36,8 +36,8 @@ describe('SettingsPage', () => {
     renderPage();
     expect(await screen.findByDisplayValue('ApexGear')).toBeInTheDocument();
     expect(screen.getByDisplayValue('30000')).toBeInTheDocument();
-    expect(screen.getByText(i18n.t('settings.group.general'))).toBeInTheDocument();
-    expect(screen.getByText(i18n.t('settings.group.shipping'))).toBeInTheDocument();
+    expect(screen.getByText(i18n.t('pages.settings.group.general'))).toBeInTheDocument();
+    expect(screen.getByText(i18n.t('pages.settings.group.shipping'))).toBeInTheDocument();
   });
 
   it('updates a setting on save', async () => {
@@ -45,11 +45,11 @@ describe('SettingsPage', () => {
     renderPage();
 
     await screen.findByDisplayValue('ApexGear');
-    const input = screen.getByLabelText(i18n.t('settings.key.store_name'));
+    const input = screen.getByLabelText(i18n.t('pages.settings.key.store_name'));
     await user.clear(input);
     await user.type(input, 'ApexGear Pro');
 
-    const saveButtons = screen.getAllByRole('button', { name: i18n.t('settings.save') });
+    const saveButtons = screen.getAllByRole('button', { name: i18n.t('pages.settings.save') });
     await user.click(saveButtons[0]);
 
     await waitFor(() => {

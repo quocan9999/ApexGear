@@ -155,7 +155,7 @@ export function UsersPage() {
     () => [
       {
         key: 'name',
-        header: t('users.columns.name'),
+        header: t('pages.users.columns.name'),
         render: (row) => (
           <div className="min-w-0">
             <div className="label-md text-on-surface">{row.name}</div>
@@ -165,7 +165,7 @@ export function UsersPage() {
       },
       {
         key: 'role',
-        header: t('users.columns.role'),
+        header: t('pages.users.columns.role'),
         render: (row) => {
           const isSelf = row.id === currentUserId;
           return (
@@ -173,7 +173,7 @@ export function UsersPage() {
               value={row.role}
               onChange={(event) => void handleRoleChange(row.id, event.target.value)}
               disabled={isSelf || actionLoading[row.id]}
-              aria-label={t('users.actions.changeRole')}
+              aria-label={t('pages.users.actions.changeRole')}
               className="w-40"
             >
               {ROLES_FOR_SELECT.map((r) => (
@@ -189,12 +189,12 @@ export function UsersPage() {
         key: 'status',
         header: t('common.status'),
         render: (row) => (
-          <Badge variant={statusVariant(row)}>{t(`users.status.${statusLabel(row)}`)}</Badge>
+          <Badge variant={statusVariant(row)}>{t(`pages.users.status.${statusLabel(row)}`)}</Badge>
         ),
       },
       {
         key: 'createdAt',
-        header: t('users.columns.createdAt'),
+        header: t('pages.users.columns.createdAt'),
         render: (row) => formatDate(row.createdAt),
       },
       {
@@ -216,7 +216,7 @@ export function UsersPage() {
                     disabled={isSelf || actionLoading[row.id]}
                     onClick={() => void handleToggleActive(row.id, !row.isActive)}
                   >
-                    {row.isActive ? t('users.actions.toggleActive') : t('users.actions.toggleActive')}
+                    {row.isActive ? t('pages.users.actions.toggleActive') : t('pages.users.actions.toggleActive')}
                   </Button>
                   {row.lockedUntil && (
                     <Button
@@ -228,7 +228,7 @@ export function UsersPage() {
                       disabled={actionLoading[row.id]}
                       onClick={() => void handleUnlock(row.id)}
                     >
-                      {t('users.actions.unlock')}
+                      {t('pages.users.actions.unlock')}
                     </Button>
                   )}
                 </>
@@ -243,7 +243,7 @@ export function UsersPage() {
                   disabled={actionLoading[row.id]}
                   onClick={() => void handleRestore(row.id)}
                 >
-                  {t('users.actions.restore')}
+                  {t('pages.users.actions.restore')}
                 </Button>
               ) : (
                 <Button
@@ -277,11 +277,11 @@ export function UsersPage() {
       <div className="flex flex-wrap items-end gap-md">
         <div className="w-40">
           <Select
-            label={t('users.filters.role')}
+            label={t('pages.users.filters.role')}
             value={roleFilter}
             onChange={(event) => setRoleFilter(event.target.value)}
           >
-            <option value="">{t('users.filters.allRoles')}</option>
+            <option value="">{t('pages.users.filters.allRoles')}</option>
             {ROLES.map((r) => (
               <option key={r} value={r}>
                 {t(`roles.${r}`)}
@@ -292,25 +292,25 @@ export function UsersPage() {
 
         <div className="w-40">
           <Select
-            label={t('users.filters.isActive')}
+            label={t('pages.users.filters.isActive')}
             value={isActiveFilter}
             onChange={(event) => setIsActiveFilter(event.target.value)}
           >
-            <option value="">{t('users.filters.allStatus')}</option>
-            <option value="true">{t('users.filters.active')}</option>
-            <option value="false">{t('users.filters.inactive')}</option>
+            <option value="">{t('pages.users.filters.allStatus')}</option>
+            <option value="true">{t('pages.users.filters.active')}</option>
+            <option value="false">{t('pages.users.filters.inactive')}</option>
           </Select>
         </div>
 
         <div className="w-40">
           <Select
-            label={t('users.filters.isLocked')}
+            label={t('pages.users.filters.isLocked')}
             value={isLockedFilter}
             onChange={(event) => setIsLockedFilter(event.target.value)}
           >
-            <option value="">{t('users.filters.allLocked')}</option>
-            <option value="true">{t('users.filters.locked')}</option>
-            <option value="false">{t('users.filters.notLocked')}</option>
+            <option value="">{t('pages.users.filters.allLocked')}</option>
+            <option value="true">{t('pages.users.filters.locked')}</option>
+            <option value="false">{t('pages.users.filters.notLocked')}</option>
           </Select>
         </div>
       </div>
@@ -341,8 +341,8 @@ export function UsersPage() {
       {deleteTarget && (
         <ConfirmDialog
           isOpen
-          title={t('users.actions.deleteConfirm', { name: deleteTarget.name })}
-          description={t('users.actions.deleteWarning')}
+          title={t('pages.users.actions.deleteConfirm', { name: deleteTarget.name })}
+          description={t('pages.users.actions.deleteWarning')}
           variant="danger"
           confirmLabel={t('common.delete')}
           isLoading={actionLoading[deleteTarget.id]}

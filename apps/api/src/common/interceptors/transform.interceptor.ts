@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface ApiResponse<T> {
+  success: boolean;
   data: T;
   meta?: Record<string, unknown>;
 }
@@ -54,6 +55,7 @@ export class TransformInterceptor<T>
           'data' in responseData
         ) {
           return {
+            success: true,
             data: serializeDecimals(responseData.data) as T,
             meta: {
               ...responseData.meta,
@@ -63,6 +65,7 @@ export class TransformInterceptor<T>
         }
         // Wrap plain response in { data }
         return {
+          success: true,
           data: serializeDecimals(responseData) as T,
           meta: { timestamp: new Date().toISOString() },
         };

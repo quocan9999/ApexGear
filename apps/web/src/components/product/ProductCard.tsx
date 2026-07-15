@@ -66,7 +66,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             </span>
           </div>
         )}
-        <div className="flex items-baseline gap-sm mt-xs">
+        <div className="flex flex-wrap items-baseline gap-x-sm gap-y-0 mt-xs">
           <span className="headline-md text-primary">
             {formatPrice(product.salePrice ?? product.basePrice)}
           </span>

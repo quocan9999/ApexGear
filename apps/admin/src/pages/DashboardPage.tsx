@@ -29,16 +29,12 @@ interface StatCardProps {
 
 function StatCard({ label, value, iconBg, iconColor, icon }: StatCardProps) {
   return (
-    <div
-      className="flex flex-col gap-sm rounded-xl bg-surface-container-lowest p-md transition-shadow"
-      style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
-    >
+    <div className="flex flex-col gap-sm rounded-xl bg-surface-container-lowest p-md shadow-level-1 transition-shadow">
       <div className="flex items-start justify-between">
         <span className="label-md text-on-surface-variant">{label}</span>
         <span
-          className={`flex h-8 w-8 items-center justify-center rounded ${iconBg} ${iconColor}`}
+          className={`flex h-8 w-8 items-center justify-center rounded text-[18px] leading-none ${iconBg} ${iconColor}`}
           aria-hidden="true"
-          style={{ fontSize: 18, lineHeight: 1 }}
         >
           {icon}
         </span>
@@ -155,8 +151,8 @@ export function DashboardPage() {
               ? `${formatCount(stats.lowStockCount)} ${t('dashboard.lowStockSuffix')}`
               : '—'
           }
-          iconBg="bg-[#ffedd5]"
-          iconColor="text-[#ea580c]"
+          iconBg="bg-warning/15"
+          iconColor="text-warning"
           icon="!"
         />
         <StatCard
@@ -173,22 +169,12 @@ export function DashboardPage() {
       </section>
 
       <section
-        className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md md:p-lg"
-        style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
+        className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md shadow-level-1 md:p-lg"
         aria-label={t('dashboard.chart.title')}
       >
-        <div className="flex items-center justify-between">
-          <h3 className="body-lg font-semibold text-on-surface">
-            {t('dashboard.chart.title')}
-          </h3>
-          <button
-            type="button"
-            className="label-sm text-primary hover:underline"
-            tabIndex={-1}
-          >
-            {t('dashboard.chart.viewDetail')}
-          </button>
-        </div>
+        <h3 className="body-lg font-semibold text-on-surface">
+          {t('dashboard.chart.title')}
+        </h3>
         <div className="relative">
           {revenueLoading ? (
             <div

@@ -22,6 +22,29 @@ export function computeStockStatus(
   return 'in_stock';
 }
 
+/**
+ * Variant `attributes` is persisted as a JSON string (NVarChar(Max)). Parse it
+ * back into an object so the API contract matches the client type
+ * (Record<string, string> | null). Malformed/empty JSON degrades to null.
+ */
+export function parseVariantAttributes(
+  attributes: string | null | undefined,
+): Record<string, string> | null {
+  if (!attributes) return null;
+  try {
+    const parsed = JSON.parse(attributes);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      const entries = Object.entries(parsed as Record<string, unknown>)
+        .filter(([, v]) => v != null)
+        .map(([k, v]) => [k, String(v)] as const);
+      return entries.length > 0 ? Object.fromEntries(entries) : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
@@ -145,10 +168,17 @@ export class ProductsService {
     }
 
     if (isStaff) {
-      return product;
+      // Parse attributes JSON string → object for the client contract.
+      return {
+        ...product,
+        variants: product.variants.map((v) => ({
+          ...v,
+          attributes: parseVariantAttributes(v.attributes),
+        })),
+      };
     }
 
-    // Public: stockStatus only
+    // Public: stockStatus only + parsed attributes
     return {
       ...product,
       variants: product.variants.map((v) => {
@@ -160,6 +190,7 @@ export class ProductsService {
         } = v;
         return {
           ...rest,
+          attributes: parseVariantAttributes(rest.attributes),
           stockStatus: computeStockStatus(stockAvailable, lowStockThreshold),
         };
       }),

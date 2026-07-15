@@ -60,6 +60,11 @@
     "notFound": "Không tìm thấy sản phẩm",
     "addedToCart": "Đã thêm vào giỏ",
     "outOfStockSuffix": "(hết hàng)",
+    "specGeneral": "Thông tin chung",
+    "viewDetailSpecs": "Xem cấu hình chi tiết",
+    "collapseSpecs": "Thu gọn",
+    "readMore": "Đọc tiếp bài viết",
+    "collapse": "Thu gọn",
     "sortOptions": {
       "newest": "Mới nhất",
       "priceAsc": "Giá tăng dần",

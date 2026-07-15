@@ -7,7 +7,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: { alias: { '@': path.resolve(__dirname, './src') } },
   server: {
+	host: true,
     port: 5174,
+	allowedHosts: ['admin.apexgear.local'],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

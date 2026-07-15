@@ -18,6 +18,8 @@ async function bootstrap() {
     origin: [
       process.env.FRONTEND_URL || 'http://localhost:5173',
       process.env.ADMIN_URL || 'http://localhost:5174',
+      'http://apexgear.local:5173',
+      'http://admin.apexgear.local:5174',
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

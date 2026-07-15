@@ -145,7 +145,43 @@
       "allBrands": "Tất cả thương hiệu"
     },
     "deleteTitle": "Xóa sản phẩm",
-    "deleteDescription": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác."
+    "deleteDescription": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
+    "form": {
+      "createTitle": "Tạo sản phẩm",
+      "editTitle": "Sửa sản phẩm",
+      "backToList": "Quay lại danh sách",
+      "name": "Tên sản phẩm",
+      "slug": "Slug (tự tạo)",
+      "category": "Danh mục",
+      "brand": "Thương hiệu",
+      "selectCategory": "Chọn danh mục",
+      "selectBrand": "Chọn thương hiệu",
+      "basePrice": "Giá gốc",
+      "salePrice": "Giá khuyến mãi",
+      "description": "Mô tả",
+      "metaTitle": "Meta title",
+      "metaDescription": "Meta description",
+      "isFeatured": "Nổi bật",
+      "isActive": "Đang bán",
+      "specsTitle": "Thông số kỹ thuật",
+      "addSpec": "Thêm thông số",
+      "specGroup": "Nhóm",
+      "specName": "Tên thông số",
+      "specValue": "Giá trị",
+      "variantsTitle": "Biến thể",
+      "variantsHint": "Backend tự tạo biến thể mặc định khi tạo sản phẩm. Quản lý tồn kho chi tiết ở màn Kho hàng.",
+      "validationRequired": "Vui lòng nhập tên, danh mục, thương hiệu và giá gốc.",
+      "validationPrice": "Giá không hợp lệ."
+    }
+  },
+  "editor": {
+    "bold": "In đậm",
+    "italic": "In nghiêng",
+    "heading": "Tiêu đề",
+    "bulletList": "Danh sách dấu đầu dòng",
+    "orderedList": "Danh sách đánh số",
+    "image": "Chèn ảnh",
+    "imagePrompt": "Nhập URL ảnh"
   },
   "login": {
     "title": "Đăng nhập quản trị",

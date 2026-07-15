@@ -13,7 +13,12 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "crawl:inspect": "ts-node scripts/crawler/inspect.ts",
+    "crawl:test": "cross-env-shell CRAWL_TEST=true ts-node scripts/crawler/index.ts",
+    "crawl": "ts-node scripts/crawler/index.ts",
+    "seed:crawled": "ts-node scripts/crawler/seed-crawled.ts",
+    "test:crawler": "jest --config jest.crawler.config.js --passWithNoTests"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
@@ -53,7 +58,10 @@
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.2.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
     "jest": "^29.7.0",
+    "playwright": "^1.61.1",
     "prisma": "^5.22.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.2.2",

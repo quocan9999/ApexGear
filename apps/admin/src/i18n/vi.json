@@ -11,6 +11,7 @@
     "search": "Tìm kiếm",
     "confirm": "Xác nhận",
     "loading": "Đang tải...",
+    "genericError": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "actions": "Thao tác",
     "status": "Trạng thái"
   },
@@ -27,8 +28,17 @@
   },
   "login": {
     "title": "Đăng nhập quản trị",
-    "email": "Email",
+    "description": "Khu vực quản trị dành cho nhân viên hệ thống. Vui lòng đăng nhập để tiếp tục.",
+    "email": "Địa chỉ email",
+    "emailPlaceholder": "email@apexgear.vn",
     "password": "Mật khẩu",
-    "submit": "Đăng nhập"
+    "passwordPlaceholder": "Nhập mật khẩu",
+    "showPassword": "Hiện mật khẩu",
+    "hidePassword": "Ẩn mật khẩu",
+    "submit": "Đăng nhập",
+    "submitting": "Đang đăng nhập...",
+    "unauthorized": "Tài khoản không có quyền truy cập khu vực quản trị.",
+    "genericError": "Không thể đăng nhập. Vui lòng thử lại.",
+    "copyright": "© 2026 ApexGear Admin. Bản quyền đã được bảo hộ."
   }
 }

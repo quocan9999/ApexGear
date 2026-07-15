@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { ToastProvider } from './hooks/useToast';
 import { useAuthInit } from './hooks/useAuth';
 import AppRoutes from './routes';
 
@@ -9,8 +10,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ToastProvider>
   );
 }

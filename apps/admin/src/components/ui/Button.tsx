@@ -3,7 +3,7 @@ import { cn } from '../../utils/cn';
 import Spinner from './Spinner';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   loadingLabel?: string;
@@ -29,6 +29,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       secondary: 'bg-surface-container text-on-surface hover:bg-surface-container-high',
       outline: 'border border-outline-variant text-on-surface hover:bg-surface-container-low',
       ghost: 'text-on-surface hover:bg-surface-container-low',
+      danger: 'bg-error text-on-error hover:bg-on-error-container',
     };
     const sizes = {
       sm: 'h-9 px-3 text-sm',

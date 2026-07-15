@@ -13,7 +13,19 @@
     "loading": "Đang tải...",
     "genericError": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "actions": "Thao tác",
-    "status": "Trạng thái"
+    "status": "Trạng thái",
+    "empty": "Không có dữ liệu"
+  },
+  "pagination": {
+    "navigation": "Phân trang",
+    "previous": "Trang trước",
+    "next": "Trang sau",
+    "page": "Trang {{page}}"
+  },
+  "toast": {
+    "notifications": "Thông báo",
+    "dismiss": "Đóng thông báo",
+    "providerMissing": "useToast phải được sử dụng bên trong ToastProvider"
   },
   "nav": {
     "dashboard": "Tổng quan",

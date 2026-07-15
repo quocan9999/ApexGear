@@ -1,0 +1,34 @@
+{
+  "admin": {
+    "title": "ApexGear Admin"
+  },
+  "common": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo mới",
+    "search": "Tìm kiếm",
+    "confirm": "Xác nhận",
+    "loading": "Đang tải...",
+    "actions": "Thao tác",
+    "status": "Trạng thái"
+  },
+  "nav": {
+    "dashboard": "Tổng quan",
+    "orders": "Đơn hàng",
+    "products": "Sản phẩm",
+    "inventory": "Kho hàng",
+    "users": "Người dùng",
+    "reviews": "Đánh giá",
+    "coupons": "Mã giảm giá",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất"
+  },
+  "login": {
+    "title": "Đăng nhập quản trị",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập"
+  }
+}

@@ -8,6 +8,10 @@
     "build:api": "npm run build -w apps/api",
     "lint:api": "npm run lint -w apps/api",
     "dev:web": "npm run dev -w apps/web",
-    "test:web": "npm run test -w apps/web"
+    "test:web": "npm run test -w apps/web",
+    "dev:admin": "npm run dev --workspace=admin",
+    "build:admin": "npm run build --workspace=admin",
+    "lint:admin": "npm run lint --workspace=admin",
+    "test:admin": "npm run test --workspace=admin"
   }
 }

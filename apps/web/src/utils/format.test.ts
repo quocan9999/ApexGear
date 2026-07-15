@@ -18,6 +18,18 @@ describe('formatPrice', () => {
   it('drops fractional digits', () => {
     expect(formatPrice(1500.75)).toContain('1.501');
   });
+
+  it('coerces Prisma Decimal strings (e.g. "1990000.00") instead of rendering NaN', () => {
+    const result = formatPrice('1990000.00');
+    expect(result).toContain('1.990.000');
+    expect(result).not.toContain('NaN');
+  });
+
+  it('renders a dash for null / undefined / non-numeric input', () => {
+    expect(formatPrice(null)).toBe('—');
+    expect(formatPrice(undefined)).toBe('—');
+    expect(formatPrice('abc')).toBe('—');
+  });
 });
 
 describe('formatDate', () => {

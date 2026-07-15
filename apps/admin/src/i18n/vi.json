@@ -145,7 +145,57 @@
     },
     "coupons": {
       "title": "Mã giảm giá",
-      "description": "Quản lý chương trình và mã giảm giá."
+      "description": "Quản lý chương trình và mã giảm giá.",
+      "create": "Tạo mã giảm giá",
+      "columns": {
+        "code": "Mã",
+        "type": "Loại",
+        "value": "Giá trị",
+        "minOrderValue": "Đơn tối thiểu",
+        "maxDiscount": "Giảm tối đa",
+        "used": "Đã dùng",
+        "startsAt": "Bắt đầu",
+        "expiresAt": "Kết thúc",
+        "active": "Kích hoạt",
+        "date": "Ngày tạo"
+      },
+      "filters": {
+        "status": "Trạng thái",
+        "all": "Tất cả",
+        "active": "Đang kích hoạt",
+        "inactive": "Đã tắt"
+      },
+      "status": {
+        "active": "Kích hoạt",
+        "inactive": "Tắt"
+      },
+      "type": {
+        "PERCENTAGE": "Phần trăm",
+        "FIXED": "Cố định"
+      },
+      "form": {
+        "createTitle": "Tạo mã giảm giá",
+        "editTitle": "Sửa mã giảm giá",
+        "code": "Mã giảm giá",
+        "type": "Loại",
+        "value": "Giá trị",
+        "valuePercent": "% giảm",
+        "valueFixed": "Số tiền giảm",
+        "description": "Mô tả",
+        "minOrderValue": "Đơn hàng tối thiểu",
+        "maxDiscount": "Giảm tối đa",
+        "maxUses": "Số lần dùng tối đa",
+        "startsAt": "Ngày bắt đầu",
+        "expiresAt": "Ngày kết thúc",
+        "isActive": "Kích hoạt",
+        "validationRequired": "Vui lòng nhập mã, loại và giá trị.",
+        "validationValue": "Giá trị không hợp lệ.",
+        "validationMinOrder": "Đơn tối thiểu không hợp lệ.",
+        "validationMaxDiscount": "Giảm tối đa không hợp lệ.",
+        "validationMaxUses": "Số lần dùng phải ≥ 1."
+      },
+      "deleteTitle": "Xóa mã giảm giá",
+      "deleteDescription": "Bạn có chắc muốn xóa mã \"{{code}}\"? Hành động này không thể hoàn tác."
     },
     "settings": {
       "title": "Cài đặt",

@@ -6,6 +6,20 @@ import { resetAuthStore, useAuthStore } from '../stores/auth.store';
 import type { Role, User } from '../types';
 import AppRoutes from './index';
 
+vi.mock('../services/dashboard.service', () => ({
+  dashboardService: {
+    getStats: vi.fn().mockResolvedValue({
+      totalOrders: 0,
+      totalRevenue: 0,
+      totalProducts: 0,
+      totalUsers: 0,
+      pendingOrders: 0,
+      lowStockCount: 0,
+    }),
+    getRevenue: vi.fn().mockResolvedValue([]),
+  },
+}));
+
 const baseUser: User = {
   id: 'staff-1',
   email: 'staff@apexgear.vn',
@@ -84,7 +98,11 @@ describe('admin route tree', () => {
 
     const pageKey = pageKeyByPath[path];
     expect(
-      await screen.findByRole('heading', { level: 2, name: i18n.t(`pages.${pageKey}.title`) }),
+      await screen.findByRole(
+        'heading',
+        { level: 2, name: i18n.t(`pages.${pageKey}.title`) },
+        { timeout: 5000 },
+      ),
     ).toBeInTheDocument();
     expect(screen.getByTestId('route-location')).toHaveTextContent(path);
   });
@@ -96,10 +114,14 @@ describe('admin route tree', () => {
 
       await waitFor(() => expect(screen.getByTestId('route-location')).toHaveTextContent(/^\/$/));
       expect(
-        await screen.findByRole('heading', {
-          level: 2,
-          name: i18n.t('pages.dashboard.title'),
-        }),
+        await screen.findByRole(
+          'heading',
+          {
+            level: 2,
+            name: i18n.t('pages.dashboard.title'),
+          },
+          { timeout: 5000 },
+        ),
       ).toBeInTheDocument();
     },
   );

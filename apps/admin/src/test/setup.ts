@@ -12,6 +12,28 @@ import { cleanup } from '@testing-library/react';
   advanceTimersByTime: (ms: number) => vi.advanceTimersByTime(ms),
 };
 
+// recharts ResponsiveContainer needs ResizeObserver + non-zero layout boxes.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+(globalThis as typeof globalThis & { ResizeObserver?: unknown }).ResizeObserver =
+  ResizeObserverStub;
+
+const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+HTMLElement.prototype.getBoundingClientRect = function getBoundingClientRect() {
+  const rect = originalGetBoundingClientRect.call(this);
+  if (rect.width > 0 && rect.height > 0) return rect;
+  return {
+    ...rect,
+    width: rect.width || 600,
+    height: rect.height || 300,
+    right: rect.right || rect.left + (rect.width || 600),
+    bottom: rect.bottom || rect.top + (rect.height || 300),
+  };
+};
+
 afterEach(() => {
   cleanup();
   localStorage.clear();

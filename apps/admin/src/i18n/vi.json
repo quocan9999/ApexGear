@@ -99,6 +99,28 @@
       "description": "Cấu hình các thiết lập của hệ thống."
     }
   },
+  "dashboard": {
+    "title": "Tổng quan",
+    "stats": {
+      "totalRevenue": "Tổng doanh thu",
+      "totalOrders": "Tổng đơn hàng",
+      "lowStock": "Kho hàng",
+      "totalUsers": "Người dùng"
+    },
+    "range": {
+      "7days": "7 Ngày",
+      "30days": "30 Ngày"
+    },
+    "chart": {
+      "title": "Biểu đồ doanh thu",
+      "loading": "Đang tải dữ liệu biểu đồ...",
+      "empty": "Chưa có dữ liệu",
+      "viewDetail": "Xem chi tiết"
+    },
+    "lowStockSuffix": "SP",
+    "usersSuffix": "người",
+    "ordersSuffix": "đơn"
+  },
   "login": {
     "title": "Đăng nhập quản trị",
     "description": "Khu vực quản trị dành cho nhân viên hệ thống. Vui lòng đăng nhập để tiếp tục.",

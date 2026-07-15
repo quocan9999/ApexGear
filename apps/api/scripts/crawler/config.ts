@@ -29,7 +29,7 @@ export const CATEGORIES: CategoryConfig[] = [
       { brandName: 'Akko',        brandSlug: 'akko',        url: hang(KB, 'akko') },
       { brandName: 'Logitech',    brandSlug: 'logitech',    url: hang(KB, 'logitech') },
       { brandName: 'Corsair',     brandSlug: 'corsair',     url: hang(KB, 'corsair') },
-      { brandName: 'Steelseries', brandSlug: 'steelseries', url: hang(KB, 'steelseries') },
+      { brandName: 'Razer',       brandSlug: 'razer',       url: hang(KB, 'razer') },
     ],
   },
   {
@@ -37,7 +37,7 @@ export const CATEGORIES: CategoryConfig[] = [
     brands: [
       { brandName: 'Logitech',    brandSlug: 'logitech',    url: hang(HP, 'logitech') },
       { brandName: 'Corsair',     brandSlug: 'corsair',     url: hang(HP, 'corsair') },
-      { brandName: 'Steelseries', brandSlug: 'steelseries', url: hang(HP, 'steelseries') },
+      { brandName: 'Razer',       brandSlug: 'razer',       url: hang(HP, 'razer') },
       { brandName: 'HyperX',      brandSlug: 'hyperx',      url: hang(HP, 'hyperx') },
     ],
   },
@@ -71,9 +71,12 @@ export const LIMITS: CrawlLimits = {
 export const PLACEHOLDER_OPTION_NAMES = ['title', 'tiêu đề', 'tieu de'];
 export const PLACEHOLDER_OPTION_VALUES = ['default title', 'default', 'tiêu đề mặc định'];
 
-/** Listing-page + DOM-fallback selectors (GearVN Haravan theme); confirm in Task 2. */
+/** Listing-page + DOM-fallback selectors (GearVN Haravan theme); confirmed in Task 2. */
 export const SELECTORS = {
-  productLink: 'a[href*="/products/"]',
+  // Scope to the collection grid (.listProduct-row). A bare a[href*="/products/"]
+  // also matches megamenu/carousel items (PCs, software, handhelds) present on
+  // every collection page, which pollutes brand-filtered results.
+  productLink: '.listProduct-row a[href*="/products/"]',
   detailTitle: 'h1',
   detailPrice: '[class*="price"]',
   detailImages: 'img[src*="/products/"]',

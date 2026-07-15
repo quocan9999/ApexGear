@@ -38,6 +38,9 @@
     "submit": "Đăng nhập",
     "submitting": "Đang đăng nhập...",
     "unauthorized": "Tài khoản không có quyền truy cập khu vực quản trị.",
+    "invalidCredentials": "Email hoặc mật khẩu không chính xác.",
+    "accountLocked": "Tài khoản đã bị khóa. Vui lòng thử lại sau.",
+    "accountDeactivated": "Tài khoản đã bị vô hiệu hóa.",
     "genericError": "Không thể đăng nhập. Vui lòng thử lại.",
     "copyright": "© 2026 ApexGear Admin. Bản quyền đã được bảo hộ."
   }

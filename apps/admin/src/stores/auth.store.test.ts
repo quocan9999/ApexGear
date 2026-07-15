@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import i18n from '../i18n';
 import type { User } from '../types';
 import { authService } from '../services/auth.service';
 import { resetAuthStore, useAuthStore } from './auth.store';
@@ -103,20 +104,58 @@ describe('useAuthStore', () => {
     });
   });
 
-  it('normalizes a login error, stops loading, and rethrows', async () => {
-    const error = { message: 'Invalid credentials', status: 401 };
+  it.each([
+    {
+      name: 'invalid credentials',
+      error: { message: 'Invalid credentials', status: 401 },
+      key: 'login.invalidCredentials',
+      translation: 'Email hoặc mật khẩu không chính xác.',
+    },
+    {
+      name: 'locked account',
+      error: { message: 'Account is locked', status: 423 },
+      key: 'login.accountLocked',
+      translation: 'Tài khoản đã bị khóa. Vui lòng thử lại sau.',
+    },
+    {
+      name: 'deactivated account',
+      error: { message: 'Account is deactivated', status: 401 },
+      key: 'login.accountDeactivated',
+      translation: 'Tài khoản đã bị vô hiệu hóa.',
+    },
+    {
+      name: 'status 423 fallback',
+      error: { message: 'Too many failed attempts', status: 423 },
+      key: 'login.accountLocked',
+      translation: 'Tài khoản đã bị khóa. Vui lòng thử lại sau.',
+    },
+    {
+      name: 'unknown backend error',
+      error: { message: 'Internal authentication provider failure', status: 500 },
+      key: 'login.genericError',
+      translation: 'Không thể đăng nhập. Vui lòng thử lại.',
+    },
+    {
+      name: 'network error',
+      error: new Error('Network Error'),
+      key: 'login.genericError',
+      translation: 'Không thể đăng nhập. Vui lòng thử lại.',
+    },
+  ])('localizes $name without exposing the raw message', async ({ error, key, translation }) => {
     vi.mocked(authService.login).mockRejectedValueOnce(error);
 
     await expect(
       useAuthStore.getState().login({ email: admin.email, password: 'wrong-pass' }),
     ).rejects.toBe(error);
 
+    expect(i18n.t(key)).toBe(translation);
     expect(useAuthStore.getState()).toMatchObject({
       user: null,
       isAuthenticated: false,
       isLoading: false,
-      error: 'Invalid credentials',
+      error: translation,
     });
+    expect(useAuthStore.getState().error).not.toBe(error.message);
   });
 
   it('always clears local auth when API logout fails', async () => {

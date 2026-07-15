@@ -3,9 +3,18 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import i18n from '../i18n';
+import { authService } from '../services/auth.service';
 import { resetAuthStore, useAuthStore } from '../stores/auth.store';
 import type { User } from '../types';
 import LoginPage from './LoginPage';
+
+vi.mock('../services/auth.service', () => ({
+  authService: {
+    login: vi.fn(),
+    logout: vi.fn(),
+    getMe: vi.fn(),
+  },
+}));
 
 const admin: User = {
   id: 'admin-1',
@@ -46,6 +55,7 @@ async function submitForm() {
 
 describe('LoginPage', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     resetAuthStore();
     useAuthStore.setState({ isLoading: false });
   });
@@ -111,15 +121,17 @@ describe('LoginPage', () => {
     expect(screen.queryByTestId('destination')).not.toBeInTheDocument();
   });
 
-  it('shows API errors in an accessible inline alert', async () => {
-    useAuthStore.setState({
-      login: vi.fn().mockRejectedValue({ message: 'Sai email hoặc mật khẩu', status: 401 }),
-    });
+  it('localizes an English backend error in the accessible inline alert', async () => {
+    const error = { message: 'Invalid credentials', status: 401 };
+    vi.mocked(authService.login).mockRejectedValueOnce(error);
     renderLogin();
 
     await submitForm();
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Sai email hoặc mật khẩu');
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Email hoặc mật khẩu không chính xác.');
+    expect(alert).not.toHaveTextContent(error.message);
+    expect(useAuthStore.getState().error).toBe(i18n.t('login.invalidCredentials'));
   });
 
   it('disables controls, shows progress, and prevents duplicate submissions', async () => {

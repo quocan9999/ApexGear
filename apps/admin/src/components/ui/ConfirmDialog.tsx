@@ -31,6 +31,9 @@ export default function ConfirmDialog({
   const { t } = useTranslation();
   const [isPending, setIsPending] = useState(false);
   const isMountedRef = useRef(true);
+  // Ref-based re-entrancy guard so two synchronous clicks in the same tick
+  // (e.g. before React rerenders) only invoke onConfirm once.
+  const inFlightRef = useRef(false);
   const loading = isLoading || isPending;
 
   useEffect(() => {
@@ -41,7 +44,10 @@ export default function ConfirmDialog({
   }, []);
 
   useEffect(() => {
-    if (!isOpen) setIsPending(false);
+    if (!isOpen) {
+      setIsPending(false);
+      inFlightRef.current = false;
+    }
   }, [isOpen]);
 
   const handleCancel = () => {
@@ -49,18 +55,36 @@ export default function ConfirmDialog({
   };
 
   const handleConfirm = async () => {
-    if (loading || confirmDisabled) return;
+    if (loading || confirmDisabled || inFlightRef.current) return;
+    inFlightRef.current = true;
 
-    const result = onConfirm();
-    if (!result || typeof result.then !== 'function') return;
+    let result: void | Promise<void>;
+    try {
+      result = onConfirm();
+    } catch (error) {
+      // Caller owns presentation of domain errors; this component only resets
+      // its pending state and keeps the button retryable.
+      // eslint-disable-next-line no-console
+      console.error(error);
+      inFlightRef.current = false;
+      return;
+    }
+
+    if (!result || typeof (result as Promise<void>).then !== 'function') {
+      inFlightRef.current = false;
+      return;
+    }
 
     setIsPending(true);
     try {
       await result;
-    } catch {
+    } catch (error) {
       // The caller owns presentation of domain errors; this component only resets its pending state.
+      // eslint-disable-next-line no-console
+      console.error(error);
     } finally {
       if (isMountedRef.current) setIsPending(false);
+      inFlightRef.current = false;
     }
   };
 
@@ -82,7 +106,7 @@ export default function ConfirmDialog({
             type="button"
             variant={variant === 'danger' ? 'danger' : 'primary'}
             onClick={() => void handleConfirm()}
-            disabled={confirmDisabled}
+            disabled={loading || confirmDisabled}
             isLoading={loading}
             loadingLabel={t('common.loading')}
           >

@@ -14,28 +14,46 @@ export function buildPages(current: number, total: number): PageItem[] {
   if (total <= 7) return Array.from({ length: total }, (_, index) => index + 1);
 
   const pages: PageItem[] = [1];
-  if (current > 4) pages.push('start-ellipsis');
 
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-  for (let page = start; page <= end; page += 1) pages.push(page);
+  if (current <= 4) {
+    for (let page = 2; page <= 5; page += 1) pages.push(page);
+    pages.push('end-ellipsis');
+  } else if (current >= total - 3) {
+    pages.push('start-ellipsis');
+    for (let page = total - 4; page <= total - 1; page += 1) pages.push(page);
+  } else {
+    pages.push('start-ellipsis');
+    for (let page = current - 1; page <= current + 1; page += 1) pages.push(page);
+    pages.push('end-ellipsis');
+  }
 
-  if (current < total - 3) pages.push('end-ellipsis');
   pages.push(total);
   return pages;
 }
 
+function normalizePage(page: number, total: number): number {
+  if (!Number.isFinite(page)) return 1;
+  return Math.min(Math.max(1, Math.floor(page)), total);
+}
+
+function normalizeTotal(totalPages: number): number {
+  if (!Number.isFinite(totalPages)) return 0;
+  return Math.max(0, Math.floor(totalPages));
+}
+
 export default function Pagination({ page, totalPages, onPageChange, className }: PaginationProps) {
   const { t } = useTranslation();
-  const total = Math.max(0, Math.floor(totalPages));
+  const total = normalizeTotal(totalPages);
 
   if (total <= 1) return null;
 
-  const current = Math.min(Math.max(1, Math.floor(page)), total);
+  const current = normalizePage(page, total);
   const pages = buildPages(current, total);
   const goTo = (target: number) => {
-    if (target < 1 || target > total || target === current) return;
-    onPageChange(target);
+    if (!Number.isFinite(target)) return;
+    const next = Math.floor(target);
+    if (next < 1 || next > total || next === current) return;
+    onPageChange(next);
   };
 
   const baseButton =
@@ -69,7 +87,7 @@ export default function Pagination({ page, totalPages, onPageChange, className }
             key={item}
             type="button"
             onClick={() => goTo(item)}
-            disabled={item === current}
+            disabled={item === current || item < 1 || item > total}
             aria-current={item === current ? 'page' : undefined}
             aria-label={t('pagination.page', { page: item })}
             className={cn(

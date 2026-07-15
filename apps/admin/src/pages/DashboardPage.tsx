@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Badge, Spinner } from '../components/ui';
 import { dashboardService } from '../services/dashboard.service';
+import { inventoryService } from '../services/inventory.service';
 import { ordersService } from '../services/orders.service';
 import { formatDateTime, formatPrice } from '../utils/format';
-import type { DashboardStats, Order, RevenuePoint } from '../types';
+import type { DashboardStats, InventoryItem, Order, RevenuePoint } from '../types';
 import { orderStatusVariant } from './orders/OrderListPage';
 
 const RevenueChart = lazy(() =>
@@ -54,6 +55,7 @@ export function DashboardPage() {
   const [days, setDays] = useState<Range>(7);
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [lowStock, setLowStock] = useState<InventoryItem[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,12 +63,14 @@ export function DashboardPage() {
       dashboardService.getStats(),
       dashboardService.getRevenue(7),
       ordersService.list({ limit: 5 }).catch(() => ({ data: [] })),
+      inventoryService.lowStock({ limit: 5 }).catch(() => ({ data: [] })),
     ])
-      .then(([nextStats, nextRevenue, ordersPage]) => {
+      .then(([nextStats, nextRevenue, ordersPage, lowStockPage]) => {
         if (cancelled) return;
         setStats(nextStats);
         setRevenue(nextRevenue);
         setRecentOrders(ordersPage.data);
+        setLowStock(lowStockPage.data);
       })
       .catch(() => {
         if (cancelled) return;
@@ -80,6 +84,7 @@ export function DashboardPage() {
         });
         setRevenue([]);
         setRecentOrders([]);
+        setLowStock([]);
       });
     return () => {
       cancelled = true;
@@ -262,6 +267,43 @@ export function DashboardPage() {
                     <td className="px-2 py-2 text-on-surface-variant">
                       {formatDateTime(order.createdAt)}
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section
+        className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md shadow-level-1 md:p-lg"
+        aria-label={t('dashboard.stats.lowStock')}
+      >
+        <h3 className="body-lg font-semibold text-on-surface">
+          {t('dashboard.stats.lowStock')}
+        </h3>
+        {lowStock.length === 0 ? (
+          <p className="body-md text-on-surface-variant">{t('common.empty')}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left body-sm">
+              <caption className="sr-only">{t('dashboard.stats.lowStock')}</caption>
+              <thead className="border-b border-outline-variant body-sm text-on-surface-variant">
+                <tr>
+                  <th className="px-2 py-2 font-semibold">{t('inventory.columns.product')}</th>
+                  <th className="px-2 py-2 font-semibold">{t('inventory.columns.stockAvailable')}</th>
+                  <th className="px-2 py-2 font-semibold">{t('inventory.columns.threshold')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lowStock.map((item) => (
+                  <tr key={item.id} className="border-b border-outline-variant last:border-b-0">
+                    <td className="px-2 py-2">
+                      <span className="label-sm text-on-surface">{item.product.name}</span>
+                      <span className="body-sm text-on-surface-variant ml-xs">({item.sku})</span>
+                    </td>
+                    <td className="px-2 py-2 text-warning font-semibold">{item.stockAvailable}</td>
+                    <td className="px-2 py-2 text-on-surface-variant">{item.lowStockThreshold}</td>
                   </tr>
                 ))}
               </tbody>

@@ -17,6 +17,7 @@ import VariantSelector, {
 } from '../components/product/VariantSelector';
 import QuantitySelector from '../components/product/QuantitySelector';
 import ProductSpecs from '../components/product/ProductSpecs';
+import CollapsibleSection from '../components/product/CollapsibleSection';
 import ProductReviews from '../components/product/ProductReviews';
 import RelatedProducts from '../components/product/RelatedProducts';
 import type { Product, ProductVariant } from '../types';
@@ -215,7 +216,11 @@ export default function ProductDetailPage() {
             <p className="body-md text-on-surface-variant">{product.shortDescription}</p>
           )}
 
-          {variants.length > 0 && (
+          {/* Only surface the variant picker for products with real choices
+              (>1 variant). Single-variant products still transact on their
+              default variant — stock/cart always run on the variant, never on
+              the product — but show no selector, matching the reference. */}
+          {variants.length > 1 && (
             <VariantSelector
               variants={variants}
               selectedId={selectedVariantId}
@@ -243,25 +248,26 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Description */}
-      {product.description && (
-        <section className="mt-xxl flex flex-col gap-md">
-          <h2 className="headline-md text-on-surface">{t('product.description')}</h2>
-          <article
-            className={cn(
-              'prose max-w-none rounded-xl bg-surface-container-lowest p-lg',
-              'body-md text-on-surface',
-            )}
-            // Backend sanitizes; client guard strips residual script/iframe/on-handlers.
-            dangerouslySetInnerHTML={{ __html: safeHtml(product.description) }}
-          />
-        </section>
-      )}
+      {/* Info + specs: description (left, collapsible) alongside the technical
+          spec table (right, collapsible), matching the reference layout. On
+          narrow screens they stack. */}
+      {(product.description || (product.specs && product.specs.length > 0)) && (
+        <div className="mt-xxl grid grid-cols-1 items-start gap-lg lg:grid-cols-[1.6fr_1fr]">
+          {product.description ? (
+            <CollapsibleSection title={t('product.description')}>
+              <article
+                className={cn('prose max-w-none body-md text-on-surface')}
+                // Backend sanitizes; client guard strips residual script/iframe/on-handlers.
+                dangerouslySetInnerHTML={{ __html: safeHtml(product.description) }}
+              />
+            </CollapsibleSection>
+          ) : (
+            <div aria-hidden />
+          )}
 
-      {/* Specs */}
-      {product.specs && product.specs.length > 0 && (
-        <div className="mt-xxl">
-          <ProductSpecs specs={product.specs} />
+          {product.specs && product.specs.length > 0 && (
+            <ProductSpecs specs={product.specs} />
+          )}
         </div>
       )}
 

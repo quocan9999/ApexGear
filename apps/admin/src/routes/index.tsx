@@ -6,6 +6,7 @@ import RoleRoute from './RoleRoute';
 
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const ProductsPage = lazy(() => import('../pages/ProductsPage'));
+const ProductFormPage = lazy(() => import('../pages/products/ProductFormPage'));
 const CategoriesPage = lazy(() => import('../pages/CategoriesPage'));
 const BrandsPage = lazy(() => import('../pages/BrandsPage'));
 const OrdersPage = lazy(() => import('../pages/OrdersPage'));
@@ -31,6 +32,8 @@ export default function AppRoutes() {
 
           <Route element={<RoleRoute allow={CONTENT_ROLES} />}>
             <Route path="products" element={<ProductsPage />} />
+            <Route path="products/new" element={<ProductFormPage />} />
+            <Route path="products/:slug/edit" element={<ProductFormPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="brands" element={<BrandsPage />} />
             <Route path="reviews" element={<ReviewsPage />} />

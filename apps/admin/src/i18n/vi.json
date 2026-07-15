@@ -244,6 +244,30 @@
       "validationRequired": "Vui lòng nhập tên thương hiệu."
     }
   },
+  "inventory": {
+    "searchPlaceholder": "Tìm theo tên SP hoặc SKU...",
+    "adjust": "Điều chỉnh",
+    "adjustPlaceholder": "+/-",
+    "adjustInputLabel": "SL điều chỉnh cho {{name}}",
+    "tabs": {
+      "all": "Tất cả",
+      "lowStock": "Sắp hết",
+      "outOfStock": "Hết hàng"
+    },
+    "status": {
+      "inStock": "Còn hàng",
+      "lowStock": "Sắp hết",
+      "outOfStock": "Hết hàng"
+    },
+    "columns": {
+      "product": "Sản phẩm",
+      "variant": "Biến thể",
+      "stockTotal": "Tổng",
+      "stockAvailable": "Có thể bán",
+      "threshold": "Ngưỡng",
+      "adjust": "Điều chỉnh"
+    }
+  },
   "orders": {
     "searchPlaceholder": "Tìm theo mã đơn hoặc tên khách...",
     "viewDetail": "Chi tiết",

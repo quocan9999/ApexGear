@@ -62,7 +62,7 @@ export class ProductsService {
     if (query.search) {
       where.OR = [
         { name: { contains: query.search } },
-        { shortDescription: { contains: query.search } },
+        { description: { contains: query.search } },
       ];
     }
     if (query.categoryId) where.categoryId = query.categoryId;
@@ -219,7 +219,6 @@ export class ProductsService {
           data: {
             name: dto.name,
             slug,
-            shortDescription: dto.shortDescription,
             description: dto.description,
             basePrice: dto.basePrice,
             salePrice: dto.salePrice,
@@ -293,7 +292,6 @@ export class ProductsService {
     }
 
     const data: Prisma.ProductUpdateInput = {
-      shortDescription: dto.shortDescription,
       description: dto.description,
       basePrice: dto.basePrice,
       salePrice: dto.salePrice,

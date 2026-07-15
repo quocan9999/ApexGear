@@ -43,12 +43,6 @@ export class CreateProductDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @MaxLength(500)
-  shortDescription?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
   description?: string;
 
   @ApiProperty({ example: 7990000 })

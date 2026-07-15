@@ -40,7 +40,6 @@ export interface Product {
   id: string;
   name: string;
   slug: string;
-  shortDescription: string | null;
   description: string | null;
   basePrice: number;
   salePrice: number | null;

@@ -21,7 +21,6 @@ interface FieldErrors {
   name?: string;
   phone?: string;
   province?: string;
-  district?: string;
   ward?: string;
   detail?: string;
 }
@@ -37,13 +36,10 @@ export default function AddressForm({ initial, onSubmit, submitting }: AddressFo
   const { t } = useTranslation();
   const {
     provinces,
-    districts,
     wards,
     selectedProvince,
-    selectedDistrict,
     selectedWard,
     selectProvince,
-    selectDistrict,
     selectWard,
     loading,
   } = useProvinces();
@@ -71,7 +67,6 @@ export default function AddressForm({ initial, onSubmit, submitting }: AddressFo
       next.phone = t('checkout.addressForm.invalidPhone');
 
     if (!selectedProvince) next.province = t('checkout.addressForm.required');
-    if (!selectedDistrict) next.district = t('checkout.addressForm.required');
     if (!selectedWard) next.ward = t('checkout.addressForm.required');
 
     if (!detail.trim()) next.detail = t('checkout.addressForm.required');
@@ -85,15 +80,13 @@ export default function AddressForm({ initial, onSubmit, submitting }: AddressFo
     const next = validate();
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    if (!selectedProvince || !selectedDistrict || !selectedWard) return;
+    if (!selectedProvince || !selectedWard) return;
 
     onSubmit({
       name: name.trim(),
       phone: phone.trim(),
       provinceCode: selectedProvince.code,
       provinceName: selectedProvince.name,
-      districtCode: selectedDistrict.code,
-      districtName: selectedDistrict.name,
       wardCode: selectedWard.code,
       wardName: selectedWard.name,
       detail: detail.trim(),
@@ -121,7 +114,7 @@ export default function AddressForm({ initial, onSubmit, submitting }: AddressFo
         error={errors.phone}
       />
 
-      <div className="grid grid-cols-1 gap-md sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="address-province" className="label-md text-on-surface-variant">
             {t('checkout.addressForm.province')}
@@ -144,27 +137,6 @@ export default function AddressForm({ initial, onSubmit, submitting }: AddressFo
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="address-district" className="label-md text-on-surface-variant">
-            {t('checkout.addressForm.district')}
-          </label>
-          <select
-            id="address-district"
-            className={selectClass}
-            value={selectedDistrict?.code ?? ''}
-            disabled={loading || !selectedProvince}
-            onChange={(e) => selectDistrict(e.target.value)}
-          >
-            <option value="">{t('checkout.addressForm.selectDistrict')}</option>
-            {districts.map((d) => (
-              <option key={d.code} value={d.code}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-          {errors.district && <p className="body-sm text-error">{errors.district}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
           <label htmlFor="address-ward" className="label-md text-on-surface-variant">
             {t('checkout.addressForm.ward')}
           </label>
@@ -172,7 +144,7 @@ export default function AddressForm({ initial, onSubmit, submitting }: AddressFo
             id="address-ward"
             className={selectClass}
             value={selectedWard?.code ?? ''}
-            disabled={loading || !selectedDistrict}
+            disabled={loading || !selectedProvince}
             onChange={(e) => selectWard(e.target.value)}
           >
             <option value="">{t('checkout.addressForm.selectWard')}</option>

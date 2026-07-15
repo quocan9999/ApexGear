@@ -10,21 +10,14 @@ export class ProvincesController {
 
   @Get('provinces')
   @Public()
-  @ApiOperation({ summary: 'List VN provinces (proxied + cached)' })
+  @ApiOperation({ summary: 'List VN provinces/cities (v2, post-2025 merger)' })
   fetchProvinces() {
     return this.provincesService.fetchProvinces();
   }
 
-  @Get('provinces/:code/districts')
+  @Get('provinces/:code/wards')
   @Public()
-  @ApiOperation({ summary: 'List districts for a province' })
-  fetchDistricts(@Param('code') code: string) {
-    return this.provincesService.fetchDistricts(code);
-  }
-
-  @Get('districts/:code/wards')
-  @Public()
-  @ApiOperation({ summary: 'List wards for a district' })
+  @ApiOperation({ summary: 'List wards for a province (2-tier, no districts)' })
   fetchWards(@Param('code') code: string) {
     return this.provincesService.fetchWards(code);
   }

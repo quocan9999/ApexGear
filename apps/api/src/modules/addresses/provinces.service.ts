@@ -1,5 +1,8 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
+// v2 serves the post–1 July 2025 administrative reform: a 2-tier model
+// (province/city -> ward, with districts abolished) and 34 merged provinces.
+// So there is no district level — wards are fetched directly under a province.
 const API_BASE = 'https://provinces.open-api.vn/api/v2';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -12,7 +15,7 @@ export class ProvincesService {
 
   async fetchProvinces() {
     return this.cached('provinces', async () => {
-      const res = await fetch(`${API_BASE}/`);
+      const res = await fetch(`${API_BASE}/p/`);
       if (!res.ok) {
         throw new Error(`Provinces API error: ${res.status}`);
       }
@@ -20,8 +23,8 @@ export class ProvincesService {
     });
   }
 
-  async fetchDistricts(provinceCode: string) {
-    return this.cached(`districts:${provinceCode}`, async () => {
+  async fetchWards(provinceCode: string) {
+    return this.cached(`wards:${provinceCode}`, async () => {
       const res = await fetch(`${API_BASE}/p/${provinceCode}?depth=2`);
       if (!res.ok) {
         if (res.status === 404) {
@@ -29,22 +32,10 @@ export class ProvincesService {
         }
         throw new Error(`Provinces API error: ${res.status}`);
       }
-      const data = (await res.json()) as { districts?: unknown[] };
-      return data.districts ?? data;
-    });
-  }
-
-  async fetchWards(districtCode: string) {
-    return this.cached(`wards:${districtCode}`, async () => {
-      const res = await fetch(`${API_BASE}/d/${districtCode}?depth=2`);
-      if (!res.ok) {
-        if (res.status === 404) {
-          throw new NotFoundException('District not found');
-        }
-        throw new Error(`Provinces API error: ${res.status}`);
-      }
       const data = (await res.json()) as { wards?: unknown[] };
-      return data.wards ?? data;
+      // Always return an array — never the raw province object, or the
+      // frontend's wards.map() gets a non-iterable and the select breaks.
+      return data.wards ?? [];
     });
   }
 

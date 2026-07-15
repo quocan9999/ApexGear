@@ -183,6 +183,33 @@
     "image": "Chèn ảnh",
     "imagePrompt": "Nhập URL ảnh"
   },
+  "categories": {
+    "create": "Tạo danh mục",
+    "columns": {
+      "name": "Tên danh mục",
+      "sortOrder": "Thứ tự"
+    },
+    "status": {
+      "active": "Đang dùng",
+      "inactive": "Ngừng dùng"
+    },
+    "deleteTitle": "Xóa danh mục",
+    "deleteDescription": "Bạn có chắc muốn xóa \"{{name}}\"? Danh mục con (nếu có) cũng sẽ bị xóa mềm.",
+    "form": {
+      "createTitle": "Tạo danh mục",
+      "editTitle": "Sửa danh mục",
+      "name": "Tên danh mục",
+      "slug": "Slug (tự tạo)",
+      "parent": "Danh mục cha",
+      "noParent": "Không có (cấp 1)",
+      "sortOrder": "Thứ tự",
+      "description": "Mô tả",
+      "isActive": "Đang dùng",
+      "validationRequired": "Vui lòng nhập tên danh mục.",
+      "validationSortOrder": "Thứ tự phải là số nguyên ≥ 0."
+    }
+  },
+
   "login": {
     "title": "Đăng nhập quản trị",
     "description": "Khu vực quản trị dành cho nhân viên hệ thống. Vui lòng đăng nhập để tiếp tục.",

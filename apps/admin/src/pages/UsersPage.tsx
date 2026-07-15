@@ -345,7 +345,7 @@ export function UsersPage() {
           description={t('users.actions.deleteWarning')}
           variant="danger"
           confirmLabel={t('common.delete')}
-          loading={actionLoading[deleteTarget.id]}
+          isLoading={actionLoading[deleteTarget.id]}
           onConfirm={() => void handleDelete()}
           onCancel={() => setDeleteTarget(null)}
         />

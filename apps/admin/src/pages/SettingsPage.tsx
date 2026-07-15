@@ -109,7 +109,6 @@ export function SettingsPage() {
                 </h3>
                 <div className="flex flex-col gap-md">
                   {visibleKeys.map((key) => {
-                    const original = settingsMap.get(key)!.value;
                     const current = dirty[key] ?? '';
                     const isDirty = hasChanged(key);
                     const isSaving = saving[key];

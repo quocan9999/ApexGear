@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import i18n from '../i18n';
 import { resetAuthStore, useAuthStore } from '../stores/auth.store';
@@ -56,6 +56,7 @@ function renderRoutes(path: string, role?: Role) {
     user: role ? { ...baseUser, role } : null,
     isAuthenticated: Boolean(role),
     isLoading: false,
+    logout: vi.fn().mockResolvedValue(undefined),
   });
 
   return render(

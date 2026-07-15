@@ -111,4 +111,26 @@ describe('CheckoutPage', () => {
     );
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/checkout/success/o2'));
   });
+
+  it('shows a friendly Vietnamese message when checkout fails (no raw English error)', async () => {
+    vi.mocked(ordersService.create).mockRejectedValueOnce({
+      message: 'Insufficient stock for Default',
+      status: 400,
+    });
+    render(
+      <MemoryRouter>
+        <CheckoutPage />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByText(/^A$/)).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: /tiếp tục/i })); // to payment
+    await userEvent.click(screen.getByRole('button', { name: /tiếp tục/i })); // to review
+    await userEvent.click(screen.getByRole('button', { name: /đặt hàng/i }));
+
+    // The raw English backend message must NOT leak through; user sees Vietnamese fallback.
+    await waitFor(() =>
+      expect(screen.queryByText(/Insufficient stock for/)).not.toBeInTheDocument(),
+    );
+    expect(navigate).not.toHaveBeenCalled();
+  });
 });

@@ -286,7 +286,9 @@ model Order {
 
   couponId String?
   coupon   Coupon? @relation(fields: [couponId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  sepayRef String? @unique
+  sepayRef String?
+  // sepayRef có unique index filtered (chỉ enforce khi NOT NULL)
+  // Prisma không hỗ trợ WHERE clause, xem migration SQL
   note     String? @db.NVarChar(500)
 
   paidAt       DateTime?

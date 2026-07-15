@@ -105,6 +105,15 @@
     "continue": "Tiếp tục",
     "back": "Quay lại",
     "placeOrder": "Đặt hàng",
+    "error": {
+      "outOfStock": "Sản phẩm trong giỏ đã hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại.",
+      "invalidCoupon": "Mã giảm giá không hợp lệ hoặc đã hết hạn.",
+      "invalidAddress": "Địa chỉ giao hàng không hợp lệ. Vui lòng chọn lại.",
+      "conflict": "Hệ thống đang bận, vui lòng thử đặt hàng lại sau ít giây.",
+      "unauthorized": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      "serverError": "Máy chủ đang gặp sự cố. Vui lòng thử lại sau.",
+      "generic": "Đặt hàng thất bại. Vui lòng thử lại."
+    },
     "defaultBadge": "Mặc định",
     "addNewAddress": "＋ Thêm địa chỉ mới",
     "emptyCartRedirect": "Giỏ hàng trống, đang chuyển hướng...",

@@ -1,6 +1,7 @@
 import { Page } from 'playwright';
 import { SELECTORS } from './config';
-import { CategoryKey, RawProduct, RawSpecRow, RawVariant } from './types';
+import { CategoryKey, RawCapture, RawProduct, RawSpecRow, RawVariant } from './types';
+import { extractImageUrls } from './haravan';
 
 /** Collect up to `limit` product detail URLs from a (brand-filtered) listing page. */
 export async function crawlBrandListing(page: Page, url: string, limit: number): Promise<string[]> {
@@ -23,6 +24,70 @@ export async function fetchProductJson(page: Page, productUrl: string): Promise<
   } catch {
     return null;
   }
+}
+
+/**
+ * Capture a product for the RAW tier: navigate the detail page while listening
+ * for the Haravan product JSON response (DevTools-Network approach — more stable
+ * than DOM parsing), scrape the spec table, and return everything verbatim as a
+ * RawCapture ready to store in `gearvn_raw`. Falls back to `{url}.json` if the
+ * page never fires a matching response. Returns null when no product JSON found.
+ */
+export async function captureProduct(
+  page: Page,
+  url: string,
+  categoryKey: CategoryKey,
+  brandSlug: string,
+  fallbackBrand: string,
+): Promise<RawCapture | null> {
+  const cleanUrl = url.split('?')[0].replace(/\/$/, '');
+  const handle = cleanUrl.split('/products/')[1]?.split('/')[0] ?? null;
+
+  // Listen for the internal Haravan product JSON that the storefront requests
+  // (e.g. `/products/<handle>.json` or a Haravan product API path).
+  let captured: any = null;
+  const onResponse = async (resp: any) => {
+    if (captured) return;
+    const rUrl = resp.url();
+    if (!/\/products\/[^?]+\.json/.test(rUrl) && !/\/products\.json/.test(rUrl)) return;
+    try {
+      const body = await resp.json();
+      const p = body?.product ?? body;
+      if (p && p.title && p.variants) captured = p;
+    } catch {
+      /* non-JSON or already consumed — ignore */
+    }
+  };
+  page.on('response', onResponse);
+
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => undefined);
+    await page.waitForTimeout(1500);
+  } finally {
+    page.off('response', onResponse);
+  }
+
+  // Fallback: explicit JSON fetch if the page didn't emit a usable response.
+  if (!captured) captured = await fetchProductJson(page, url);
+  if (!captured || !captured.title || !Array.isArray(captured.variants) || captured.variants.length === 0) {
+    return null;
+  }
+
+  const specs = await scrapeSpecs(page);
+  const imageUrls = extractImageUrls(captured);
+
+  return {
+    categoryKey,
+    brandSlug,
+    brandName: (captured.vendor && String(captured.vendor).trim()) || fallbackBrand,
+    sourceUrl: cleanUrl,
+    handle,
+    title: String(captured.title),
+    haravanJson: JSON.stringify(captured),
+    specsJson: JSON.stringify(specs),
+    descriptionHtml: String(captured.body_html ?? ''),
+    imageUrlsJson: JSON.stringify(imageUrls),
+  };
 }
 
 /** Best-effort spec extraction from the rendered product DOM (may be empty). */

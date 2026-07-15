@@ -1,0 +1,60 @@
+// ApexGear — RAW staging schema (SQL Server DB: gearvn_raw)
+// Separate datasource from the production `apexgear` DB. This tier stores
+// scraped data VERBATIM (Haravan product JSON + DOM specs as text). No cleaning,
+// no typing — everything is NVarChar(Max)/JSON string. The transform tier
+// (scripts/crawler/raw-to-apex.ts) reads from here and loads into `apexgear`.
+//
+// Setup (run once, after creating an empty `gearvn_raw` DB and setting
+// RAW_DATABASE_URL in apps/api/.env):
+//   npm run db:raw:generate   # generate the raw Prisma client
+//   npm run db:raw:push       # create tables in gearvn_raw
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/raw-client"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("RAW_DATABASE_URL")
+}
+
+/// One crawl execution. Groups the RawProducts captured in a single run so the
+/// transform step can target the latest completed run deterministically.
+model RawCrawlRun {
+  id            String    @id @default(uuid())
+  mode          String    @db.VarChar(10) // 'test' | 'full'
+  status        String    @db.VarChar(20) // 'running' | 'completed' | 'failed'
+  startedAt     DateTime  @default(now())
+  finishedAt    DateTime?
+  totalProducts Int       @default(0)
+  notes         String?   @db.NVarChar(Max)
+
+  products RawProduct[]
+
+  @@index([status, finishedAt])
+}
+
+/// A single scraped product, stored exactly as captured. `haravanJson` is the
+/// authoritative internal Haravan product object (body.product); `specsJson` is
+/// the DOM spec table verbatim. Nothing here is cleaned or normalized.
+model RawProduct {
+  id              String   @id @default(uuid())
+  runId           String
+  categoryKey     String   @db.VarChar(30)  // 'ban-phim' | 'tai-nghe' | 'chuot' | 'man-hinh'
+  brandSlug       String   @db.VarChar(60)  // configured ?hang= slug (lowercase)
+  brandName       String   @db.NVarChar(120) // Haravan vendor, else configured brand
+  sourceUrl       String   @db.VarChar(500)
+  handle          String?  @db.VarChar(200)
+  title           String   @db.NVarChar(500)
+  haravanJson     String   @db.NVarChar(Max) // body.product verbatim (JSON string)
+  specsJson       String   @db.NVarChar(Max) // DOM specs verbatim [{name,value}] (JSON string)
+  descriptionHtml String   @db.NVarChar(Max) // Haravan body_html (rich text)
+  imageUrlsJson   String   @db.NVarChar(Max) // absolute image URLs, primary first (JSON string)
+  crawledAt       DateTime @default(now())
+
+  run RawCrawlRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+  @@index([categoryKey, brandSlug])
+}

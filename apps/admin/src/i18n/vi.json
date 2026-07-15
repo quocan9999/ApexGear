@@ -120,7 +120,17 @@
     },
     "lowStockSuffix": "SP",
     "usersSuffix": "người",
-    "ordersSuffix": "đơn"
+    "ordersSuffix": "đơn",
+    "recentOrders": {
+      "title": "Đơn hàng gần đây",
+      "viewAll": "Xem tất cả",
+      "empty": "Chưa có đơn hàng gần đây",
+      "orderNumber": "Mã đơn",
+      "customer": "Khách",
+      "total": "Tổng",
+      "status": "Trạng thái",
+      "createdAt": "Thời gian"
+    }
   },
   "products": {
     "create": "Tạo sản phẩm",
@@ -232,6 +242,86 @@
       "description": "Mô tả",
       "isActive": "Đang dùng",
       "validationRequired": "Vui lòng nhập tên thương hiệu."
+    }
+  },
+  "orders": {
+    "searchPlaceholder": "Tìm theo mã đơn hoặc tên khách...",
+    "viewDetail": "Chi tiết",
+    "backToList": "Quay lại danh sách đơn hàng",
+    "detailTitle": "Đơn hàng {{orderNumber}}",
+    "createdAtLabel": "Tạo lúc {{date}}",
+    "notFound": "Không tìm thấy đơn hàng.",
+    "transitions": "Chuyển trạng thái",
+    "reasonRequired": "Vui lòng nhập lý do.",
+    "customerAccount": "Tài khoản: {{name}} ({{email}})",
+    "columns": {
+      "orderNumber": "Mã đơn",
+      "customer": "Khách hàng",
+      "total": "Tổng tiền",
+      "status": "Trạng thái",
+      "paymentStatus": "Thanh toán",
+      "createdAt": "Ngày tạo"
+    },
+    "filters": {
+      "status": "Trạng thái đơn",
+      "paymentStatus": "Trạng thái thanh toán",
+      "paymentMethod": "Phương thức",
+      "allStatuses": "Tất cả trạng thái",
+      "allPaymentStatuses": "Tất cả thanh toán",
+      "allPaymentMethods": "Tất cả phương thức"
+    },
+    "status": {
+      "PENDING": "Chờ xác nhận",
+      "CONFIRMED": "Đã xác nhận",
+      "SHIPPING": "Đang giao",
+      "DELIVERED": "Đã giao",
+      "COMPLETED": "Hoàn thành",
+      "CANCELLED": "Đã hủy",
+      "REFUNDED": "Hoàn tiền"
+    },
+    "paymentStatus": {
+      "UNPAID": "Chưa thanh toán",
+      "PAID": "Đã thanh toán",
+      "REFUNDED": "Đã hoàn tiền"
+    },
+    "paymentMethod": {
+      "COD": "COD",
+      "SEPAY": "SePay"
+    },
+    "actions": {
+      "CONFIRMED": "Xác nhận đơn",
+      "SHIPPING": "Chuyển giao hàng",
+      "DELIVERED": "Đã giao hàng",
+      "COMPLETED": "Hoàn thành",
+      "CANCELLED": "Hủy đơn",
+      "REFUNDED": "Hoàn tiền"
+    },
+    "shipping": {
+      "title": "Thông tin giao hàng",
+      "name": "Người nhận",
+      "phone": "Số điện thoại",
+      "address": "Địa chỉ",
+      "note": "Ghi chú",
+      "cancelReason": "Lý do hủy/hoàn"
+    },
+    "totals": {
+      "title": "Tổng kết",
+      "subtotal": "Tạm tính",
+      "shippingFee": "Phí vận chuyển",
+      "discount": "Giảm giá",
+      "total": "Tổng cộng"
+    },
+    "items": {
+      "title": "Sản phẩm trong đơn",
+      "product": "Sản phẩm",
+      "price": "Đơn giá",
+      "quantity": "Số lượng",
+      "lineTotal": "Thành tiền"
+    },
+    "reasonModal": {
+      "cancelTitle": "Hủy đơn hàng",
+      "refundTitle": "Hoàn tiền đơn hàng",
+      "reason": "Lý do"
     }
   },
 

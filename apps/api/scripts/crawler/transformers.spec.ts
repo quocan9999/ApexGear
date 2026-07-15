@@ -74,7 +74,6 @@ describe('toTransformedProduct (multi-variant)', () => {
     expect(p.slug).toBe('ban-phim-co-akko-3068b');
     expect(p.brandName).toBe('Akko');
     expect(p.categoryName).toBe('Bàn phím');
-    expect(p.shortDescription).toBe('Bàn phím không dây');
     expect(p.basePrice).toBe(1990000);            // default variant compare-at
     expect(p.salePrice).toBe(1690000);            // default variant price
     expect(p.images[0].isPrimary).toBe(true);

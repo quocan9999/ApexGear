@@ -28,6 +28,51 @@ export function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * Clean GearVN `body_html` into presentable rich text.
+ *
+ * GearVN auto-prepends a header block (Hãng sản xuất / Tình trạng / Bảo hành),
+ * store policies (đổi trả, trả góp MPOS/HDSAISON) and a literal `##` separator
+ * before the real marketing content, then embeds a spec table (#tblGeneralAttribute)
+ * that duplicates our structured specs. Everything up to `##` is boilerplate, so we
+ * cut it; we also drop the embedded spec table, unwrap gearvn.com cross-sell links,
+ * and normalize protocol-relative asset URLs so inline images resolve. Idempotent.
+ */
+export function cleanDescriptionHtml(html: string | null | undefined): string | null {
+  if (!html) return null;
+  let out = html;
+
+  // 1. Boilerplate (header + store policies) sits before the `##` separator.
+  const marker = out.indexOf('##');
+  if (marker >= 0) {
+    out = out.slice(marker + 2);
+    // Drop orphan closing/empty tags left where the cut landed mid-element.
+    out = out.replace(/^(?:\s*<\/(?:strong|span|em|b|p|div|h1|h2|h3)>)+/gi, '');
+  }
+
+  // 2. Remove the embedded spec table + its heading (duplicates structured specs).
+  out = out.replace(
+    /<h2[^>]*>(?:<[^>]+>)*\s*Thông số kỹ thuật:?\s*(?:<\/[^>]+>)*<\/h2>/gi,
+    '',
+  );
+  out = out.replace(/<table[^>]*id="tblGeneralAttribute"[\s\S]*?<\/table>/gi, '');
+
+  // 3. Unwrap gearvn.com cross-sell links → keep their text only.
+  out = out.replace(/<a\b[^>]*href="[^"]*gearvn\.com[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, '$1');
+
+  // 4. Normalize protocol-relative asset URLs (//cdn… → https://cdn…).
+  out = out.replace(/(src|href)="\/\//gi, '$1="https://');
+
+  // 5. Drop empty paragraphs/divs/spans left behind.
+  out = out.replace(/<(p|div|span)>(?:\s|&nbsp;|<br\s*\/?>)*<\/\1>/gi, '');
+
+  out = out.trim();
+
+  // Nothing meaningful left (e.g. body was only header + spec table).
+  const text = out.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+  return text.length >= 20 ? out : null;
+}
+
 export function buildSku(brandSlug: string, productSlug: string, index: number): string {
   return `${brandSlug}-${productSlug}-${index}`.toUpperCase();
 }
@@ -91,8 +136,6 @@ export function toTransformedProduct(raw: RawProduct): TransformedProduct | null
     };
   });
 
-  const shortText = stripHtml(raw.descriptionHtml).slice(0, 500);
-
   return {
     categoryKey: raw.categoryKey,
     categoryName: category.name,
@@ -100,8 +143,7 @@ export function toTransformedProduct(raw: RawProduct): TransformedProduct | null
     brandSlug,
     name: raw.title,
     slug,
-    shortDescription: shortText || null,
-    descriptionHtml: raw.descriptionHtml || null,
+    descriptionHtml: cleanDescriptionHtml(raw.descriptionHtml),
     basePrice: defBase,
     salePrice: defSale,
     specificationsJson: JSON.stringify(normalizeSpecs(raw.specs)),

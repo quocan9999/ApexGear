@@ -100,7 +100,6 @@ model Product {
   id               String    @id @default(uuid())
   name             String    @db.NVarChar(500)
   slug             String    @unique(map: "unique_active_product_slug")
-  shortDescription String?   @db.NVarChar(500)
   description      String?   @db.NVarChar(Max)
   specifications   String?   @db.NVarChar(Max) // JSON string
   basePrice        Decimal   @db.Decimal(18, 2)

@@ -12,7 +12,6 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
     id: 'p1',
     name: 'Bàn phím cơ AG Pro',
     slug: 'ban-phim-co-ag-pro',
-    shortDescription: null,
     description: null,
     basePrice: 2000000,
     salePrice: null,

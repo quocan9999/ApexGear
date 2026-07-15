@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import { cn } from '../utils/cn';
 import { formatPrice } from '../utils/format';
 import { productsService } from '../services/products.service';
 import { useCartStore } from '../stores/cart.store';
@@ -212,10 +211,6 @@ export default function ProductDetailPage() {
             {t(badge.labelKey)}
           </Badge>
 
-          {product.shortDescription && (
-            <p className="body-md text-on-surface-variant">{product.shortDescription}</p>
-          )}
-
           {/* Only surface the variant picker for products with real choices
               (>1 variant). Single-variant products still transact on their
               default variant — stock/cart always run on the variant, never on
@@ -256,7 +251,7 @@ export default function ProductDetailPage() {
           {product.description ? (
             <CollapsibleSection title={t('product.description')}>
               <article
-                className={cn('prose max-w-none body-md text-on-surface')}
+                className="product-description"
                 // Backend sanitizes; client guard strips residual script/iframe/on-handlers.
                 dangerouslySetInnerHTML={{ __html: safeHtml(product.description) }}
               />

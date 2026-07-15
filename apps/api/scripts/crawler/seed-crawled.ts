@@ -51,7 +51,7 @@ export async function upsertProducts(prisma: PrismaClient, products: Transformed
       where: { slug: p.slug },
       update: { basePrice: p.basePrice, salePrice: p.salePrice, isActive: p.isActive, description: p.descriptionHtml, specifications: p.specificationsJson },
       create: {
-        name: p.name, slug: p.slug, shortDescription: p.shortDescription, description: p.descriptionHtml,
+        name: p.name, slug: p.slug, description: p.descriptionHtml,
         specifications: p.specificationsJson, basePrice: p.basePrice, salePrice: p.salePrice,
         categoryId, brandId, isActive: p.isActive, isFeatured: false,
       },
@@ -157,7 +157,7 @@ async function seedCrawledLegacy(): Promise<void> {
         where: { slug: p.slug },
         update: { basePrice: p.basePrice, salePrice: p.salePrice, isActive: p.isActive, description: p.descriptionHtml, specifications: p.specificationsJson },
         create: {
-          name: p.name, slug: p.slug, shortDescription: p.shortDescription, description: p.descriptionHtml,
+          name: p.name, slug: p.slug, description: p.descriptionHtml,
           specifications: p.specificationsJson, basePrice: p.basePrice, salePrice: p.salePrice,
           categoryId, brandId, isActive: p.isActive, isFeatured: false,
         },

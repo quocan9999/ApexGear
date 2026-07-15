@@ -4,7 +4,7 @@ import { TransformedProduct } from './types';
 function make(slug: string, brand: string, catName: string, catKey: any): TransformedProduct {
   return {
     categoryKey: catKey, categoryName: catName, brandName: brand, brandSlug: brand.toLowerCase(),
-    name: slug, slug, shortDescription: null, descriptionHtml: null, basePrice: 1000, salePrice: null,
+    name: slug, slug, descriptionHtml: null, basePrice: 1000, salePrice: null,
     specificationsJson: '[]', isActive: true, images: [], specs: [], optionTypes: [],
     variants: [{ sku: `${brand}-${slug}-0`.toUpperCase(), name: 'Mặc định', price: 1000, stockTotal: 50, stockAvailable: 50, isDefault: true, attributesJson: '{}', options: [], displayOrder: 0 }],
   };

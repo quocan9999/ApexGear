@@ -160,3 +160,73 @@
   font-weight: 500;
   line-height: 16px;
 }
+
+/* ========== RICH-TEXT PRODUCT DESCRIPTION ==========
+   Styles the sanitized crawl HTML rendered in ProductDetailPage. There is no
+   Tailwind typography plugin, so the old `prose` class was inert; this replaces
+   it with a scoped style covering the tags GearVN content actually uses
+   (headings, paragraphs, lists, inline images, tables, links). */
+.product-description {
+  color: var(--color-on-surface);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.product-description > :first-child {
+  margin-top: 0;
+}
+.product-description h1,
+.product-description h2,
+.product-description h3,
+.product-description h4 {
+  color: var(--color-on-surface);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.product-description h1 { font-size: 24px; }
+.product-description h2 { font-size: 20px; }
+.product-description h3 { font-size: 18px; }
+.product-description h4 { font-size: 16px; }
+.product-description p {
+  margin: 0 0 1em;
+}
+.product-description ul,
+.product-description ol {
+  margin: 0 0 1em;
+  padding-left: 1.5em;
+}
+.product-description ul { list-style: disc; }
+.product-description ol { list-style: decimal; }
+.product-description li {
+  margin: 0.25em 0;
+}
+.product-description a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+.product-description strong { font-weight: 700; }
+.product-description img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1em auto;
+  border-radius: var(--radius-lg);
+}
+.product-description table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 14px;
+}
+.product-description th,
+.product-description td {
+  border: 1px solid var(--color-outline-variant);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.product-description th {
+  background: var(--color-surface-container);
+  font-weight: 600;
+}

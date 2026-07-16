@@ -48,7 +48,7 @@ export default function PaymentPage() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [orderId]);
 
   // SSE Connection
   useEffect(() => {

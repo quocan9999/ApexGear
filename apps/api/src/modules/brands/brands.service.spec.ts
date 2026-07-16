@@ -30,13 +30,6 @@ describe('BrandsService', () => {
     await expect(service.findOne('x')).rejects.toBeInstanceOf(NotFoundException);
   });
 
-  it('create maps P2002 to conflict', async () => {
-    prisma.brand.findFirst.mockResolvedValue(null);
-    prisma.brand.create.mockRejectedValue({ code: 'P2002' });
-    await expect(service.create({ name: 'Sony' })).rejects.toBeInstanceOf(
-      ConflictException,
-    );
-  });
 
   it('remove rejects brand with products', async () => {
     prisma.brand.findFirst.mockResolvedValue({

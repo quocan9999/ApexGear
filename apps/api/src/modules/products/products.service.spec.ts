@@ -34,7 +34,7 @@ describe('ProductsService', () => {
       const result = await service.findAll({}, false);
       expect(result.data[0].variants[0]).toEqual(
         expect.objectContaining({
-          stockStatus: 'low_stock',
+          stockStatus: 'LOW_STOCK',
         }),
       );
       expect(result.data[0].variants[0]).not.toHaveProperty('stockAvailable');

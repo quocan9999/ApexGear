@@ -33,7 +33,7 @@ describe('VariantsService', () => {
 
     const result = await service.findByProduct('p1', false);
     expect(result[0]).toEqual(
-      expect.objectContaining({ stockStatus: 'out_of_stock' }),
+      expect.objectContaining({ stockStatus: 'OUT_OF_STOCK' }),
     );
     expect(result[0]).not.toHaveProperty('stockTotal');
   });

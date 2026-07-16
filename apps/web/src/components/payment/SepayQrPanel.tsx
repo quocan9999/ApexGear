@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { paymentsService } from '../../services/payments.service';
 import { formatPrice } from '../../utils/format';
-import { useOrderPolling } from '../../hooks/useOrderPolling';
 import CountdownTimer from './CountdownTimer';
 import type { SepayQr } from '../../types';
 
@@ -14,17 +13,18 @@ interface SepayQrPanelProps {
 }
 
 /**
- * Builds a scannable VietQR image URL from the SePay transfer fields. SePay's
- * hosted QR endpoint accepts the destination account, amount, and transfer
- * content (which carries the order reference the backend reconciles against).
+ * Builds a scannable VietQR image URL from the SePay transfer fields.
+ * Uses vietqr.app per the SePay documentation (requires `bank` param).
  */
 function buildQrImageUrl(qr: SepayQr): string {
   const params = new URLSearchParams({
     acc: qr.bankAccount,
+    bank: qr.bankId ?? 'MB',
     amount: String(qr.amount),
     des: qr.content,
+    template: 'compact',
   });
-  return `https://qr.sepay.vn/img?${params.toString()}`;
+  return `https://vietqr.app/img?${params.toString()}`;
 }
 
 export default function SepayQrPanel({ orderId, onPaid, onExpired }: SepayQrPanelProps) {
@@ -35,6 +35,7 @@ export default function SepayQrPanel({ orderId, onPaid, onExpired }: SepayQrPane
   const [expired, setExpired] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Fetch QR data on mount
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -55,12 +56,39 @@ export default function SepayQrPanel({ orderId, onPaid, onExpired }: SepayQrPane
     };
   }, [orderId, t]);
 
-  // Poll order status until PAID (stops itself on paid/terminal). Disabled once expired.
-  const { paymentStatus } = useOrderPolling(orderId, { enabled: !expired });
+  // SSE — real-time payment notification from backend.
+  // Closes on paid, expired, or unmount. Does not close on transient errors
+  // because EventSource auto-reconnects; onerror just logs.
+  const onPaidRef = useRef(onPaid);
+  onPaidRef.current = onPaid;
 
   useEffect(() => {
-    if (paymentStatus === 'PAID') onPaid();
-  }, [paymentStatus, onPaid]);
+    if (expired) return; // no point connecting after countdown ends
+
+    const baseURL = import.meta.env.VITE_API_URL ?? '/api';
+    const es = new EventSource(`${baseURL}/payments/stream/${orderId}`);
+
+    es.onmessage = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data as string) as { success?: boolean };
+        if (data.success) {
+          es.close();
+          onPaidRef.current();
+        }
+      } catch {
+        // malformed frame — ignore, stream continues
+      }
+    };
+
+    es.onerror = () => {
+      // EventSource reconnects automatically; we just log in dev.
+      if (import.meta.env.DEV) {
+        console.warn('[SepayQrPanel] SSE connection error, will retry…');
+      }
+    };
+
+    return () => es.close();
+  }, [orderId, expired]);
 
   const qrImageUrl = useMemo(() => (qr ? buildQrImageUrl(qr) : ''), [qr]);
 

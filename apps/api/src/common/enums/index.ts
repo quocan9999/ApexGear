@@ -45,4 +45,4 @@ export enum CouponType {
   FIXED = 'FIXED',
 }
 
-export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
+export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';

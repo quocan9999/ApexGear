@@ -73,6 +73,7 @@ describe('PaymentsService', () => {
       const result = await service.getQrData('u1', 'o1');
       expect(result).toEqual({
         bankAccount: '0123456789',
+        bankId: 'MB',
         amount: 150000,
         content: 'AGABC123',
         orderNumber: 'AG-1',

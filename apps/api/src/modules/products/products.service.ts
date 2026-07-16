@@ -10,15 +10,15 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
 import { slugify } from '../../common/utils/slugify';
 
-export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
+export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
 
 export function computeStockStatus(
   stockAvailable: number,
   lowStockThreshold: number,
 ): StockStatus {
-  if (stockAvailable <= 0) return 'out_of_stock';
-  if (stockAvailable <= lowStockThreshold) return 'low_stock';
-  return 'in_stock';
+  if (stockAvailable <= 0) return 'OUT_OF_STOCK';
+  if (stockAvailable <= lowStockThreshold) return 'LOW_STOCK';
+  return 'IN_STOCK';
 }
 
 /**

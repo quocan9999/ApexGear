@@ -84,7 +84,7 @@ describe('Catalog public routes (e2e)', () => {
       .get('/api/products')
       .expect(200);
 
-    expect(res.body.data[0].variants[0].stockStatus).toBe('low_stock');
+    expect(res.body.data[0].variants[0].stockStatus).toBe('LOW_STOCK');
     expect(res.body.data[0].variants[0].stockAvailable).toBeUndefined();
   });
 

@@ -27,7 +27,7 @@ export default function PaymentPage() {
           const now = new Date().getTime();
           setTimeLeft(Math.max(0, Math.floor((expires - now) / 1000)));
         } else {
-          setError(res.message || 'Lỗi tải thông tin thanh toán');
+          setError(res.error || 'Lỗi tải thông tin thanh toán');
         }
       })
       .catch(err => {
@@ -70,7 +70,6 @@ export default function PaymentPage() {
     
     eventSource.onerror = (err) => {
       console.error('SSE Error:', err);
-      eventSource.close();
     };
 
     return () => eventSource.close();
@@ -102,7 +101,7 @@ export default function PaymentPage() {
         <div className="flex-1 text-center flex flex-col items-center">
           <div className="p-4 bg-gray-50 border rounded-lg mb-4">
              {/* Note: We use VietQR api to generate image for simplicity */}
-             <img src={`https://img.vietqr.io/image/970422-${qrData.bankAccount}-compact2.png?amount=${qrData.amount}&addInfo=${qrData.content}`} alt="QR Code" className="w-48 h-48" />
+             <img src={`https://img.vietqr.io/image/970422-${qrData.bankAccount}-compact2.png?amount=${qrData.amount}&addInfo=${encodeURIComponent(qrData.content)}`} alt="QR Code" className="w-48 h-48" />
           </div>
           <p className="text-gray-600 mb-2">Vui lòng quét mã QR qua ứng dụng ngân hàng.</p>
           

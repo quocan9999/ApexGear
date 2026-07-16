@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { createHmac, timingSafeEqual } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OrderStatus, PaymentMethod, PaymentStatus } from '../../common/enums';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class PaymentsService {
@@ -18,6 +19,7 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private config: ConfigService,
+    private eventEmitter: EventEmitter2,
   ) {
     this.webhookSecret = this.config.get<string>('SEPAY_WEBHOOK_SECRET', '');
     this.bankAccount = this.config.get<string>('SEPAY_BANK_ACCOUNT', '');
@@ -95,6 +97,12 @@ export class PaymentsService {
     });
 
     this.logger.log(`Payment received for order ${order.orderNumber}`);
+
+    this.eventEmitter.emit('order.paid', {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+    });
+
     return { success: true, orderNumber: order.orderNumber };
   }
 }

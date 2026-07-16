@@ -23,6 +23,7 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     ReviewsModule,
     SettingsModule,
     DashboardModule,
+    EventEmitterModule.forRoot(),
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

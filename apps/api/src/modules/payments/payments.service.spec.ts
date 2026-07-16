@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHmac } from 'crypto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PaymentsService } from './payments.service';
 import { createPrismaMock } from '../../test-utils/prisma-mock';
 import {
@@ -12,6 +13,7 @@ import {
 describe('PaymentsService', () => {
   let service: PaymentsService;
   let prisma: ReturnType<typeof createPrismaMock>;
+  let eventEmitter: EventEmitter2;
   const secret = 'test-secret';
 
   beforeEach(() => {
@@ -23,9 +25,11 @@ describe('PaymentsService', () => {
         return def ?? '';
       }),
     };
+    eventEmitter = { emit: jest.fn() } as unknown as EventEmitter2;
     service = new PaymentsService(
       prisma as never,
       config as unknown as ConfigService,
+      eventEmitter,
     );
   });
 
@@ -136,6 +140,10 @@ describe('PaymentsService', () => {
           paymentStatus: PaymentStatus.PAID,
           paidAt: expect.any(Date),
         },
+      });
+      expect(eventEmitter.emit).toHaveBeenCalledWith('order.paid', {
+        orderId: 'o1',
+        orderNumber: 'AG-1',
       });
     });
   });

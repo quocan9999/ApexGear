@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import * as rxjs from 'rxjs';
 
 describe('PaymentsController', () => {
@@ -22,9 +22,24 @@ describe('PaymentsController', () => {
     eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
-  it('should return an observable for payment stream', () => {
-    jest.spyOn(rxjs, 'fromEvent').mockReturnValue(new Observable());
-    const result = controller.streamPayment('order-1');
+  it('should filter and map the order.paid event correctly', (done) => {
+    const subject = new Subject<any>();
+    const fromEventSpy = jest.spyOn(rxjs, 'fromEvent').mockReturnValue(subject);
+
+    const orderId = 'order-1';
+    const result = controller.streamPayment(orderId);
+
+    expect(fromEventSpy).toHaveBeenCalledWith(eventEmitter, 'order.paid');
     expect(result).toBeInstanceOf(Observable);
+
+    result.subscribe((messageEvent) => {
+      expect(messageEvent).toEqual({
+        data: { success: true, orderNumber: 'ORD-123' },
+      });
+      done();
+    });
+
+    subject.next({ orderId: 'other-order', orderNumber: 'ORD-999' });
+    subject.next({ orderId, orderNumber: 'ORD-123' });
   });
 });

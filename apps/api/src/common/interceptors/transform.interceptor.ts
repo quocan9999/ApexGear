@@ -48,6 +48,11 @@ export class TransformInterceptor<T>
   ): Observable<ApiResponse<T>> {
     return next.handle().pipe(
       map((responseData) => {
+        const req = context.switchToHttp?.()?.getRequest?.();
+        if (req?.headers?.accept?.includes('text/event-stream')) {
+          return responseData;
+        }
+
         // If response already has `data` key, pass through (for paginated responses)
         if (
           responseData &&

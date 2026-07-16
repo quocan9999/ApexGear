@@ -17,6 +17,11 @@ import { Observable, fromEvent, map, filter } from 'rxjs';
 import { PaymentsService } from './payments.service';
 import { Public, CurrentUser } from '../../common/decorators';
 
+export interface OrderPaidEvent {
+  orderId: string;
+  orderNumber: string;
+}
+
 @ApiTags('Payments')
 @Controller('payments')
 export class PaymentsController {
@@ -49,12 +54,18 @@ export class PaymentsController {
   @Public()
   @Sse('stream/:orderId')
   @ApiOperation({ summary: 'Stream payment status updates' })
-  streamPayment(@Param('orderId') orderId: string): Observable<MessageEvent> {
-    return fromEvent(this.eventEmitter, 'order.paid').pipe(
-      filter((payload: any) => payload.orderId === orderId),
-      map((payload: any) => ({
-        data: { success: true, orderNumber: payload.orderNumber },
-      } as MessageEvent)),
+  streamPayment(
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+  ): Observable<MessageEvent> {
+    return (fromEvent(this.eventEmitter, 'order.paid') as Observable<OrderPaidEvent>).pipe(
+      filter((payload: OrderPaidEvent) => payload.orderId === orderId),
+      map(
+        (payload: OrderPaidEvent) =>
+          ({
+            data: { success: true, orderNumber: payload.orderNumber },
+          }) as MessageEvent,
+      ),
     );
   }
 }
+

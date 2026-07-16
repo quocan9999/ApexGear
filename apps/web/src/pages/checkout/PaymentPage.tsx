@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
+interface QrData {
+  orderNumber: string;
+  amount: number;
+  bankAccount: string;
+  content: string;
+  expiresAt: string;
+}
+
 export default function PaymentPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const [qrData, setQrData] = useState<any>(null);
+  const [qrData, setQrData] = useState<QrData | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(600); // 10 mins
   
   // Fetch QR Data
@@ -17,29 +26,51 @@ export default function PaymentPage() {
           const expires = new Date(res.data.expiresAt).getTime();
           const now = new Date().getTime();
           setTimeLeft(Math.max(0, Math.floor((expires - now) / 1000)));
+        } else {
+          setError(res.message || 'Lỗi tải thông tin thanh toán');
         }
+      })
+      .catch(err => {
+        console.error(err);
+        setError('Lỗi kết nối máy chủ');
       });
   }, [orderId]);
 
   // Countdown Timer
   useEffect(() => {
-    if (timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, []);
 
   // SSE Connection
   useEffect(() => {
     const eventSource = new EventSource(`/api/payments/stream/${orderId}`);
     
     eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.success) {
-        eventSource.close();
-        // Redirect to success page or orders depending on the app flow.
-        // We will match the existing route: /checkout/success/:orderId
-        navigate(`/checkout/success/${orderId}`);
+      try {
+        const data = JSON.parse(event.data);
+        if (data.success) {
+          eventSource.close();
+          // Redirect to success page or orders depending on the app flow.
+          // We will match the existing route: /checkout/success/:orderId
+          navigate(`/checkout/success/${orderId}`);
+        }
+      } catch (err) {
+        console.error('Failed to parse SSE data', err);
       }
+    };
+    
+    eventSource.onerror = (err) => {
+      console.error('SSE Error:', err);
+      eventSource.close();
     };
 
     return () => eventSource.close();
@@ -51,6 +82,7 @@ export default function PaymentPage() {
     return `${m}:${s}`;
   };
 
+  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
   if (!qrData) return <div className="p-8 text-center">Loading...</div>;
 
   return (

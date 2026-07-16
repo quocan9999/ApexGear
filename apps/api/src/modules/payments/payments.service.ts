@@ -37,6 +37,9 @@ export class PaymentsService {
     if (!order) {
       throw new NotFoundException('Order not found or not a SePay order');
     }
+    if (order.paymentStatus === PaymentStatus.PAID) {
+      throw new BadRequestException('Order is already paid');
+    }
     if (!order.sepayRef) {
       throw new BadRequestException('Order has no SePay reference');
     }

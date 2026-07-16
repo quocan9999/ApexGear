@@ -1,0 +1,100 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "ApexGear" [ref=e6] [cursor=pointer]:
+        - /url: /
+      - navigation "Danh mục" [ref=e8]:
+        - link "Tai nghe" [ref=e9] [cursor=pointer]:
+          - /url: /products?categoryId=680496d6-0734-4c96-842b-c1b3087574e8
+        - link "Màn hình" [ref=e10] [cursor=pointer]:
+          - /url: /products?categoryId=35430827-8c48-465c-b1e6-6abfe7bbbeb6
+        - link "Chuột" [ref=e11] [cursor=pointer]:
+          - /url: /products?categoryId=eef288f7-1322-4c8e-b548-f3ab19ce917f
+        - link "Bàn phím" [ref=e12] [cursor=pointer]:
+          - /url: /products?categoryId=d42c21b0-de99-41ad-ab48-8a1a3b75cfb4
+      - search [ref=e13]:
+        - searchbox "Tìm kiếm" [ref=e15]
+      - link "Giỏ hàng" [ref=e16] [cursor=pointer]:
+        - /url: /cart
+      - button "A ApexGear Admin" [ref=e22]:
+        - generic [ref=e23]: A
+        - generic [ref=e24]: ApexGear Admin
+  - main [ref=e27]:
+    - generic [ref=e173]:
+      - heading "Tài khoản của tôi" [level=1] [ref=e174]
+      - tablist "Tài khoản của tôi" [ref=e175]:
+        - tab "Hồ sơ" [selected] [ref=e176]
+        - tab "Đổi mật khẩu" [ref=e177]
+        - tab "Sổ địa chỉ" [ref=e178]
+      - generic [ref=e180]:
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - term [ref=e183]: Họ tên
+            - definition [ref=e184]: ApexGear Admin
+          - generic [ref=e185]:
+            - term [ref=e186]: Email
+            - definition [ref=e187]: admin@apexgear.vn
+          - generic [ref=e188]:
+            - term [ref=e189]: Số điện thoại
+            - definition [ref=e190]: Chưa cập nhật
+        - button "Chỉnh sửa" [ref=e191]
+  - contentinfo [ref=e116]:
+    - generic [ref=e117]:
+      - generic [ref=e118]:
+        - generic [ref=e119]:
+          - link "ApexGear" [ref=e120] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e121]: ApexGear là cửa hàng trực tuyến chuyên cung cấp thiết bị công nghệ & gaming chính hãng cho game thủ Việt.
+        - generic [ref=e122]:
+          - heading "Danh mục" [level=3] [ref=e123]
+          - list [ref=e124]:
+            - listitem [ref=e125]:
+              - link "Tai nghe" [ref=e126] [cursor=pointer]:
+                - /url: /products?categoryId=680496d6-0734-4c96-842b-c1b3087574e8
+            - listitem [ref=e127]:
+              - link "Màn hình" [ref=e128] [cursor=pointer]:
+                - /url: /products?categoryId=35430827-8c48-465c-b1e6-6abfe7bbbeb6
+            - listitem [ref=e129]:
+              - link "Chuột" [ref=e130] [cursor=pointer]:
+                - /url: /products?categoryId=eef288f7-1322-4c8e-b548-f3ab19ce917f
+            - listitem [ref=e131]:
+              - link "Bàn phím" [ref=e132] [cursor=pointer]:
+                - /url: /products?categoryId=d42c21b0-de99-41ad-ab48-8a1a3b75cfb4
+        - generic [ref=e133]:
+          - heading "Hỗ trợ" [level=3] [ref=e134]
+          - list [ref=e135]:
+            - listitem [ref=e136]:
+              - link "Hỗ trợ" [ref=e137] [cursor=pointer]:
+                - /url: /help
+            - listitem [ref=e138]:
+              - link "Vận chuyển" [ref=e139] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=e140]:
+              - link "Đổi trả" [ref=e141] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=e142]:
+              - link "Bảo hành" [ref=e143] [cursor=pointer]:
+                - /url: /warranty
+        - generic [ref=e144]:
+          - heading "Liên hệ" [level=3] [ref=e145]
+          - list [ref=e146]:
+            - listitem [ref=e147]:
+              - link "support@apexgear.vn" [ref=e150] [cursor=pointer]:
+                - /url: mailto:support@apexgear.vn
+            - listitem [ref=e151]:
+              - link "1900 0000" [ref=e154] [cursor=pointer]:
+                - /url: tel:+8419000000
+            - listitem [ref=e155]:
+              - generic [ref=e159]: TP. Hồ Chí Minh, Việt Nam
+      - generic [ref=e160]:
+        - paragraph [ref=e161]: © 2026 ApexGear. Đã đăng ký bản quyền.
+        - list [ref=e162]:
+          - listitem [ref=e163]:
+            - link "Chính sách" [ref=e164] [cursor=pointer]:
+              - /url: /policy
+          - listitem [ref=e165]:
+            - link "Điều khoản" [ref=e166] [cursor=pointer]:
+              - /url: /terms
+          - listitem [ref=e167]:
+            - link "Bảo mật" [ref=e168] [cursor=pointer]:
+              - /url: /privacy

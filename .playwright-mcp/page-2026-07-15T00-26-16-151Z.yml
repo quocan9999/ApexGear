@@ -1,0 +1,153 @@
+- generic [ref=f3e18]:
+  - banner [ref=f3e19]:
+    - generic [ref=f3e20]:
+      - link "ApexGear" [ref=f3e21] [cursor=pointer]:
+        - /url: /
+      - navigation "Danh mục" [ref=f3e23]:
+        - link "Tai nghe" [ref=f3e24] [cursor=pointer]:
+          - /url: /products?categoryId=680496d6-0734-4c96-842b-c1b3087574e8
+        - link "Màn hình" [ref=f3e25] [cursor=pointer]:
+          - /url: /products?categoryId=35430827-8c48-465c-b1e6-6abfe7bbbeb6
+        - link "Chuột" [ref=f3e26] [cursor=pointer]:
+          - /url: /products?categoryId=eef288f7-1322-4c8e-b548-f3ab19ce917f
+        - link "Bàn phím" [ref=f3e27] [cursor=pointer]:
+          - /url: /products?categoryId=d42c21b0-de99-41ad-ab48-8a1a3b75cfb4
+      - search [ref=f3e28]:
+        - searchbox "Tìm kiếm" [ref=f3e30]
+      - link "Giỏ hàng" [ref=f3e31] [cursor=pointer]:
+        - /url: /cart
+      - button "A ApexGear Admin" [ref=f3e37]:
+        - generic [ref=f3e38]: A
+        - generic [ref=f3e39]: ApexGear Admin
+  - main [ref=f3e42]:
+    - region "Tech Gear Cho Game Thủ Việt" [ref=f3e43]:
+      - generic [ref=f3e45]:
+        - generic [ref=f3e46]:
+          - paragraph [ref=f3e47]: ApexGear
+          - heading "Tech Gear Cho Game Thủ Việt" [level=1] [ref=f3e48]
+          - paragraph [ref=f3e49]: Thiết bị công nghệ chính hãng, giá tốt nhất
+          - generic [ref=f3e50]:
+            - link [ref=f3e51] [cursor=pointer]:
+              - /url: /products
+              - button "Khám phá ngay" [ref=f3e52]
+            - link "Sony WH-1000XM5 →" [ref=f3e53] [cursor=pointer]:
+              - /url: /products/sony-wh-1000xm5
+          - link "Corsair Sony WH-1000XM5 NaN ₫" [ref=f3e54] [cursor=pointer]:
+            - /url: /products/sony-wh-1000xm5
+            - generic [ref=f3e55]:
+              - generic [ref=f3e56]: Corsair
+              - generic [ref=f3e57]: Sony WH-1000XM5
+              - generic [ref=f3e58]: NaN ₫
+        - generic: ApexGear
+    - generic [ref=f3e62]:
+      - generic [ref=f3e63]:
+        - heading "Danh mục nổi bật" [level=2] [ref=f3e64]
+        - link "Xem tất cả →" [ref=f3e65] [cursor=pointer]:
+          - /url: /products
+      - generic [ref=f3e66]:
+        - link "Tai nghe Xem thêm →" [ref=f3e67] [cursor=pointer]:
+          - /url: /products?categoryId=680496d6-0734-4c96-842b-c1b3087574e8
+          - heading "Tai nghe" [level=3] [ref=f3e72]
+          - generic [ref=f3e73]: Xem thêm →
+        - link "Màn hình Xem thêm →" [ref=f3e74] [cursor=pointer]:
+          - /url: /products?categoryId=35430827-8c48-465c-b1e6-6abfe7bbbeb6
+          - heading "Màn hình" [level=3] [ref=f3e79]
+          - generic [ref=f3e80]: Xem thêm →
+        - link "Chuột Xem thêm →" [ref=f3e81] [cursor=pointer]:
+          - /url: /products?categoryId=eef288f7-1322-4c8e-b548-f3ab19ce917f
+          - heading "Chuột" [level=3] [ref=f3e86]
+          - generic [ref=f3e87]: Xem thêm →
+        - link "Bàn phím Xem thêm →" [ref=f3e88] [cursor=pointer]:
+          - /url: /products?categoryId=d42c21b0-de99-41ad-ab48-8a1a3b75cfb4
+          - heading "Bàn phím" [level=3] [ref=f3e93]
+          - generic [ref=f3e94]: Xem thêm →
+    - generic [ref=f3e96]:
+      - generic [ref=f3e97]:
+        - heading "Sản phẩm nổi bật" [level=2] [ref=f3e98]
+        - link "Xem tất cả →" [ref=f3e99] [cursor=pointer]:
+          - /url: /products
+      - link "Corsair Sony WH-1000XM5 NaN ₫" [ref=f3e101] [cursor=pointer]:
+        - /url: /products/sony-wh-1000xm5
+        - generic [ref=f3e106]:
+          - paragraph [ref=f3e107]: Corsair
+          - heading "Sony WH-1000XM5" [level=3] [ref=f3e108]
+          - generic [ref=f3e109]: NaN ₫
+    - generic [ref=f3e112]:
+      - heading "Thương hiệu" [level=2] [ref=f3e113]
+      - generic [ref=f3e114]:
+        - link "Corsair" [ref=f3e115] [cursor=pointer]:
+          - /url: "#"
+        - link "Dell" [ref=f3e117] [cursor=pointer]:
+          - /url: "#"
+        - link "HyperX" [ref=f3e119] [cursor=pointer]:
+          - /url: "#"
+        - link "Logitech" [ref=f3e121] [cursor=pointer]:
+          - /url: "#"
+        - link "Razer" [ref=f3e123] [cursor=pointer]:
+          - /url: "#"
+        - link "Samsung" [ref=f3e125] [cursor=pointer]:
+          - /url: "#"
+        - link "Sony" [ref=f3e127] [cursor=pointer]:
+          - /url: "#"
+        - link "SteelSeries" [ref=f3e129] [cursor=pointer]:
+          - /url: "#"
+  - contentinfo [ref=f3e131]:
+    - generic [ref=f3e132]:
+      - generic [ref=f3e133]:
+        - generic [ref=f3e134]:
+          - link "ApexGear" [ref=f3e135] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=f3e136]: ApexGear là cửa hàng trực tuyến chuyên cung cấp thiết bị công nghệ & gaming chính hãng cho game thủ Việt.
+        - generic [ref=f3e137]:
+          - heading "Danh mục" [level=3] [ref=f3e138]
+          - list [ref=f3e139]:
+            - listitem [ref=f3e140]:
+              - link "Tai nghe" [ref=f3e141] [cursor=pointer]:
+                - /url: /products?categoryId=680496d6-0734-4c96-842b-c1b3087574e8
+            - listitem [ref=f3e142]:
+              - link "Màn hình" [ref=f3e143] [cursor=pointer]:
+                - /url: /products?categoryId=35430827-8c48-465c-b1e6-6abfe7bbbeb6
+            - listitem [ref=f3e144]:
+              - link "Chuột" [ref=f3e145] [cursor=pointer]:
+                - /url: /products?categoryId=eef288f7-1322-4c8e-b548-f3ab19ce917f
+            - listitem [ref=f3e146]:
+              - link "Bàn phím" [ref=f3e147] [cursor=pointer]:
+                - /url: /products?categoryId=d42c21b0-de99-41ad-ab48-8a1a3b75cfb4
+        - generic [ref=f3e148]:
+          - heading "Hỗ trợ" [level=3] [ref=f3e149]
+          - list [ref=f3e150]:
+            - listitem [ref=f3e151]:
+              - link "Hỗ trợ" [ref=f3e152] [cursor=pointer]:
+                - /url: /help
+            - listitem [ref=f3e153]:
+              - link "Vận chuyển" [ref=f3e154] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=f3e155]:
+              - link "Đổi trả" [ref=f3e156] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=f3e157]:
+              - link "Bảo hành" [ref=f3e158] [cursor=pointer]:
+                - /url: /warranty
+        - generic [ref=f3e159]:
+          - heading "Liên hệ" [level=3] [ref=f3e160]
+          - list [ref=f3e161]:
+            - listitem [ref=f3e162]:
+              - link "support@apexgear.vn" [ref=f3e165] [cursor=pointer]:
+                - /url: mailto:support@apexgear.vn
+            - listitem [ref=f3e166]:
+              - link "1900 0000" [ref=f3e169] [cursor=pointer]:
+                - /url: tel:+8419000000
+            - listitem [ref=f3e170]:
+              - generic [ref=f3e174]: TP. Hồ Chí Minh, Việt Nam
+      - generic [ref=f3e175]:
+        - paragraph [ref=f3e176]: © 2026 ApexGear. Đã đăng ký bản quyền.
+        - list [ref=f3e177]:
+          - listitem [ref=f3e178]:
+            - link "Chính sách" [ref=f3e179] [cursor=pointer]:
+              - /url: /policy
+          - listitem [ref=f3e180]:
+            - link "Điều khoản" [ref=f3e181] [cursor=pointer]:
+              - /url: /terms
+          - listitem [ref=f3e182]:
+            - link "Bảo mật" [ref=f3e183] [cursor=pointer]:
+              - /url: /privacy

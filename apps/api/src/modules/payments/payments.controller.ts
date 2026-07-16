@@ -8,15 +8,22 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  Sse,
+  MessageEvent,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiHeader } from '@nestjs/swagger';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Observable, fromEvent, map, filter } from 'rxjs';
 import { PaymentsService } from './payments.service';
 import { Public, CurrentUser } from '../../common/decorators';
 
 @ApiTags('Payments')
 @Controller('payments')
 export class PaymentsController {
-  constructor(private paymentsService: PaymentsService) {}
+  constructor(
+    private paymentsService: PaymentsService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   @Post('sepay/webhook')
   @Public()
@@ -37,5 +44,17 @@ export class PaymentsController {
     @Param('orderId', ParseUUIDPipe) orderId: string,
   ) {
     return this.paymentsService.getQrData(user.id, orderId);
+  }
+
+  @Public()
+  @Sse('stream/:orderId')
+  @ApiOperation({ summary: 'Stream payment status updates' })
+  streamPayment(@Param('orderId') orderId: string): Observable<MessageEvent> {
+    return fromEvent(this.eventEmitter, 'order.paid').pipe(
+      filter((payload: any) => payload.orderId === orderId),
+      map((payload: any) => ({
+        data: { success: true, orderNumber: payload.orderNumber },
+      } as MessageEvent)),
+    );
   }
 }

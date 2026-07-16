@@ -1,55 +1,55 @@
-# SePay Integration Design
+# Thiết kế Tích hợp Thanh toán SePay
 
-## Overview
-This document outlines the design for completing the SePay payment integration in the ApexGear E-commerce application. The goal is to provide a seamless, real-time payment experience for customers using SePay (Bank Transfer via QR Code).
+## Tổng quan
+Tài liệu này mô tả thiết kế để hoàn thiện tính năng thanh toán SePay trong ứng dụng thương mại điện tử ApexGear. Mục tiêu là cung cấp trải nghiệm thanh toán mượt mà, thời gian thực cho khách hàng sử dụng SePay (Chuyển khoản Ngân hàng qua Mã QR).
 
-## Architecture & Data Flow
+## Kiến trúc & Luồng dữ liệu
 
-1. **Checkout**: Customer places an order and selects SePay as the payment method. The frontend redirects to the payment page: `/checkout/payment/:orderId`.
-2. **QR & Order Details**: The frontend calls `GET /api/payments/qr/:orderId` to fetch the payment details (amount, bank account, content/sepayRef) and the expiration time (10 minutes from order creation).
-3. **Real-time Connection**: The frontend establishes a Server-Sent Events (SSE) connection to `GET /api/payments/stream/:orderId`.
-4. **Webhook Processing**: When the customer transfers the money, SePay sends a webhook to `POST /api/payments/webhook`.
-5. **State Update & Event Emission**:
-   - Backend verifies the webhook signature and amount.
-   - Updates the order `paymentStatus` to `PAID` in the database.
-   - Emits an internal event (e.g., `order.paid`) using `@nestjs/event-emitter`.
-6. **Client Notification**: The SSE stream listens to the internal event and pushes a notification to the connected frontend client.
-7. **Client Reaction**: The frontend receives the event, displays a success message, and redirects the user to the order confirmation/success page.
-8. **Timeout Fallback**: If no payment is received within 10 minutes, an existing backend cron job automatically cancels the order. The frontend countdown timer will also expire and inform the user.
+1. **Đặt hàng**: Khách hàng tiến hành đặt hàng và chọn SePay làm phương thức thanh toán. Frontend chuyển hướng khách đến trang thanh toán: `/checkout/payment/:orderId`.
+2. **QR & Chi tiết Đơn hàng**: Frontend gọi API `GET /api/payments/qr/:orderId` để lấy chi tiết thanh toán (số tiền, số tài khoản ngân hàng, nội dung chuyển khoản/sepayRef) và thời gian hết hạn (10 phút kể từ lúc tạo đơn).
+3. **Kết nối Real-time**: Frontend thiết lập một kết nối Server-Sent Events (SSE) tới `GET /api/payments/stream/:orderId`.
+4. **Xử lý Webhook**: Khi khách hàng chuyển khoản thành công, SePay gửi một webhook tới `POST /api/payments/webhook`.
+5. **Cập nhật Trạng thái & Phát Sự kiện**:
+   - Backend xác thực chữ ký webhook và số tiền nhận được.
+   - Cập nhật `paymentStatus` của đơn hàng thành `PAID` trong database.
+   - Phát một sự kiện nội bộ (ví dụ: `order.paid`) sử dụng `@nestjs/event-emitter`.
+6. **Thông báo đến Client**: Luồng SSE lắng nghe sự kiện nội bộ `order.paid` và đẩy thông báo xuống cho client frontend đang kết nối.
+7. **Phản hồi từ Client**: Frontend nhận sự kiện, hiển thị thông báo thành công, và tự động chuyển hướng người dùng đến trang xác nhận/cảm ơn đơn hàng.
+8. **Hết hạn Thanh toán**: Nếu không nhận được thanh toán trong vòng 10 phút, một cron job có sẵn trên Backend sẽ tự động huỷ đơn. Bộ đếm ngược trên Frontend cũng sẽ chạy hết giờ và thông báo cho người dùng biết đơn đã bị huỷ.
 
-## Component Details
+## Chi tiết Component
 
 ### Backend (apps/api)
 - **`payments.controller.ts`**:
-  - Add `GET /stream/:orderId` endpoint decorated with `@Sse()`.
-  - Validate the `orderId`.
-  - Return an `Observable` that listens to `order.paid` events and filters by `orderId`.
+  - Thêm endpoint `GET /stream/:orderId` được đánh dấu bằng `@Sse()`.
+  - Validate tham số `orderId`.
+  - Trả về một `Observable` lắng nghe các sự kiện `order.paid` và lọc theo `orderId`.
 - **`payments.service.ts`**:
-  - In `handleWebhook`, inject `EventEmitter2` and emit `order.paid` with the `orderId` upon successful payment verification and database update.
+  - Trong hàm `handleWebhook`, inject `EventEmitter2` và emit sự kiện `order.paid` kèm theo `orderId` sau khi xác thực thanh toán thành công và cập nhật database.
 - **Dependencies**:
-  - Install `@nestjs/event-emitter` in `apps/api`.
-  - Register `EventEmitterModule.forRoot()` in `app.module.ts` or `payments.module.ts`.
+  - Cài đặt `@nestjs/event-emitter` vào `apps/api`.
+  - Đăng ký `EventEmitterModule.forRoot()` trong `app.module.ts` hoặc `payments.module.ts`.
 
 ### Frontend (apps/web)
 - **`PaymentPage.tsx`**:
-  - **Layout**: Split View.
-    - Left Panel: Order details summary (total amount, items).
-    - Right Panel: QR Code (generated using a library like `react-qr-code` or by using VietQR's image API `https://img.vietqr.io/image/<bank>-<account>-<template>.png?amount=<amount>&addInfo=<content>`), and a countdown timer (10:00).
+  - **Bố cục**: Chia đôi màn hình (Split View).
+    - Cột trái: Tóm tắt chi tiết đơn hàng (tổng tiền, danh sách sản phẩm).
+    - Cột phải: Mã QR Code (được tạo bằng thư viện `react-qr-code` hoặc gọi API ảnh của VietQR `https://img.vietqr.io/image/<bank>-<account>-<template>.png?amount=<amount>&addInfo=<content>`), cùng với bộ đếm ngược thời gian (10:00).
   - **Hooks & State**:
-    - Fetch order details on mount.
-    - `EventSource` hook to listen to `/api/payments/stream/:orderId`.
-    - Handle countdown logic. If it reaches 0, update UI to show "Expired".
-    - On SSE success message, navigate to `/order/:orderId/success`.
+    - Fetch chi tiết đơn hàng khi component mount.
+    - Dùng hook `EventSource` để lắng nghe `/api/payments/stream/:orderId`.
+    - Xử lý logic đếm ngược. Nếu về 0, cập nhật UI hiển thị chữ "Đã hết hạn".
+    - Khi nhận được message thành công từ SSE, chuyển hướng đến `/order/:orderId/success`.
 
-## Error Handling & Edge Cases
-- **Insufficient Payment**: Webhook logs the issue and does not emit the success event. Manual intervention is required (existing behavior).
-- **Network Disconnection**: SSE has built-in automatic reconnection. If the frontend drops connection and reconnects after payment, we might miss the event. 
-  - *Mitigation*: The frontend should re-fetch the order status (or the stream endpoint should immediately emit the current status upon connection if already paid). Let's implement an initial status check upon loading the PaymentPage to cover this.
-- **Invalid Webhook Signature**: Rejected with 400 Bad Request.
+## Xử lý Lỗi & Các trường hợp ngoại lệ
+- **Chuyển khoản thiếu tiền**: Webhook sẽ log lỗi lại và KHÔNG emit sự kiện thành công. Yêu cầu xử lý thủ công (giữ nguyên logic hiện tại).
+- **Mất kết nối mạng**: SSE có cơ chế tự động kết nối lại. Tuy nhiên, nếu frontend mất mạng và kết nối lại sau khi đã thanh toán xong, có thể sẽ bị lỡ event.
+  - *Giải pháp*: Frontend cần gọi API kiểm tra lại trạng thái đơn hàng ngay khi load xong PaymentPage (hoặc endpoint stream sẽ lập tức emit trạng thái hiện tại ngay khi vừa kết nối). Chúng ta sẽ thêm bước kiểm tra trạng thái lúc init trang PaymentPage để đề phòng.
+- **Chữ ký Webhook không hợp lệ**: Bị từ chối với lỗi 400 Bad Request.
 
-## Testing Strategy
-- **Backend Unit Tests**: Verify `EventEmitter` is called when webhook succeeds. Verify SSE controller returns the correct observable.
-- **Frontend Integration**: Test the countdown timer expiration and the SSE event handling via mocked EventSource.
+## Chiến lược Testing
+- **Backend Unit Tests**: Viết test xác nhận `EventEmitter` được gọi khi webhook chạy thành công. Test SSE controller có trả về đúng observable không.
+- **Frontend Integration**: Test UI đếm ngược thời gian hết hạn và test việc bắt sự kiện SSE thông qua mock `EventSource`.
 
-## Scope
-This design is well-isolated to the payment module and the checkout flow. It does not require architectural changes to other parts of the system.
+## Phạm vi (Scope)
+Thiết kế này được cô lập tốt trong module thanh toán và luồng checkout. Nó không đòi hỏi phải thay đổi kiến trúc ở các phần khác của hệ thống.

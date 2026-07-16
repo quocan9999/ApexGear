@@ -29,7 +29,7 @@ export default function PaymentPage() {
       })
       .catch(err => {
         console.error(err);
-        const errMsg = err.response?.data?.message || err.message || 'Lỗi kết nối';
+        const errMsg = err.message || 'Lỗi kết nối';
         if (errMsg === 'Order is already paid') {
           navigate(`/checkout/success/${orderId}`);
         } else {

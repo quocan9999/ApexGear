@@ -75,9 +75,7 @@ describe('PaymentPage', () => {
   });
 
   it('shows error state when fetch fails', async () => {
-    (api.get as any).mockRejectedValueOnce({
-      response: { data: { message: 'Custom error message' } }
-    });
+    (api.get as any).mockRejectedValueOnce({ message: 'Custom error message' });
 
     renderWithRouter(<PaymentPage />);
 
@@ -97,9 +95,7 @@ describe('PaymentPage', () => {
   });
 
   it('navigates to success page immediately if order is already paid', async () => {
-    (api.get as any).mockRejectedValueOnce({
-      response: { data: { message: 'Order is already paid' } }
-    });
+    (api.get as any).mockRejectedValueOnce({ message: 'Order is already paid' });
 
     renderWithRouter(<PaymentPage />);
 

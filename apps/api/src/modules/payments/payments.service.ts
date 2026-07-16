@@ -87,6 +87,10 @@ export class PaymentsService {
       return { success: false, message: 'No matching order' };
     }
 
+    if (order.paymentStatus === 'PAID' || order.paymentStatus === PaymentStatus.PAID) {
+      return { success: true, message: 'Already paid' };
+    }
+
     if (Number.isNaN(transferAmount) || transferAmount < Number(order.total)) {
       this.logger.warn(
         `Insufficient payment: ${transferAmount} < ${order.total}`,

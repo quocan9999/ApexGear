@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ConflictException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -213,61 +212,49 @@ export class ProductsService {
     const slug = await this.uniqueSlug(dto.name);
     const sku = await this.uniqueSku(slug);
 
-    try {
-      return await this.prisma.$transaction(async (tx) => {
-        const product = await tx.product.create({
-          data: {
-            name: dto.name,
-            slug,
-            description: dto.description,
-            basePrice: dto.basePrice,
-            salePrice: dto.salePrice,
-            categoryId: dto.categoryId,
-            brandId: dto.brandId,
-            metaTitle: dto.metaTitle,
-            metaDescription: dto.metaDescription,
-            isFeatured: dto.isFeatured ?? false,
-            specs: dto.specs
-              ? {
-                  create: dto.specs.map((s, i) => ({
-                    group: s.group,
-                    name: s.name,
-                    value: s.value,
-                    sortOrder: s.sortOrder ?? i,
-                  })),
-                }
-              : undefined,
-            // Auto-create default variant
-            variants: {
-              create: {
-                sku,
-                name: 'Default',
-                isDefault: true,
-                stockTotal: 0,
-                stockAvailable: 0,
-              },
+    return this.prisma.$transaction(async (tx) => {
+      const product = await tx.product.create({
+        data: {
+          name: dto.name,
+          slug,
+          description: dto.description,
+          basePrice: dto.basePrice,
+          salePrice: dto.salePrice,
+          categoryId: dto.categoryId,
+          brandId: dto.brandId,
+          metaTitle: dto.metaTitle,
+          metaDescription: dto.metaDescription,
+          isFeatured: dto.isFeatured ?? false,
+          specs: dto.specs
+            ? {
+                create: dto.specs.map((s, i) => ({
+                  group: s.group,
+                  name: s.name,
+                  value: s.value,
+                  sortOrder: s.sortOrder ?? i,
+                })),
+              }
+            : undefined,
+          // Auto-create default variant
+          variants: {
+            create: {
+              sku,
+              name: 'Default',
+              isDefault: true,
+              stockTotal: 0,
+              stockAvailable: 0,
             },
           },
-          include: {
-            variants: true,
-            specs: true,
-            brand: true,
-            category: true,
-          },
-        });
-        return product;
+        },
+        include: {
+          variants: true,
+          specs: true,
+          brand: true,
+          category: true,
+        },
       });
-    } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        (error as { code: string }).code === 'P2002'
-      ) {
-        throw new ConflictException('Product slug already exists');
-      }
-      throw error;
-    }
+      return product;
+    });
   }
 
   async update(id: string, dto: UpdateProductDto) {

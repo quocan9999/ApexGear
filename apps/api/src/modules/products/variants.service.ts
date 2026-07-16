@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateVariantDto } from './dto/create-variant.dto';
@@ -53,34 +52,22 @@ export class VariantsService {
     const stockTotal = dto.stockTotal ?? 0;
     const stockAvailable = dto.stockAvailable ?? stockTotal;
 
-    try {
-      return await this.prisma.productVariant.create({
-        data: {
-          productId,
-          name: dto.name,
-          sku,
-          price: dto.price,
-          stockTotal,
-          stockAvailable,
-          lowStockThreshold: dto.lowStockThreshold ?? 5,
-          attributes: dto.attributes
-            ? JSON.stringify(dto.attributes)
-            : undefined,
-          isDefault: dto.isDefault ?? false,
-          displayOrder: dto.displayOrder ?? 0,
-        },
-      });
-    } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        (error as { code: string }).code === 'P2002'
-      ) {
-        throw new ConflictException('SKU already exists');
-      }
-      throw error;
-    }
+    return this.prisma.productVariant.create({
+      data: {
+        productId,
+        name: dto.name,
+        sku,
+        price: dto.price,
+        stockTotal,
+        stockAvailable,
+        lowStockThreshold: dto.lowStockThreshold ?? 5,
+        attributes: dto.attributes
+          ? JSON.stringify(dto.attributes)
+          : undefined,
+        isDefault: dto.isDefault ?? false,
+        displayOrder: dto.displayOrder ?? 0,
+      },
+    });
   }
 
   async update(productId: string, variantId: string, dto: UpdateVariantDto) {
@@ -98,38 +85,26 @@ export class VariantsService {
       });
     }
 
-    try {
-      return await this.prisma.productVariant.update({
-        where: { id: variantId },
-        data: {
-          name: dto.name,
-          sku: dto.sku,
-          price: dto.price,
-          stockTotal: dto.stockTotal,
-          stockAvailable: dto.stockAvailable,
-          lowStockThreshold: dto.lowStockThreshold,
-          attributes:
-            dto.attributes !== undefined
-              ? dto.attributes
-                ? JSON.stringify(dto.attributes)
-                : null
-              : undefined,
-          isDefault: dto.isDefault,
-          isActive: dto.isActive,
-          displayOrder: dto.displayOrder,
-        },
-      });
-    } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        (error as { code: string }).code === 'P2002'
-      ) {
-        throw new ConflictException('SKU already exists');
-      }
-      throw error;
-    }
+    return this.prisma.productVariant.update({
+      where: { id: variantId },
+      data: {
+        name: dto.name,
+        sku: dto.sku,
+        price: dto.price,
+        stockTotal: dto.stockTotal,
+        stockAvailable: dto.stockAvailable,
+        lowStockThreshold: dto.lowStockThreshold,
+        attributes:
+          dto.attributes !== undefined
+            ? dto.attributes
+              ? JSON.stringify(dto.attributes)
+              : null
+            : undefined,
+        isDefault: dto.isDefault,
+        isActive: dto.isActive,
+        displayOrder: dto.displayOrder,
+      },
+    });
   }
 
   async remove(productId: string, variantId: string) {

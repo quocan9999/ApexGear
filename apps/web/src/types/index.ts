@@ -260,6 +260,7 @@ export interface CouponValidation {
 // ========== Payments ==========
 export interface SepayQr {
   bankAccount: string;
+  bankId?: string;
   amount: number;
   content: string;
   orderNumber: string;

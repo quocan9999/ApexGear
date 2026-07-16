@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import '../i18n';
@@ -8,6 +8,30 @@ vi.mock('../services/orders.service', () => ({ ordersService: { getById: vi.fn()
 vi.mock('../services/payments.service', () => ({ paymentsService: { getSepayQr: vi.fn() } }));
 import { ordersService } from '../services/orders.service';
 import { paymentsService } from '../services/payments.service';
+
+// ── Mock EventSource ──────────────────────────────────────────────────────────
+
+class MockEventSource {
+  onmessage: ((e: MessageEvent) => void) | null = null;
+  onerror: (() => void) | null = null;
+  close = vi.fn();
+  constructor(_url: string) {
+    (global as Record<string, unknown>).mockEs = this;
+  }
+}
+
+const OriginalEventSource = global.EventSource;
+global.EventSource = MockEventSource as unknown as typeof EventSource;
+
+afterAll(() => {
+  global.EventSource = OriginalEventSource;
+});
+
+function mockEs() {
+  return (global as Record<string, unknown>).mockEs as MockEventSource;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function renderAt(orderId: string) {
   return render(
@@ -21,6 +45,7 @@ function renderAt(orderId: string) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  delete (global as Record<string, unknown>).mockEs;
   vi.useFakeTimers();
 });
 afterEach(() => vi.useRealTimers());
@@ -41,7 +66,7 @@ describe('OrderSuccessPage', () => {
     expect(screen.getByText(/530\.000/)).toBeInTheDocument();
   });
 
-  it('flips a SEPAY order to the paid confirmation when polling detects payment', async () => {
+  it('flips a SEPAY order to the paid confirmation when SSE detects payment', async () => {
     const unpaid = {
       id: 'o2',
       orderNumber: 'AG-20260714-0002',
@@ -51,10 +76,7 @@ describe('OrderSuccessPage', () => {
       total: 2000000,
       items: [],
     };
-    const paid = { ...unpaid, paymentStatus: 'PAID', status: 'CONFIRMED' };
-    const get = ordersService.getById as ReturnType<typeof vi.fn>;
-    // mount load + first poll are still UNPAID, subsequent polls report PAID.
-    get.mockResolvedValueOnce(unpaid).mockResolvedValueOnce(unpaid).mockResolvedValue(paid);
+    (ordersService.getById as ReturnType<typeof vi.fn>).mockResolvedValue(unpaid);
     (paymentsService.getSepayQr as ReturnType<typeof vi.fn>).mockResolvedValue({
       bankAccount: '0123456789',
       amount: 2000000,
@@ -67,14 +89,16 @@ describe('OrderSuccessPage', () => {
 
     // SEPAY + UNPAID → QR panel is shown, not the confirmation yet.
     await waitFor(() => expect(screen.getByText(/Quét mã QR/i)).toBeInTheDocument());
+    expect(mockEs()).toBeDefined();
 
-    // Advance polling until getById reports PAID.
-    await act(async () => {
-      vi.advanceTimersByTime(5000);
-      await Promise.resolve();
+    // Trigger SSE payment success
+    act(() => {
+      mockEs().onmessage?.({
+        data: JSON.stringify({ success: true }),
+      } as MessageEvent);
     });
 
-    // View flips to the success confirmation with the PAID message (guards Fix 1).
+    // View flips to the success confirmation with the PAID message
     await waitFor(() => expect(screen.getByText(/Đặt hàng thành công/i)).toBeInTheDocument());
     expect(screen.getByText(/đã nhận được thanh toán/i)).toBeInTheDocument();
   });

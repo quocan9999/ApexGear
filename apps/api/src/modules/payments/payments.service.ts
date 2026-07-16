@@ -15,6 +15,7 @@ export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
   private webhookSecret: string;
   private bankAccount: string;
+  private bankId: string;
 
   constructor(
     private prisma: PrismaService,
@@ -23,6 +24,7 @@ export class PaymentsService {
   ) {
     this.webhookSecret = this.config.get<string>('SEPAY_WEBHOOK_SECRET', '');
     this.bankAccount = this.config.get<string>('SEPAY_BANK_ACCOUNT', '');
+    this.bankId = this.config.get<string>('SEPAY_BANK_ID', 'MB');
   }
 
   async getQrData(userId: string, orderId: string) {
@@ -43,9 +45,13 @@ export class PaymentsService {
     if (!order.sepayRef) {
       throw new BadRequestException('Order has no SePay reference');
     }
+    if (!this.bankAccount) {
+      throw new BadRequestException('Bank account is not configured in environment variables');
+    }
 
     return {
       bankAccount: this.bankAccount,
+      bankId: this.bankId,
       amount: Number(order.total),
       content: order.sepayRef,
       orderNumber: order.orderNumber,

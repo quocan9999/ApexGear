@@ -1,5 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode, Mousewheel } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/free-mode';
 import ProductCard from '../product/ProductCard';
 import Skeleton from '../ui/Skeleton';
 import type { Product } from '../../types';
@@ -25,15 +29,28 @@ export default function FeaturedProducts({ products, loading }: FeaturedProducts
           </Link>
         </header>
 
-        <div className="grid grid-cols-2 gap-md sm:gap-lg lg:grid-cols-4">
+        <Swiper
+          modules={[FreeMode, Mousewheel]}
+          spaceBetween={16}
+          slidesPerView={2}
+          breakpoints={{
+            640: { slidesPerView: 3, spaceBetween: 24 },
+            1024: { slidesPerView: 4, spaceBetween: 32 },
+          }}
+          freeMode={true}
+          mousewheel={{ forceToAxis: true }}
+          className="w-full !pb-6"
+        >
           {loading
             ? Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="rounded-xl bg-surface-container-lowest p-md">
-                  <Skeleton className="aspect-square w-full rounded-lg" />
-                  <Skeleton className="mt-md h-4 w-1/3" />
-                  <Skeleton className="mt-sm h-5 w-3/4" />
-                  <Skeleton className="mt-sm h-6 w-1/2" />
-                </div>
+                <SwiperSlide key={i} className="h-auto">
+                  <div className="rounded-xl bg-surface-container-lowest p-md h-full">
+                    <Skeleton className="aspect-square w-full rounded-lg" />
+                    <Skeleton className="mt-md h-4 w-1/3" />
+                    <Skeleton className="mt-sm h-5 w-3/4" />
+                    <Skeleton className="mt-sm h-6 w-1/2" />
+                  </div>
+                </SwiperSlide>
               ))
             : products.length === 0
             ? (
@@ -42,9 +59,11 @@ export default function FeaturedProducts({ products, loading }: FeaturedProducts
               </p>
             )
             : products.slice(0, 8).map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <SwiperSlide key={product.id} className="h-auto">
+                  <ProductCard product={product} />
+                </SwiperSlide>
               ))}
-        </div>
+        </Swiper>
 
         <div className="mt-lg sm:hidden">
           <Link

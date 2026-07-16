@@ -1,4 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode, Mousewheel } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/free-mode';
 import { cn } from '../../utils/cn';
 import { getCloudinaryUrl } from '../../utils/cloudinary';
 import type { ProductImage } from '../../types';
@@ -57,15 +61,18 @@ export default function ImageGallery({ images, altText, className }: ImageGaller
       </div>
 
       {sorted.length > 1 && (
-        <ul
-          className="flex gap-sm overflow-x-auto pb-xs"
-          role="tablist"
-          aria-label="Product images"
+        <Swiper
+          modules={[FreeMode, Mousewheel]}
+          spaceBetween={8}
+          slidesPerView="auto"
+          freeMode={true}
+          mousewheel={{ forceToAxis: true }}
+          className="w-full !pb-2"
         >
           {sorted.map((img, i) => {
             const isActive = i === safeIndex;
             return (
-              <li key={img.id} className="flex-shrink-0">
+              <SwiperSlide key={img.id} className="!w-16 h-auto">
                 <button
                   type="button"
                   role="tab"
@@ -87,10 +94,10 @@ export default function ImageGallery({ images, altText, className }: ImageGaller
                     loading="lazy"
                   />
                 </button>
-              </li>
+              </SwiperSlide>
             );
           })}
-        </ul>
+        </Swiper>
       )}
     </div>
   );

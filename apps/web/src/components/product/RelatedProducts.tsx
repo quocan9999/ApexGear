@@ -1,5 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode, Mousewheel } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/free-mode';
 import { cn } from '../../utils/cn';
 import { productsService } from '../../services/products.service';
 import ProductCard from './ProductCard';
@@ -22,7 +26,6 @@ export default function RelatedProducts({
   const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -46,12 +49,6 @@ export default function RelatedProducts({
     };
   }, [categoryId, excludeProductId]);
 
-  const scrollBy = (delta: number) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: delta, behavior: 'smooth' });
-  };
-
   if (!loading && products.length === 0) return null;
 
   return (
@@ -60,64 +57,33 @@ export default function RelatedProducts({
         <h2 id="related-heading" className="headline-md text-on-surface">
           {t('product.relatedProducts')}
         </h2>
-        {!loading && products.length > 1 && (
-          <div className="hidden gap-xs sm:flex">
-            <button
-              type="button"
-              aria-label="Scroll left"
-              onClick={() => scrollBy(-320)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-colors hover:bg-surface-container-low"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-                <path
-                  fillRule="evenodd"
-                  d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-            <button
-              type="button"
-              aria-label="Scroll right"
-              onClick={() => scrollBy(320)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-colors hover:bg-surface-container-low"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-                <path
-                  fillRule="evenodd"
-                  d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        )}
       </div>
 
-      <div
-        ref={scrollerRef}
-        className="flex snap-x snap-mandatory gap-md overflow-x-auto pb-sm"
-        style={{ scrollbarWidth: 'thin' }}
+      <Swiper
+        modules={[FreeMode, Mousewheel]}
+        spaceBetween={16}
+        slidesPerView="auto"
+        freeMode={true}
+        mousewheel={{ forceToAxis: true }}
+        className="w-full !pb-4"
       >
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="w-64 flex-shrink-0 snap-start rounded-xl bg-surface-container-lowest p-md"
-                aria-hidden
-              >
-                <Skeleton className="aspect-square w-full rounded-lg" />
-                <Skeleton className="mt-md h-4 w-1/3" />
-                <Skeleton className="mt-sm h-5 w-3/4" />
-                <Skeleton className="mt-sm h-6 w-1/2" />
-              </div>
+              <SwiperSlide key={i} className="!w-64 h-auto">
+                <div className="w-64 rounded-xl bg-surface-container-lowest p-md h-full">
+                  <Skeleton className="aspect-square w-full rounded-lg" />
+                  <Skeleton className="mt-md h-4 w-1/3" />
+                  <Skeleton className="mt-sm h-5 w-3/4" />
+                  <Skeleton className="mt-sm h-6 w-1/2" />
+                </div>
+              </SwiperSlide>
             ))
           : products.map((p) => (
-              <div key={p.id} className="w-64 flex-shrink-0 snap-start">
+              <SwiperSlide key={p.id} className="!w-64 h-auto">
                 <ProductCard product={p} />
-              </div>
+              </SwiperSlide>
             ))}
-      </div>
+      </Swiper>
     </section>
   );
 }

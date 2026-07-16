@@ -12,6 +12,7 @@ const CheckoutPage = lazy(() => import('../pages/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('../pages/OrderSuccessPage'));
 const OrdersPage = lazy(() => import('../pages/OrdersPage'));
 const OrderDetailPage = lazy(() => import('../pages/OrderDetailPage'));
+const PaymentPage = lazy(() => import('../pages/checkout/PaymentPage'));
 const AccountPage = lazy(() => import('../pages/AccountPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
@@ -39,6 +40,7 @@ export default function AppRoutes() {
           {/* Authenticated-only routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/checkout/payment/:orderId" element={<PaymentPage />} />
             <Route path="/checkout/success/:orderId" element={<OrderSuccessPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />

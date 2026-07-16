@@ -106,43 +106,45 @@ export default function HeroSection({ featured, loading }: HeroSectionProps) {
           </div>
 
           {/* RIGHT — Featured product image (anchored bottom-right on desktop) */}
-          <div className="relative lg:col-span-5">
-            <div
-              className={cn(
-                'relative mx-auto aspect-square w-full max-w-[480px]',
-                'lg:absolute lg:bottom-0 lg:right-0',
-                'overflow-hidden rounded-xl bg-surface-container-lowest',
-                'shadow-[var(--shadow-level-2)]',
-              )}
-            >
-              {loading ? (
-                <Skeleton className="h-full w-full rounded-xl" />
-              ) : primaryImage ? (
-                <img
-                  src={getCloudinaryUrl(primaryImage.url, 'large')}
-                  alt={primaryImage.alt || featured?.name || t('home.heroTitle')}
-                  className="h-full w-full object-contain p-md"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  <span className="headline-xl text-outline-variant opacity-30">
-                    ApexGear
-                  </span>
-                </div>
-              )}
-            </div>
+          <div className="relative lg:col-span-5 flex items-center justify-center lg:justify-end">
+            <div className="relative aspect-square w-full max-w-[480px]">
+              {/* Main Image Box */}
+              <div
+                className={cn(
+                  'h-full w-full relative z-10',
+                  'overflow-hidden rounded-xl bg-surface-container-lowest',
+                  'shadow-[var(--shadow-level-2)]',
+                )}
+              >
+                {loading ? (
+                  <Skeleton className="h-full w-full rounded-xl" />
+                ) : primaryImage ? (
+                  <img
+                    src={getCloudinaryUrl(primaryImage.url, 'large')}
+                    alt={primaryImage.alt || featured?.name || t('home.heroTitle')}
+                    className="h-full w-full object-contain p-md"
+                    loading="eager"
+                    fetchPriority="high"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <span className="headline-xl text-outline-variant opacity-30">
+                      ApexGear
+                    </span>
+                  </div>
+                )}
+              </div>
 
-            {/* Decorative offset accent (anti-center-bias) */}
-            <div
-              aria-hidden
-              className={cn(
-                'absolute -z-10 rounded-2xl bg-primary-container/20',
-                'hidden h-[88%] w-[88%] lg:block',
-                'lg:-right-6 lg:-bottom-6',
-              )}
-            />
+              {/* Decorative offset accent (anti-center-bias) */}
+              <div
+                aria-hidden
+                className={cn(
+                  'absolute z-0 rounded-2xl bg-primary-container/20',
+                  'hidden h-full w-full lg:block',
+                  '-right-6 -bottom-6',
+                )}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -8,7 +8,9 @@ class MockEventSource {
   onmessage: any;
   onerror: any;
   close = vi.fn();
-  constructor(_url: string) {}
+  constructor(_url: string) {
+    (global as any).mockEventSourceInstance = this;
+  }
 }
 
 global.EventSource = MockEventSource as any;
@@ -24,6 +26,7 @@ describe('PaymentPage', () => {
       <MemoryRouter initialEntries={[route]}>
         <Routes>
           <Route path="/checkout/payment/:orderId" element={ui} />
+          <Route path="/checkout/success/:orderId" element={<div>Success Page</div>} />
         </Routes>
       </MemoryRouter>
     );
@@ -63,7 +66,7 @@ describe('PaymentPage', () => {
 
   it('shows error state when fetch fails', async () => {
     (global.fetch as any).mockResolvedValueOnce({
-      json: async () => ({ success: false, message: 'Custom error message' })
+      json: async () => ({ success: false, error: 'Custom error message' })
     });
 
     renderWithRouter(<PaymentPage />);
@@ -80,6 +83,38 @@ describe('PaymentPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Lỗi kết nối máy chủ')).toBeInTheDocument();
+    });
+  });
+
+  it('navigates to success page on SSE success message', async () => {
+    const mockData = {
+      success: true,
+      data: {
+        orderNumber: 'ORD-123',
+        amount: 50000,
+        bankAccount: '123456789',
+        content: 'Thanh toan ORD-123',
+        expiresAt: new Date(Date.now() + 600000).toISOString()
+      }
+    };
+    (global.fetch as any).mockResolvedValueOnce({
+      json: async () => mockData
+    });
+
+    renderWithRouter(<PaymentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('ORD-123')).toBeInTheDocument();
+    });
+
+    const eventSource = (global as any).mockEventSourceInstance;
+    expect(eventSource).toBeDefined();
+
+    // Trigger onmessage with success: true
+    eventSource.onmessage({ data: JSON.stringify({ success: true }) });
+
+    await waitFor(() => {
+      expect(screen.getByText('Success Page')).toBeInTheDocument();
     });
   });
 });

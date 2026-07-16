@@ -81,13 +81,6 @@ describe('CategoriesService', () => {
       );
     });
 
-    it('maps P2002 to ConflictException', async () => {
-      prisma.category.findFirst.mockResolvedValue(null);
-      prisma.category.create.mockRejectedValue({ code: 'P2002' });
-      await expect(service.create({ name: 'X' })).rejects.toBeInstanceOf(
-        ConflictException,
-      );
-    });
   });
 
   describe('remove', () => {

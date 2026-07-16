@@ -82,28 +82,16 @@ export class CategoriesService {
 
     const slug = await this.uniqueSlug(dto.name);
 
-    try {
-      return await this.prisma.category.create({
-        data: {
-          name: dto.name,
-          slug,
-          description: dto.description,
-          image: dto.image,
-          parentId: dto.parentId,
-          sortOrder: dto.sortOrder ?? 0,
-        },
-      });
-    } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        (error as { code: string }).code === 'P2002'
-      ) {
-        throw new ConflictException('Category slug already exists');
-      }
-      throw error;
-    }
+    return await this.prisma.category.create({
+      data: {
+        name: dto.name,
+        slug,
+        description: dto.description,
+        image: dto.image,
+        parentId: dto.parentId,
+        sortOrder: dto.sortOrder ?? 0,
+      },
+    });
   }
 
   async update(id: string, dto: UpdateCategoryDto) {

@@ -58,27 +58,15 @@ export class BrandsService {
   async create(dto: CreateBrandDto) {
     const slug = await this.uniqueSlug(dto.name);
 
-    try {
-      return await this.prisma.brand.create({
-        data: {
-          name: dto.name,
-          slug,
-          description: dto.description,
-          logo: dto.logo,
-          website: dto.website,
-        },
-      });
-    } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        (error as { code: string }).code === 'P2002'
-      ) {
-        throw new ConflictException('Brand name or slug already exists');
-      }
-      throw error;
-    }
+    return await this.prisma.brand.create({
+      data: {
+        name: dto.name,
+        slug,
+        description: dto.description,
+        logo: dto.logo,
+        website: dto.website,
+      },
+    });
   }
 
   async update(id: string, dto: UpdateBrandDto) {

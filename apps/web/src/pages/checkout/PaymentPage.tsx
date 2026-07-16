@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 interface QrData {
   orderNumber: string;
@@ -18,23 +19,24 @@ export default function PaymentPage() {
   
   // Fetch QR Data
   useEffect(() => {
-    fetch(`/api/payments/qr/${orderId}`)
-      .then(res => res.json())
+    api.get(`/payments/sepay/qr/${orderId}`)
       .then(res => {
-        if (res.success) {
-          setQrData(res.data);
-          const expires = new Date(res.data.expiresAt).getTime();
-          const now = new Date().getTime();
-          setTimeLeft(Math.max(0, Math.floor((expires - now) / 1000)));
-        } else {
-          setError(res.error || 'Lỗi tải thông tin thanh toán');
-        }
+        const data = res.data.data;
+        setQrData(data);
+        const expires = new Date(data.expiresAt).getTime();
+        const now = new Date().getTime();
+        setTimeLeft(Math.max(0, Math.floor((expires - now) / 1000)));
       })
       .catch(err => {
         console.error(err);
-        setError('Lỗi kết nối máy chủ');
+        const errMsg = err.response?.data?.message || err.message || 'Lỗi kết nối';
+        if (errMsg === 'Order is already paid') {
+          navigate(`/checkout/success/${orderId}`);
+        } else {
+          setError(errMsg);
+        }
       });
-  }, [orderId]);
+  }, [orderId, navigate]);
 
   // Countdown Timer
   useEffect(() => {
@@ -52,7 +54,8 @@ export default function PaymentPage() {
 
   // SSE Connection
   useEffect(() => {
-    const eventSource = new EventSource(`/api/payments/stream/${orderId}`);
+    const baseURL = import.meta.env.VITE_API_URL || '/api';
+    const eventSource = new EventSource(`${baseURL}/payments/stream/${orderId}`);
     
     eventSource.onmessage = (event) => {
       try {

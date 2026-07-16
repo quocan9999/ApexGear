@@ -2,6 +2,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import PaymentPage from './PaymentPage';
+import api from '../../services/api';
+
+vi.mock('../../services/api', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
 // Mock EventSource
 class MockEventSource {
@@ -17,7 +24,6 @@ global.EventSource = MockEventSource as any;
 
 describe('PaymentPage', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
     vi.clearAllMocks();
   });
 
@@ -38,7 +44,7 @@ describe('PaymentPage', () => {
 
   it('shows loading state initially', () => {
     // Return a promise that doesn't resolve immediately to test loading state
-    (global.fetch as any).mockImplementation(() => new Promise(() => {}));
+    (api.get as any).mockImplementation(() => new Promise(() => {}));
     renderWithRouter(<PaymentPage />);
     expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
   });
@@ -54,8 +60,8 @@ describe('PaymentPage', () => {
         expiresAt: new Date(Date.now() + 600000).toISOString()
       }
     };
-    (global.fetch as any).mockResolvedValueOnce({
-      json: async () => mockData
+    (api.get as any).mockResolvedValueOnce({
+      data: { data: mockData.data }
     });
 
     renderWithRouter(<PaymentPage />);
@@ -69,8 +75,8 @@ describe('PaymentPage', () => {
   });
 
   it('shows error state when fetch fails', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      json: async () => ({ success: false, error: 'Custom error message' })
+    (api.get as any).mockRejectedValueOnce({
+      response: { data: { message: 'Custom error message' } }
     });
 
     renderWithRouter(<PaymentPage />);
@@ -81,12 +87,24 @@ describe('PaymentPage', () => {
   });
   
   it('shows error state when fetch throws', async () => {
-    (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+    (api.get as any).mockRejectedValueOnce(new Error('Lỗi kết nối máy chủ'));
 
     renderWithRouter(<PaymentPage />);
 
     await waitFor(() => {
       expect(screen.getByText('Lỗi kết nối máy chủ')).toBeInTheDocument();
+    });
+  });
+
+  it('navigates to success page immediately if order is already paid', async () => {
+    (api.get as any).mockRejectedValueOnce({
+      response: { data: { message: 'Order is already paid' } }
+    });
+
+    renderWithRouter(<PaymentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Success Page')).toBeInTheDocument();
     });
   });
 
@@ -101,8 +119,8 @@ describe('PaymentPage', () => {
         expiresAt: new Date(Date.now() + 600000).toISOString()
       }
     };
-    (global.fetch as any).mockResolvedValueOnce({
-      json: async () => mockData
+    (api.get as any).mockResolvedValueOnce({
+      data: { data: mockData.data }
     });
 
     renderWithRouter(<PaymentPage />);
@@ -134,8 +152,8 @@ describe('PaymentPage', () => {
         expiresAt: new Date(Date.now() + 600000).toISOString() // 10 mins from now
       }
     };
-    (global.fetch as any).mockResolvedValueOnce({
-      json: async () => mockData
+    (api.get as any).mockResolvedValueOnce({
+      data: { data: mockData.data }
     });
 
     renderWithRouter(<PaymentPage />);

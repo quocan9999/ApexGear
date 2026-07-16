@@ -1,0 +1,24 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - heading "ApexGear Admin" [level=1] [ref=e7]
+          - paragraph [ref=e8]: Khu vực quản trị dành cho nhân viên hệ thống. Vui lòng đăng nhập để tiếp tục.
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: Địa chỉ email
+            - textbox "Địa chỉ email" [ref=e14]:
+              - /placeholder: email@apexgear.vn
+              - text: admin@apexgear.vn
+          - generic [ref=e15]:
+            - generic [ref=e16]: Mật khẩu
+            - generic [ref=e17]:
+              - textbox "Mật khẩu" [ref=e18]:
+                - /placeholder: Nhập mật khẩu
+                - text: MatKhauMoi@123
+              - button "Ẩn mật khẩu" [active] [ref=e28]
+          - button "Đăng nhập" [ref=e26]
+    - contentinfo [ref=e24]:
+      - paragraph [ref=e25]: © 2026 ApexGear Admin. Bản quyền đã được bảo hộ.
+  - generic "Thông báo"

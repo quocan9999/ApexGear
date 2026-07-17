@@ -31,7 +31,13 @@ export class ShippingController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a shipping rule (Admin)' })
   @Post('rules')
-  async createRule(@Body() dto: { name: string; fee: number; isDefault?: boolean; isActive?: boolean }) {
+  async createRule(@Body() dto: {
+    name: string;
+    fee: number;
+    isDefault?: boolean;
+    isActive?: boolean;
+    regions?: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }[];
+  }) {
     const rule = await this.shippingService.createRule(dto);
     return { success: true, data: rule };
   }
@@ -41,7 +47,13 @@ export class ShippingController {
   @Put('rules/:id')
   async updateRule(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: { name?: string; fee?: number; isDefault?: boolean; isActive?: boolean },
+    @Body() dto: {
+      name?: string;
+      fee?: number;
+      isDefault?: boolean;
+      isActive?: boolean;
+      regions?: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }[];
+    },
   ) {
     const rule = await this.shippingService.updateRule(id, dto);
     return { success: true, data: rule };
@@ -52,6 +64,28 @@ export class ShippingController {
   @Delete('rules/:id')
   async deleteRule(@Param('id', ParseUUIDPipe) id: string) {
     const result = await this.shippingService.deleteRule(id);
+    return { success: true, data: result };
+  }
+
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Add a region to a shipping rule (Admin)' })
+  @Post('rules/:id/regions')
+  async addRegion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }
+  ) {
+    const region = await this.shippingService.addRegion(id, dto);
+    return { success: true, data: region };
+  }
+
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Remove a region from a shipping rule (Admin)' })
+  @Delete('rules/:id/regions/:regionId')
+  async removeRegion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('regionId', ParseUUIDPipe) regionId: string
+  ) {
+    const result = await this.shippingService.removeRegion(id, regionId);
     return { success: true, data: result };
   }
 }

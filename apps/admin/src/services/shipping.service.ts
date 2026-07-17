@@ -1,5 +1,14 @@
 import api from './api';
 
+export interface ShippingRegion {
+  id: string;
+  ruleId: string;
+  provinceCode: string;
+  provinceName: string;
+  wardCode: string | null;
+  wardName: string | null;
+}
+
 export interface ShippingRule {
   id: string;
   name: string;
@@ -8,6 +17,7 @@ export interface ShippingRule {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  regions: ShippingRegion[];
 }
 
 export const shippingService = {
@@ -22,4 +32,10 @@ export const shippingService = {
 
   deleteRule: (id: string) =>
     api.delete<{ success: boolean; data: any }>(`/shipping/rules/${id}`).then((r) => r.data.data),
+
+  addRegion: (ruleId: string, data: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }) =>
+    api.post<{ success: boolean; data: ShippingRegion }>(`/shipping/rules/${ruleId}/regions`, data).then((r) => r.data.data),
+
+  removeRegion: (ruleId: string, regionId: string) =>
+    api.delete<{ success: boolean; data: any }>(`/shipping/rules/${ruleId}/regions/${regionId}`).then((r) => r.data.data),
 };

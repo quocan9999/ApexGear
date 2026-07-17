@@ -2,13 +2,22 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { useTranslation } from 'react-i18next';
 import { Badge, Button, ConfirmDialog, Input, Modal, Spinner, Table, type TableColumn } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
-import { shippingService, type ShippingRule } from '../services/shipping.service';
+import { useProvinces } from '../hooks/useProvinces';
+import { shippingService, type ShippingRule, type ShippingRegion } from '../services/shipping.service';
+
+interface RegionState {
+  provinceCode: string;
+  provinceName: string;
+  wardCode?: string;
+  wardName?: string;
+}
 
 interface FormState {
   name: string;
   fee: string;
   isDefault: boolean;
   isActive: boolean;
+  regions: RegionState[];
 }
 
 const EMPTY_FORM: FormState = {
@@ -16,6 +25,7 @@ const EMPTY_FORM: FormState = {
   fee: '30000',
   isDefault: false,
   isActive: true,
+  regions: [],
 };
 
 export function ShippingRulesPage() {
@@ -35,6 +45,8 @@ export function ShippingRulesPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<ShippingRule | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const { provinces, wards, selectedProvince, selectedWard, selectProvince, selectWard, loading: loadingProvinces } = useProvinces();
 
   const loadRules = useCallback(async () => {
     setLoading(true);
@@ -63,6 +75,7 @@ export function ShippingRulesPage() {
     setForm(EMPTY_FORM);
     setFormError(null);
     setFormOpen(true);
+    selectProvince('');
   };
 
   const openEdit = (rule: ShippingRule) => {
@@ -72,9 +85,16 @@ export function ShippingRulesPage() {
       fee: String(rule.fee),
       isDefault: rule.isDefault,
       isActive: rule.isActive,
+      regions: rule.regions?.map(r => ({
+        provinceCode: r.provinceCode,
+        provinceName: r.provinceName,
+        wardCode: r.wardCode || undefined,
+        wardName: r.wardName || undefined,
+      })) || [],
     });
     setFormError(null);
     setFormOpen(true);
+    selectProvince('');
   };
 
   const closeForm = () => {
@@ -82,6 +102,43 @@ export function ShippingRulesPage() {
     setFormOpen(false);
     setEditing(null);
     setFormError(null);
+  };
+
+  const handleAddRegionToForm = () => {
+    if (!selectedProvince) return;
+    
+    // Avoid duplicates
+    const exists = form.regions.find(r => 
+      r.provinceCode === selectedProvince.code && 
+      (r.wardCode === selectedWard?.code || (!r.wardCode && !selectedWard))
+    );
+    
+    if (exists) {
+      setFormError('Khu vực này đã được thêm vào danh sách.');
+      return;
+    }
+
+    setForm(prev => ({
+      ...prev,
+      regions: [
+        ...prev.regions,
+        {
+          provinceCode: selectedProvince.code,
+          provinceName: selectedProvince.name,
+          wardCode: selectedWard?.code,
+          wardName: selectedWard?.name,
+        }
+      ]
+    }));
+    setFormError(null);
+    selectProvince('');
+  };
+
+  const handleRemoveRegionFromForm = (index: number) => {
+    setForm(prev => ({
+      ...prev,
+      regions: prev.regions.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -99,19 +156,25 @@ export function ShippingRulesPage() {
       return;
     }
 
+    if (!form.isDefault && form.regions.length === 0) {
+      setFormError('Vui lòng thêm ít nhất một khu vực áp dụng hoặc chọn "Là mức phí mặc định".');
+      return;
+    }
+
     const payload = {
       name: form.name.trim(),
       fee: feeNum,
       isDefault: form.isDefault,
+      regions: form.isDefault ? [] : form.regions,
       ...(editing ? { isActive: form.isActive } : {}),
     };
 
     setSaving(true);
     try {
       if (editing) {
-        await shippingService.updateRule(editing.id, payload);
+        await shippingService.updateRule(editing.id, payload as any);
       } else {
-        await shippingService.createRule(payload);
+        await shippingService.createRule(payload as any);
       }
       setFormOpen(false);
       setEditing(null);
@@ -159,6 +222,21 @@ export function ShippingRulesPage() {
         key: 'fee',
         header: 'Phí',
         render: (row) => `${new Intl.NumberFormat('vi-VN').format(row.fee)} ₫`,
+      },
+      {
+        key: 'regions',
+        header: 'Khu vực áp dụng',
+        render: (row) => (
+          <div className="flex flex-col gap-1">
+            {row.isDefault ? (
+              <span className="body-sm text-on-surface-variant">Áp dụng toàn quốc</span>
+            ) : row.regions?.length > 0 ? (
+              <span className="body-sm text-on-surface-variant">{row.regions.length} khu vực</span>
+            ) : (
+              <span className="body-sm text-error">Chưa cấu hình</span>
+            )}
+          </div>
+        ),
       },
       {
         key: 'status',
@@ -235,6 +313,7 @@ export function ShippingRulesPage() {
         isOpen={formOpen}
         onClose={closeForm}
         title={editing ? 'Sửa quy tắc' : 'Tạo quy tắc mới'}
+        className="max-w-2xl"
       >
         <form className="flex flex-col gap-md" onSubmit={(event) => void handleSubmit(event)}>
           {formError && (
@@ -242,22 +321,25 @@ export function ShippingRulesPage() {
               {formError}
             </p>
           )}
-          <Input
-            label="Tên quy tắc"
-            value={form.name}
-            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-            required
-          />
-          <Input
-            label="Phí (VNĐ)"
-            type="number"
-            min={0}
-            step={1000}
-            value={form.fee}
-            onChange={(event) => setForm((prev) => ({ ...prev, fee: event.target.value }))}
-            required
-          />
-          <label className="inline-flex items-center gap-sm body-md text-on-surface mt-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <Input
+              label="Tên quy tắc"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              required
+            />
+            <Input
+              label="Phí (VNĐ)"
+              type="number"
+              min={0}
+              step={1000}
+              value={form.fee}
+              onChange={(event) => setForm((prev) => ({ ...prev, fee: event.target.value }))}
+              required
+            />
+          </div>
+
+          <label className="inline-flex items-center gap-sm body-md text-on-surface mt-xs">
             <input
               type="checkbox"
               checked={form.isDefault}
@@ -265,10 +347,11 @@ export function ShippingRulesPage() {
                 setForm((prev) => ({ ...prev, isDefault: event.target.checked }))
               }
             />
-            Là mức phí mặc định
+            Là mức phí mặc định (Áp dụng toàn quốc cho những nơi chưa có quy tắc)
           </label>
+          
           {editing && (
-            <label className="inline-flex items-center gap-sm body-md text-on-surface mt-sm">
+            <label className="inline-flex items-center gap-sm body-md text-on-surface mt-xs">
               <input
                 type="checkbox"
                 checked={form.isActive}
@@ -279,7 +362,90 @@ export function ShippingRulesPage() {
               Kích hoạt
             </label>
           )}
-          <div className="flex justify-end gap-sm pt-sm mt-md border-t border-outline-variant pt-4">
+
+          {!form.isDefault && (
+            <div className="flex flex-col gap-sm mt-sm border-t border-outline-variant pt-md">
+              <h3 className="label-lg text-on-surface">Khu vực áp dụng</h3>
+              
+              <div className="flex flex-col sm:flex-row items-end gap-sm">
+                <div className="flex-1">
+                  <label className="label-sm text-on-surface-variant mb-1 block">Tỉnh/Thành</label>
+                  <select
+                    className="h-10 w-full rounded border border-outline-variant px-3 bg-surface-container-lowest"
+                    value={selectedProvince?.code ?? ''}
+                    onChange={(e) => selectProvince(e.target.value)}
+                    disabled={loadingProvinces}
+                  >
+                    <option value="">-- Chọn Tỉnh/Thành --</option>
+                    {provinces.map((p) => (
+                      <option key={p.code} value={p.code}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="label-sm text-on-surface-variant mb-1 block">Quận/Huyện/Xã (Tùy chọn)</label>
+                  <select
+                    className="h-10 w-full rounded border border-outline-variant px-3 bg-surface-container-lowest"
+                    value={selectedWard?.code ?? ''}
+                    onChange={(e) => selectWard(e.target.value)}
+                    disabled={!selectedProvince || loadingProvinces}
+                  >
+                    <option value="">-- Tất cả --</option>
+                    {wards.map((w) => (
+                      <option key={w.code} value={w.code}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <Button type="button" onClick={handleAddRegionToForm} disabled={!selectedProvince} style={{ height: '40px' }}>
+                  Thêm
+                </Button>
+              </div>
+
+              <div className="mt-xs max-h-[200px] overflow-y-auto rounded-lg border border-outline-variant bg-surface-container-lowest">
+                <table className="w-full text-left">
+                  <thead className="bg-surface-container-low text-on-surface-variant label-sm sticky top-0">
+                    <tr>
+                      <th className="p-2 px-3">Khu vực đã chọn</th>
+                      <th className="p-2 px-3 w-[80px]">Xóa</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant body-sm">
+                    {form.regions.length === 0 ? (
+                      <tr>
+                        <td colSpan={2} className="p-4 text-center text-on-surface-variant">
+                          Chưa thêm khu vực nào
+                        </td>
+                      </tr>
+                    ) : (
+                      form.regions.map((r, i) => (
+                        <tr key={`${r.provinceCode}-${r.wardCode || 'all'}`}>
+                          <td className="p-2 px-3 text-on-surface">
+                            {r.provinceName}
+                            {r.wardName ? ` - ${r.wardName}` : ' (Toàn bộ)'}
+                          </td>
+                          <td className="p-2 px-3">
+                            <button
+                              type="button"
+                              className="text-error hover:underline"
+                              onClick={() => handleRemoveRegionFromForm(i)}
+                            >
+                              Xóa
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-sm pt-sm mt-sm border-t border-outline-variant pt-4">
             <Button type="button" variant="outline" onClick={closeForm} disabled={saving}>
               {t('common.cancel')}
             </Button>

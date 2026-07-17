@@ -42,8 +42,9 @@
     "orders": "Đơn hàng",
     "inventory": "Kho hàng",
     "reviews": "Đánh giá",
-    "users": "Người dùng",
-    "coupons": "Mã giảm giá",
+    "users": "Khách hàng",
+    "coupons": "Khuyến mãi",
+    "shipping": "Vận chuyển",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
   },

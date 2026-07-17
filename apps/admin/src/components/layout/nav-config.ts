@@ -10,6 +10,7 @@ export type NavKey =
   | 'reviews'
   | 'users'
   | 'coupons'
+  | 'shipping'
   | 'settings';
 
 export type NavIcon =
@@ -22,6 +23,7 @@ export type NavIcon =
   | 'reviews'
   | 'users'
   | 'coupon'
+  | 'shipping'
   | 'settings';
 
 export interface NavItem {
@@ -54,6 +56,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'reviews', to: '/reviews', icon: 'reviews', roles: CONTENT_ROLES },
   { key: 'users', to: '/users', icon: 'users', roles: ['ADMIN'] },
   { key: 'coupons', to: '/coupons', icon: 'coupon', roles: ['ADMIN'] },
+  { key: 'shipping', to: '/shipping', icon: 'shipping', roles: ['ADMIN'] },
   { key: 'settings', to: '/settings', icon: 'settings', roles: ['ADMIN'] },
 ];
 

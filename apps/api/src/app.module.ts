@@ -21,6 +21,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ShippingModule } from './modules/shipping/shipping.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -48,6 +49,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ReviewsModule,
     SettingsModule,
     DashboardModule,
+    ShippingModule,
     EventEmitterModule.forRoot(),
   ],
   providers: [

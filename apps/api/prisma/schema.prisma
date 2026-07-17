@@ -378,3 +378,29 @@ model Setting {
   key   String @unique @db.VarChar(100)
   value String @db.NVarChar(Max)
 }
+
+// ==================== SHIPPING ====================
+
+model ShippingRule {
+  id          String           @id @default(uuid())
+  name        String           @db.NVarChar(255)
+  fee         Decimal          @db.Decimal(18, 2)
+  isDefault   Boolean          @default(false)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  
+  regions     ShippingRegion[]
+}
+
+model ShippingRegion {
+  id             String       @id @default(uuid())
+  ruleId         String
+  rule           ShippingRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  provinceCode   String       @db.VarChar(10)
+  provinceName   String       @db.NVarChar(100)
+  wardCode       String?      @db.VarChar(10)
+  wardName       String?      @db.NVarChar(100)
+  
+  @@unique([provinceCode, wardCode])
+}

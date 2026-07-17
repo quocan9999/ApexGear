@@ -12,6 +12,7 @@ describe('OrdersService', () => {
   let prisma: ReturnType<typeof createPrismaMock>;
   let cartService: { getCart: jest.Mock };
   let couponsService: { validate: jest.Mock };
+  let shippingService: { calculateFee: jest.Mock };
   let emailService: {
     sendOrderConfirmation: jest.Mock;
     sendDeliveryConfirmation: jest.Mock;
@@ -51,6 +52,7 @@ describe('OrdersService', () => {
       }),
     };
     couponsService = { validate: jest.fn() };
+    shippingService = { calculateFee: jest.fn().mockResolvedValue(30000) };
     emailService = {
       sendOrderConfirmation: jest.fn().mockResolvedValue(undefined),
       sendDeliveryConfirmation: jest.fn().mockResolvedValue(undefined),
@@ -59,6 +61,7 @@ describe('OrdersService', () => {
       prisma as never,
       cartService as never,
       couponsService as never,
+      shippingService as never,
       emailService as never,
     );
   });
@@ -176,10 +179,7 @@ describe('OrdersService', () => {
         discount: 20000,
         couponId: 'cp1',
       });
-      prisma.setting.findUnique.mockResolvedValue({
-        key: 'shipping_fee',
-        value: '30000',
-      });
+      shippingService.calculateFee.mockResolvedValue(30000);
       prisma.productVariant.updateMany.mockResolvedValue({ count: 1 });
       prisma.coupon.update.mockResolvedValue({});
       prisma.cartItem.deleteMany.mockResolvedValue({ count: 1 });

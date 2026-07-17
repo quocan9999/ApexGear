@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { formatPrice } from '../utils/format';
 import { productsService } from '../services/products.service';
 import { useCartStore } from '../stores/cart.store';
@@ -201,9 +201,14 @@ export default function ProductDetailPage() {
           <div className="flex items-baseline gap-md">
             <span className="headline-lg text-primary">{formatPrice(displayPrice)}</span>
             {originalPrice && originalPrice > displayPrice && (
-              <span className="body-md text-on-surface-variant line-through">
-                {formatPrice(originalPrice)}
-              </span>
+              <>
+                <span className="body-md text-on-surface-variant line-through">
+                  {formatPrice(originalPrice)}
+                </span>
+                <span className="rounded border border-error px-2 py-0.5 text-sm font-medium text-error">
+                  -{Math.round(((Number(originalPrice) - Number(displayPrice)) / Number(originalPrice)) * 100)}%
+                </span>
+              </>
             )}
           </div>
 
@@ -232,12 +237,12 @@ export default function ProductDetailPage() {
             />
             <Button
               variant="primary"
-              size="lg"
+              size="md"
               onClick={handleAddToCart}
               disabled={isOutOfStock || !selectedVariant}
               className="min-w-[180px]"
             >
-              {added ? t('product.addedToCart') : t('product.addToCart')}
+              {t('product.addToCart')}
             </Button>
           </div>
         </div>
@@ -279,6 +284,25 @@ export default function ProductDetailPage() {
       <div className="mt-xxl">
         <RelatedProducts categoryId={product.categoryId} excludeProductId={product.id} />
       </div>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {added && (
+          <div className="fixed top-6 left-1/2 z-50 -translate-x-1/2">
+            <motion.div
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="flex items-center gap-md rounded-lg bg-inverse-surface px-lg py-md text-inverse-on-surface shadow-lg"
+            >
+              <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="body-md font-medium">{t('product.addedToCart')}</span>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

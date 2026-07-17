@@ -16,6 +16,13 @@
     "status": "Trạng thái",
     "empty": "Không có dữ liệu"
   },
+  "errors": {
+    "network": "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.",
+    "unauthorized": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    "invalidCredentials": "Email hoặc mật khẩu không chính xác.",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "server": "Máy chủ đang gặp sự cố. Vui lòng thử lại sau."
+  },
   "pagination": {
     "navigation": "Phân trang",
     "previous": "Trang trước",

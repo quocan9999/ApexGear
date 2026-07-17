@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CartService } from '../cart/cart.service';
 import { CouponsService } from '../coupons/coupons.service';
+import { ShippingService } from '../shipping/shipping.service';
 import { EmailService } from '../../common/services/email.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
@@ -45,6 +46,7 @@ export class OrdersService {
     private prisma: PrismaService,
     private cartService: CartService,
     private couponsService: CouponsService,
+    private shippingService: ShippingService,
     private emailService: EmailService,
   ) {}
 
@@ -118,12 +120,10 @@ export class OrdersService {
       couponId = result.couponId ?? null;
     }
 
-    const shippingFeeSetting = await this.prisma.setting.findUnique({
-      where: { key: 'shipping_fee' },
-    });
-    const shippingFee = shippingFeeSetting
-      ? Number(shippingFeeSetting.value) || 0
-      : 30000;
+    const shippingFee = await this.shippingService.calculateFee(
+      address.provinceCode,
+      address.wardCode
+    );
 
     const total = Math.max(
       0,

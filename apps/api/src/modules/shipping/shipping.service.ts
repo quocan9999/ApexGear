@@ -46,7 +46,13 @@ export class ShippingService {
     }));
   }
 
-  async createRule(dto: { name: string; fee: number; isDefault?: boolean; isActive?: boolean }) {
+  async createRule(dto: {
+    name: string;
+    fee: number;
+    isDefault?: boolean;
+    isActive?: boolean;
+    regions?: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }[];
+  }) {
     return this.prisma.$transaction(async (tx) => {
       if (dto.isDefault) {
         await tx.shippingRule.updateMany({
@@ -60,13 +66,31 @@ export class ShippingService {
           fee: dto.fee,
           isDefault: dto.isDefault ?? false,
           isActive: dto.isActive ?? true,
+          regions: dto.regions?.length ? {
+            create: dto.regions.map(r => ({
+              provinceCode: r.provinceCode,
+              provinceName: r.provinceName,
+              wardCode: r.wardCode || null,
+              wardName: r.wardName || null,
+            }))
+          } : undefined
         },
+        include: { regions: true }
       });
       return { ...rule, fee: Number(rule.fee) };
     });
   }
 
-  async updateRule(id: string, dto: { name?: string; fee?: number; isDefault?: boolean; isActive?: boolean }) {
+  async updateRule(
+    id: string,
+    dto: {
+      name?: string;
+      fee?: number;
+      isDefault?: boolean;
+      isActive?: boolean;
+      regions?: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }[];
+    }
+  ) {
     return this.prisma.$transaction(async (tx) => {
       if (dto.isDefault) {
         await tx.shippingRule.updateMany({
@@ -74,6 +98,11 @@ export class ShippingService {
           data: { isDefault: false },
         });
       }
+
+      if (dto.regions) {
+        await tx.shippingRegion.deleteMany({ where: { ruleId: id } });
+      }
+
       const rule = await tx.shippingRule.update({
         where: { id },
         data: {
@@ -81,7 +110,18 @@ export class ShippingService {
           ...(dto.fee !== undefined && { fee: dto.fee }),
           ...(dto.isDefault !== undefined && { isDefault: dto.isDefault }),
           ...(dto.isActive !== undefined && { isActive: dto.isActive }),
+          ...(dto.regions && {
+            regions: {
+              create: dto.regions.map(r => ({
+                provinceCode: r.provinceCode,
+                provinceName: r.provinceName,
+                wardCode: r.wardCode || null,
+                wardName: r.wardName || null,
+              }))
+            }
+          })
         },
+        include: { regions: true }
       });
       return { ...rule, fee: Number(rule.fee) };
     });
@@ -91,6 +131,30 @@ export class ShippingService {
     const exists = await this.prisma.shippingRule.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('Rule not found');
     await this.prisma.shippingRule.delete({ where: { id } });
+    return { success: true };
+  }
+
+  async addRegion(ruleId: string, dto: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }) {
+    const rule = await this.prisma.shippingRule.findUnique({ where: { id: ruleId } });
+    if (!rule) throw new NotFoundException('Rule not found');
+
+    const region = await this.prisma.shippingRegion.create({
+      data: {
+        ruleId,
+        provinceCode: dto.provinceCode,
+        provinceName: dto.provinceName,
+        wardCode: dto.wardCode || null,
+        wardName: dto.wardName || null,
+      },
+    });
+    return region;
+  }
+
+  async removeRegion(ruleId: string, regionId: string) {
+    const region = await this.prisma.shippingRegion.findUnique({ where: { id: regionId } });
+    if (!region || region.ruleId !== ruleId) throw new NotFoundException('Region not found in this rule');
+
+    await this.prisma.shippingRegion.delete({ where: { id: regionId } });
     return { success: true };
   }
 }

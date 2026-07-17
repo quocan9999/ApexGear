@@ -11,7 +11,6 @@ interface EditableState {
 // Map setting keys to their i18n key
 const SETTING_GROUPS: { groupKey: string; keys: string[] }[] = [
   { groupKey: 'general', keys: ['store_name'] },
-  { groupKey: 'shipping', keys: ['shipping_fee'] },
 ];
 
 export function SettingsPage() {
@@ -105,7 +104,7 @@ export function SettingsPage() {
             return (
               <div key={group.groupKey}>
                 <h3 className="headline-sm text-on-surface mb-md">
-                  {t(`pages.settings.group.${group.groupKey as 'general' | 'shipping'}` as const)}
+                  {t(`pages.settings.group.${group.groupKey as 'general'}` as const)}
                 </h3>
                 <div className="flex flex-col gap-md">
                   {visibleKeys.map((key) => {
@@ -116,35 +115,37 @@ export function SettingsPage() {
                     return (
                       <div
                         key={key}
-                        className="flex flex-col gap-sm rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:flex-row md:items-end md:gap-md"
+                        className="flex flex-col gap-xs rounded-lg border border-outline-variant bg-surface-container-lowest p-md"
                       >
-                        <div className="flex-1">
-                          <p className="label-md text-on-surface mb-xs">
-                            {t(`pages.settings.key.${key as 'store_name' | 'shipping_fee'}` as const)}
-                          </p>
-                          <Input
-                            value={current}
-                            onChange={(event) =>
-                              setDirty((prev) => ({ ...prev, [key]: event.target.value }))
-                            }
-                            aria-label={t(`pages.settings.key.${key as 'store_name' | 'shipping_fee'}` as const)}
-                          />
-                          {isDirty && (
-                            <p className="body-sm text-warning mt-xs">
-                              {t('common.genericError')} {/* just a visual indicator */}
+                        <div className="flex flex-col md:flex-row md:items-end md:gap-md">
+                          <div className="flex-1">
+                            <p className="label-md text-on-surface mb-xs">
+                              {t(`pages.settings.key.${key as 'store_name'}` as const)}
                             </p>
-                          )}
+                            <Input
+                              value={current}
+                              onChange={(event) =>
+                                setDirty((prev) => ({ ...prev, [key]: event.target.value }))
+                              }
+                              aria-label={t(`pages.settings.key.${key as 'store_name'}` as const)}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            className="mt-4 md:mt-0"
+                            onClick={() => void handleSave(key)}
+                            isLoading={isSaving}
+                            loadingLabel={t('common.loading')}
+                            disabled={!isDirty || isSaving}
+                          >
+                            {t('pages.settings.save')}
+                          </Button>
                         </div>
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={() => void handleSave(key)}
-                          isLoading={isSaving}
-                          loadingLabel={t('common.loading')}
-                          disabled={!isDirty || isSaving}
-                        >
-                          {t('pages.settings.save')}
-                        </Button>
+                        {isDirty && (
+                          <p className="body-sm text-warning mt-1">
+                            Chưa lưu thay đổi
+                          </p>
+                        )}
                       </div>
                     );
                   })}

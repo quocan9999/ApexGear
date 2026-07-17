@@ -25,31 +25,19 @@ export default function CartSummary({
     <div className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-lg">
       <h2 className="headline-md text-on-surface">{t('cart.summaryTitle')}</h2>
 
-      <dl className="flex flex-col gap-sm">
-        <div className="flex items-center justify-between">
-          <dt className="body-md text-on-surface-variant">{t('cart.subtotal')}</dt>
-          <dd className="body-md text-on-surface">{formatPrice(subtotal)}</dd>
-        </div>
-
-        {discount > 0 && (
+      {discount > 0 && (
+        <dl className="flex flex-col gap-sm">
           <div className="flex items-center justify-between">
             <dt className="body-md text-on-surface-variant">{t('cart.discount')}</dt>
             <dd className="body-md text-primary">-{formatPrice(discount)}</dd>
           </div>
-        )}
+        </dl>
+      )}
 
-        <div className="flex items-center justify-between">
-          <dt className="body-md text-on-surface-variant">{t('cart.shipping')}</dt>
-          <dd className="body-md text-on-surface">
-            {shippingFee === undefined ? t('cart.shippingAtCheckout') : formatPrice(shippingFee)}
-          </dd>
-        </div>
-      </dl>
-
-      <div className="flex items-center justify-between border-t border-outline-variant pt-md">
+      <div className={`flex items-center justify-between ${discount > 0 ? 'border-t border-outline-variant pt-md' : ''}`}>
         <span className="body-md font-semibold text-on-surface">{t('cart.total')}</span>
         <span className="headline-md text-primary">
-          {shippingFee === undefined ? t('cart.shippingAtCheckout') : formatPrice(total)}
+          {formatPrice(total)}
         </span>
       </div>
 

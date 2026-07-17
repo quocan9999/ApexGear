@@ -79,13 +79,15 @@ export default function CheckoutPage() {
   const [discount, setDiscount] = useState<number>(carried.discount ?? 0);
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [shippingFee, setShippingFee] = useState<number | null>(null);
+  const [isFetchingFee, setIsFetchingFee] = useState(false);
 
   const items = useMemo(() => cart?.items ?? [], [cart]);
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + unitPrice(item) * item.quantity, 0),
     [items],
   );
-  const estimatedTotal = Math.max(0, subtotal - discount);
+  const estimatedTotal = Math.max(0, subtotal + (shippingFee ?? 0) - discount);
 
   // Load cart + saved addresses on mount.
   useEffect(() => {
@@ -125,6 +127,20 @@ export default function CheckoutPage() {
   }, [cart, items.length, navigate]);
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null;
+
+  // Fetch dynamic shipping fee when address changes
+  useEffect(() => {
+    if (selectedAddress) {
+      setIsFetchingFee(true);
+      ordersService
+        .getShippingFee(selectedAddress.provinceCode, selectedAddress.wardCode)
+        .then((fee) => setShippingFee(fee))
+        .catch(() => setShippingFee(30000)) // fallback to 30k
+        .finally(() => setIsFetchingFee(false));
+    } else {
+      setShippingFee(null);
+    }
+  }, [selectedAddress?.provinceCode, selectedAddress?.wardCode]);
 
   const handleSaveAddress = async (payload: CreateAddressPayload) => {
     setSavingAddress(true);
@@ -256,6 +272,7 @@ export default function CheckoutPage() {
                 paymentMethod={paymentMethod}
                 subtotal={subtotal}
                 discount={discount}
+                shippingFee={shippingFee ?? undefined}
                 total={estimatedTotal}
                 couponCode={couponCode}
               />
@@ -293,7 +310,13 @@ export default function CheckoutPage() {
             <div className="flex items-center justify-between">
               <dt className="body-md text-on-surface-variant">{t('checkout.review.shipping')}</dt>
               <dd className="body-sm text-on-surface-variant">
-                {t('checkout.review.shippingComputed')}
+                {isFetchingFee ? (
+                  <div className="h-5 w-24 animate-pulse rounded bg-surface-container-high" />
+                ) : shippingFee !== null ? (
+                  <span className="body-md text-on-surface">{formatPrice(shippingFee)}</span>
+                ) : (
+                  t('checkout.review.shippingComputed')
+                )}
               </dd>
             </div>
           </dl>

@@ -35,6 +35,7 @@ vi.mock('../services/orders.service', () => ({
     create: vi
       .fn()
       .mockResolvedValue({ id: 'o1', orderNumber: 'AG-1', paymentMethod: 'COD', total: 530000 }),
+    getShippingFee: vi.fn().mockResolvedValue(30000),
   },
 }));
 const cartState = {

@@ -16,6 +16,7 @@ const ReviewsPage = lazy(() => import('../pages/ReviewsPage'));
 const UsersPage = lazy(() => import('../pages/UsersPage'));
 const CouponsPage = lazy(() => import('../pages/CouponsPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
+const ShippingRulesPage = lazy(() => import('../pages/ShippingRulesPage'));
 
 const CONTENT_ROLES = ['ADMIN', 'CONTENT_MANAGER'] as const;
 const INVENTORY_ROLES = ['ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER'] as const;
@@ -52,6 +53,7 @@ export default function AppRoutes() {
           <Route element={<RoleRoute allow={ADMIN_ONLY} />}>
             <Route path="users" element={<UsersPage />} />
             <Route path="coupons" element={<CouponsPage />} />
+            <Route path="shipping" element={<ShippingRulesPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>

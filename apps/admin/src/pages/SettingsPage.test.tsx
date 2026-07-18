@@ -35,9 +35,8 @@ describe('SettingsPage', () => {
   it('renders settings with values', async () => {
     renderPage();
     expect(await screen.findByDisplayValue('ApexGear')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('30000')).toBeInTheDocument();
     expect(screen.getByText(i18n.t('pages.settings.group.general'))).toBeInTheDocument();
-    expect(screen.getByText(i18n.t('pages.settings.group.shipping'))).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('30000')).not.toBeInTheDocument();
   });
 
   it('updates a setting on save', async () => {

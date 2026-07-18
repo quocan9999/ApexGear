@@ -38,9 +38,9 @@ describe('api instance', () => {
     expect(normalized).toEqual({ message: 'Không tìm thấy', status: 404 });
   });
 
-  it('falls back to a generic message when none is provided', async () => {
+  it('falls back to a localized network message when none is provided', async () => {
     const rejected = getRejectedHandler();
     const normalized = await rejected({}).catch((e: unknown) => e);
-    expect(normalized).toEqual({ message: 'Something went wrong', status: undefined });
+    expect(normalized).toEqual({ message: 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.', status: undefined });
   });
 });

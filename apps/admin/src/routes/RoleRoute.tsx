@@ -2,18 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Spinner } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
+import { STAFF_ROLES, isStaffRole } from '@apexgear/shared';
 import type { Role } from '../types';
 
-export const STAFF_ROLES: readonly Role[] = [
-  'ADMIN',
-  'CONTENT_MANAGER',
-  'INVENTORY_MANAGER',
-  'ORDER_MANAGER',
-];
-
-export function isStaffRole(role: Role): boolean {
-  return STAFF_ROLES.includes(role);
-}
+export { STAFF_ROLES, isStaffRole };
 
 interface RoleRouteProps {
   allow?: readonly Role[];

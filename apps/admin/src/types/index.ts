@@ -12,26 +12,14 @@ export interface PageMeta {
 }
 
 // ========== Shared enums ==========
-export type Role =
-  | 'CUSTOMER'
-  | 'CONTENT_MANAGER'
-  | 'INVENTORY_MANAGER'
-  | 'ORDER_MANAGER'
-  | 'ADMIN';
-
-export type OrderStatus =
-  | 'PENDING'
-  | 'CONFIRMED'
-  | 'SHIPPING'
-  | 'DELIVERED'
-  | 'COMPLETED'
-  | 'CANCELLED'
-  | 'REFUNDED';
-
-export type PaymentStatus = 'UNPAID' | 'PAID' | 'REFUNDED';
-export type PaymentMethod = 'COD' | 'SEPAY';
-export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
-export type CouponType = 'PERCENTAGE' | 'FIXED';
+export type {
+  CouponType,
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+  ReviewStatus,
+  Role,
+} from '@apexgear/shared';
 
 // ========== Dashboard ==========
 export interface DashboardStats {

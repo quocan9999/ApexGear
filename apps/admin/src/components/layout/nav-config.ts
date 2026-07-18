@@ -1,3 +1,4 @@
+import { ALL_STAFF_ROLES, CONTENT_ROLES } from '@apexgear/shared';
 import type { Role } from '../../types';
 
 export type NavKey =
@@ -33,16 +34,8 @@ export interface NavItem {
   roles: readonly Role[];
 }
 
-const ALL_STAFF: readonly Role[] = [
-  'ADMIN',
-  'CONTENT_MANAGER',
-  'INVENTORY_MANAGER',
-  'ORDER_MANAGER',
-];
-const CONTENT_ROLES: readonly Role[] = ['ADMIN', 'CONTENT_MANAGER'];
-
 export const NAV_ITEMS: readonly NavItem[] = [
-  { key: 'dashboard', to: '/', icon: 'dashboard', roles: ALL_STAFF },
+  { key: 'dashboard', to: '/', icon: 'dashboard', roles: ALL_STAFF_ROLES },
   { key: 'products', to: '/products', icon: 'box', roles: CONTENT_ROLES },
   { key: 'categories', to: '/categories', icon: 'category', roles: CONTENT_ROLES },
   { key: 'brands', to: '/brands', icon: 'brand', roles: CONTENT_ROLES },

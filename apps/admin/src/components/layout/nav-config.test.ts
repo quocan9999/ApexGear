@@ -13,6 +13,7 @@ const expectedByRole: Record<Role, string[]> = {
     'reviews',
     'users',
     'coupons',
+    'shipping',
     'settings',
   ],
   CONTENT_MANAGER: [
@@ -29,10 +30,10 @@ const expectedByRole: Record<Role, string[]> = {
 };
 
 describe('navigation role matrix', () => {
-  it('defines ten unique destinations', () => {
-    expect(NAV_ITEMS).toHaveLength(10);
-    expect(new Set(NAV_ITEMS.map((item) => item.key))).toHaveLength(10);
-    expect(new Set(NAV_ITEMS.map((item) => item.to))).toHaveLength(10);
+  it('defines eleven unique destinations', () => {
+    expect(NAV_ITEMS).toHaveLength(11);
+    expect(new Set(NAV_ITEMS.map((item) => item.key))).toHaveLength(11);
+    expect(new Set(NAV_ITEMS.map((item) => item.to))).toHaveLength(11);
   });
 
   it.each(Object.entries(expectedByRole) as [Role, string[]][])(

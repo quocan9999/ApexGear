@@ -20,7 +20,10 @@ describe('admin API client', () => {
     };
 
     try {
-      await expect(api.get('/restricted')).rejects.toEqual({ message: 'Forbidden', status: 403 });
+      await expect(api.get('/restricted')).rejects.toEqual({
+        message: 'Bạn không có quyền thực hiện thao tác này.',
+        status: 403,
+      });
     } finally {
       api.defaults.adapter = originalAdapter;
     }

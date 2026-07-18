@@ -101,7 +101,7 @@ describe('AdminLayout', () => {
     const sidebar = screen.getByRole('complementary', { name: i18n.t('layout.sidebar') });
     expect(sidebar).toHaveClass('w-60', 'lg:visible', 'lg:static');
     const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
-    expect(within(navigation).getAllByRole('link')).toHaveLength(10);
+    expect(within(navigation).getAllByRole('link')).toHaveLength(11);
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toHaveAttribute(
       'aria-current',
       'page',

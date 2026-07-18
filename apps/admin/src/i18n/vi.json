@@ -14,7 +14,10 @@
     "genericError": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "actions": "Thao tác",
     "status": "Trạng thái",
-    "empty": "Không có dữ liệu"
+    "empty": "Không có dữ liệu",
+    "name": "Tên",
+    "requiredField": "Vui lòng nhập {{field}}.",
+    "invalidNumber": "Giá trị số không hợp lệ."
   },
   "errors": {
     "network": "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.",
@@ -219,6 +222,11 @@
       "updated": "Đã cập nhật {{key}}",
       "save": "Lưu",
       "saving": "Đang lưu..."
+    }
+  },
+  "shipping": {
+    "form": {
+      "name": "Tên quy tắc"
     }
   },
   "dashboard": {

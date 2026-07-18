@@ -12,9 +12,7 @@ interface CartSummaryProps {
 }
 
 export default function CartSummary({
-  subtotal,
   discount,
-  shippingFee,
   total,
   onCheckout,
   checkoutDisabled,

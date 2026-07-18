@@ -29,9 +29,9 @@ function normalizeError(error: unknown): string {
     case 'Account is deactivated':
       return i18n.t('login.accountDeactivated');
     default:
-      return candidate?.status === 423
-        ? i18n.t('login.accountLocked')
-        : i18n.t('login.genericError');
+      if (candidate?.status === 423) return i18n.t('login.accountLocked');
+      if (candidate?.status === 429) return i18n.t('login.tooManyAttempts');
+      return i18n.t('login.genericError');
   }
 }
 

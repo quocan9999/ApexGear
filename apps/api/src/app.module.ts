@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
@@ -55,6 +55,13 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    // Spec §4.2: 5 attempts / 15 minutes per IP on login. The guard is
+    // disabled in test env so multi-login e2e suites (RBAC, auth) don't
+    // exhaust the budget against themselves; the dedicated throttle test
+    // opts back in via a module override.
+    ...(process.env.NODE_ENV === 'test'
+      ? []
+      : [{ provide: APP_GUARD, useClass: ThrottlerGuard }]),
   ],
 })
 export class AppModule {}

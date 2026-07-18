@@ -24,9 +24,10 @@ import {
   ValidationPipe,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { EmailService } from '../src/common/services/email.service';
@@ -36,6 +37,20 @@ import {
   createPrismaMock,
   PrismaMock,
 } from '../src/test-utils/prisma-mock';
+
+export type CreateTestAppOptions = {
+  /**
+   * Default false: skip the global ThrottlerGuard so suites that do many
+   * logins from the same supertest IP don't exhaust the 5/15min budget and
+   * block their own subsequent calls. The dedicated throttling test opts
+   * in with `{ withThrottle: true }` to exercise the real guard.
+   *
+   * `NODE_ENV=test` causes AppModule to omit the APP_GUARD provider for
+   * ThrottlerGuard (see app.module.ts); when this option is true we add it
+   * back so the suite exercises the production-grade behaviour.
+   */
+  withThrottle?: boolean;
+};
 
 export type E2EContext = {
   app: INestApplication;
@@ -48,7 +63,9 @@ export type E2EContext = {
   module: TestingModule;
 };
 
-export async function createTestApp(): Promise<E2EContext> {
+export async function createTestApp(
+  options: CreateTestAppOptions = {},
+): Promise<E2EContext> {
   const prisma = createPrismaMock();
   // JwtStrategy / PrismaService lifecycle — no real DB
   (prisma as unknown as { $connect: jest.Mock }).$connect = jest
@@ -64,14 +81,22 @@ export async function createTestApp(): Promise<E2EContext> {
     sendDeliveryConfirmation: jest.fn().mockResolvedValue(undefined),
   };
 
-  const module = await Test.createTestingModule({
+  let testingModuleBuilder = Test.createTestingModule({
     imports: [AppModule],
+    providers: options.withThrottle
+      ? // AppModule skips ThrottlerGuard in NODE_ENV=test so multi-login
+        // suites aren't blocked by the spec-mandated 5/15min budget. The
+        // throttle suite re-registers the guard via APP_GUARD so it
+        // exercises the production behaviour.
+        [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
+      : [],
   })
     .overrideProvider(PrismaService)
     .useValue(prisma)
     .overrideProvider(EmailService)
-    .useValue(email)
-    .compile();
+    .useValue(email);
+
+  const module = await testingModuleBuilder.compile();
 
   const app = module.createNestApplication();
   app.setGlobalPrefix('api');

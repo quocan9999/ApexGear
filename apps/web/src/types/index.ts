@@ -131,11 +131,7 @@ export interface ProductQueryParams {
 }
 
 // ========== Commerce Enums ==========
-export type OrderStatus =
-  | 'PENDING' | 'CONFIRMED' | 'SHIPPING' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
-export type PaymentStatus = 'UNPAID' | 'PAID' | 'REFUNDED';
-export type PaymentMethod = 'COD' | 'SEPAY';
-export type CouponType = 'PERCENTAGE' | 'FIXED';
+export type { CouponType, OrderStatus, PaymentMethod, PaymentStatus } from '@apexgear/shared';
 
 // ========== Cart (backend) ==========
 export interface BackendCartItem {

@@ -24,6 +24,7 @@
     "unauthorized": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
     "invalidCredentials": "Email hoặc mật khẩu không chính xác.",
     "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "tooManyRequests": "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 20 phút.",
     "server": "Máy chủ đang gặp sự cố. Vui lòng thử lại sau."
   },
   "pagination": {
@@ -494,6 +495,7 @@
     "invalidCredentials": "Email hoặc mật khẩu không chính xác.",
     "accountLocked": "Tài khoản đã bị khóa. Vui lòng thử lại sau.",
     "accountDeactivated": "Tài khoản đã bị vô hiệu hóa.",
+    "tooManyAttempts": "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 20 phút.",
     "genericError": "Không thể đăng nhập. Vui lòng thử lại.",
     "copyright": "© 2026 ApexGear Admin. Bản quyền đã được bảo hộ."
   }

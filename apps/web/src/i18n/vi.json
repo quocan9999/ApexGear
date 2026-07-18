@@ -20,6 +20,7 @@
     "unauthorized": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
     "invalidCredentials": "Sai tài khoản hoặc mật khẩu.",
     "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "tooManyRequests": "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 20 phút.",
     "server": "Máy chủ đang gặp sự cố. Vui lòng thử lại sau.",
     "generic": "Có lỗi xảy ra. Vui lòng thử lại."
   },

@@ -38,6 +38,21 @@ describe('api instance', () => {
     expect(normalized).toEqual({ message: 'Không tìm thấy', status: 404 });
   });
 
+  it('maps 429 responses to a friendly localized message', async () => {
+    const rejected = getRejectedHandler();
+    const normalized = await rejected({
+      response: {
+        data: { error: { message: 'Too many failed login attempts' } },
+        status: 429,
+      },
+    }).catch((e: unknown) => e);
+
+    expect(normalized).toEqual({
+      message: 'Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 20 phút.',
+      status: 429,
+    });
+  });
+
   it('falls back to a localized network message when none is provided', async () => {
     const rejected = getRejectedHandler();
     const normalized = await rejected({}).catch((e: unknown) => e);

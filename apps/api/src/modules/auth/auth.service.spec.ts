@@ -22,6 +22,7 @@ describe('AuthService', () => {
     sendResetPasswordEmail: jest.Mock;
   };
   let configService: { get: jest.Mock };
+  let loginFailureThrottle: { recordFailedAttempt: jest.Mock };
 
   const baseUser = {
     id: 'u1',
@@ -49,12 +50,16 @@ describe('AuthService', () => {
     configService = {
       get: jest.fn((_key: string, def?: string) => def ?? 'http://localhost:5173'),
     };
+    loginFailureThrottle = {
+      recordFailedAttempt: jest.fn().mockResolvedValue(undefined),
+    };
 
     service = new AuthService(
       prisma as never,
       jwtService as unknown as JwtService,
       emailService as unknown as EmailService,
       configService as unknown as ConfigService,
+      loginFailureThrottle as never,
     );
   });
 
@@ -111,13 +116,15 @@ describe('AuthService', () => {
         email: 'user@example.com',
         role: Role.CUSTOMER,
       });
+      expect(loginFailureThrottle.recordFailedAttempt).not.toHaveBeenCalled();
     });
 
     it('throws UnauthorizedException for unknown email', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
       await expect(
-        service.login({ email: 'x@y.com', password: 'x' }),
+        service.login({ email: 'x@y.com', password: 'x' }, '127.0.0.1'),
       ).rejects.toBeInstanceOf(UnauthorizedException);
+      expect(loginFailureThrottle.recordFailedAttempt).toHaveBeenCalledWith('127.0.0.1');
     });
 
     it('throws 423 when account is locked', async () => {
@@ -146,9 +153,10 @@ describe('AuthService', () => {
       prisma.user.update.mockResolvedValue(baseUser);
 
       await expect(
-        service.login({ email: 'user@example.com', password: 'wrong' }),
+        service.login({ email: 'user@example.com', password: 'wrong' }, '127.0.0.1'),
       ).rejects.toBeInstanceOf(UnauthorizedException);
 
+      expect(loginFailureThrottle.recordFailedAttempt).toHaveBeenCalledWith('127.0.0.1');
       expect(prisma.user.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: { failedLoginAttempts: 1 },

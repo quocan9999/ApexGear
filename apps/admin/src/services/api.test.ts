@@ -28,4 +28,25 @@ describe('admin API client', () => {
       api.defaults.adapter = originalAdapter;
     }
   });
+
+  it('maps 429 responses to a friendly localized message', async () => {
+    const originalAdapter = api.defaults.adapter;
+    api.defaults.adapter = async () => {
+      throw {
+        response: {
+          status: 429,
+          data: { error: { message: 'Too many failed login attempts' } },
+        },
+      };
+    };
+
+    try {
+      await expect(api.post('/auth/login')).rejects.toEqual({
+        message: 'Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 20 phút.',
+        status: 429,
+      });
+    } finally {
+      api.defaults.adapter = originalAdapter;
+    }
+  });
 });

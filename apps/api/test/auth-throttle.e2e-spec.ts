@@ -1,8 +1,10 @@
 /**
  * Verifies the login endpoint enforces the spec-mandated rate limit:
- *   5 attempts per 15 minutes per IP, returns 429 Too Many Requests.
+ *   5 incorrect attempts per 20 minutes per IP, returns 429 Too Many Requests.
  *
  * Spec §4.2: "Rate limiting: 5 attempts / 15 minutes per IP".
+ * Product decision (2026-07-18): count incorrect credentials only and block
+ * failed attempts for 20 minutes.
  *
  * Lives in a separate file from auth.e2e-spec.ts so it gets a fresh
  * AppModule + fresh in-memory throttler storage.
@@ -24,7 +26,11 @@ describe('Auth login throttling (e2e)', () => {
     await ctx.app.close();
   });
 
-  it('POST /api/auth/login returns 429 after 5 failed attempts within 15 minutes', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/auth/login throttles only incorrect attempts from the same IP', async () => {
     const user = baseUser({
       password: await bcrypt.hash('correct-password', 4), // cheap hash for test
       failedLoginAttempts: 0,
@@ -41,11 +47,18 @@ describe('Auth login throttling (e2e)', () => {
       expect(res.status).toBe(401);
     }
 
-    // 6th attempt — must be throttled by IP, regardless of credentials.
+    // Correct credentials are not counted as failed attempts and must still log in.
+    const allowed = await request(ctx.app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email: user.email, password: 'correct-password' });
+    expect(allowed.status).toBe(200);
+
+    // The next incorrect attempt is throttled by IP.
     const blocked = await request(ctx.app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: user.email, password: 'wrong-password' });
 
     expect(blocked.status).toBe(429);
+    expect(blocked.body.error.message).toBe('Too many failed login attempts');
   });
 });

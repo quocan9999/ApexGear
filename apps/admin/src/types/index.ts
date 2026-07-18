@@ -1,3 +1,12 @@
+import type {
+  CouponType,
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+  ReviewStatus,
+  Role,
+} from '@apexgear/shared';
+
 // ========== API response types ==========
 export interface ApiResponse<T> {
   data: T;
@@ -12,14 +21,7 @@ export interface PageMeta {
 }
 
 // ========== Shared enums ==========
-export type {
-  CouponType,
-  OrderStatus,
-  PaymentMethod,
-  PaymentStatus,
-  ReviewStatus,
-  Role,
-} from '@apexgear/shared';
+export type { CouponType, OrderStatus, PaymentMethod, PaymentStatus, ReviewStatus, Role };
 
 // ========== Dashboard ==========
 export interface DashboardStats {

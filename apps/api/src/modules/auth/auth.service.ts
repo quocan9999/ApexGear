@@ -18,9 +18,10 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UserEntity } from './entities/user.entity';
+import { LoginFailureThrottleService } from './services/login-failure-throttle.service';
 
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const LOCK_DURATION_MS = 20 * 60 * 1000; // 20 minutes
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
+    private loginFailureThrottle: LoginFailureThrottleService,
   ) {}
 
   async register(dto: RegisterDto): Promise<UserEntity> {
@@ -51,12 +53,16 @@ export class AuthService {
     return new UserEntity(user);
   }
 
-  async login(dto: LoginDto): Promise<{ user: UserEntity; token: string }> {
+  async login(
+    dto: LoginDto,
+    ip = 'unknown',
+  ): Promise<{ user: UserEntity; token: string }> {
     const user = await this.prisma.user.findFirst({
       where: { email: dto.email, deletedAt: null },
     });
 
     if (!user || !user.password) {
+      await this.loginFailureThrottle.recordFailedAttempt(ip);
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -91,6 +97,8 @@ export class AuthService {
         where: { id: user.id },
         data: updateData,
       });
+
+      await this.loginFailureThrottle.recordFailedAttempt(ip);
 
       const remaining = MAX_LOGIN_ATTEMPTS - attempts;
       throw new UnauthorizedException({

@@ -28,6 +28,8 @@ api.interceptors.response.use(
       message = i18n.t('errors.unauthorized');
     } else if (status === 403) {
       message = i18n.t('errors.forbidden');
+    } else if (status === 429) {
+      message = i18n.t('errors.tooManyRequests');
     }
 
     return Promise.reject({ message, status });

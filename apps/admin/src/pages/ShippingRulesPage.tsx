@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge, Button, ConfirmDialog, Input, Modal, Spinner, Table, type TableColumn } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
 import { useProvinces } from '../hooks/useProvinces';
-import { shippingService, type ShippingRule, type ShippingRegion } from '../services/shipping.service';
+import { shippingService, type ShippingRule } from '../services/shipping.service';
 
 interface RegionState {
   provinceCode: string;
@@ -213,7 +213,7 @@ export function ShippingRulesPage() {
           <div className="flex items-center gap-2">
             <span className="label-md text-on-surface">{row.name}</span>
             {row.isDefault && (
-              <Badge variant="info">Mặc định</Badge>
+              <Badge variant="primary">Mặc định</Badge>
             )}
           </div>
         ),

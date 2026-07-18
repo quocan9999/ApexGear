@@ -1,3 +1,5 @@
+import type { CouponType, OrderStatus, PaymentMethod, PaymentStatus } from '@apexgear/shared';
+
 // ========== API Response Types ==========
 export interface ApiResponse<T> {
   data: T;
@@ -131,7 +133,7 @@ export interface ProductQueryParams {
 }
 
 // ========== Commerce Enums ==========
-export type { CouponType, OrderStatus, PaymentMethod, PaymentStatus } from '@apexgear/shared';
+export type { CouponType, OrderStatus, PaymentMethod, PaymentStatus };
 
 // ========== Cart (backend) ==========
 export interface BackendCartItem {

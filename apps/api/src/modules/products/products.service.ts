@@ -411,8 +411,13 @@ export class ProductsService {
       if (!brand) throw new BadRequestException('Brand not found');
     }
 
+    // Sanitize rich HTML before persistence. Defense-in-depth: never trust
+    // the caller, even when the controller is admin-only.
+    const sanitizedDescription =
+      dto.description == null ? dto.description : sanitizeHtml(dto.description);
+
     const data: Prisma.ProductUpdateInput = {
-      description: dto.description,
+      description: sanitizedDescription,
       basePrice: dto.basePrice,
       salePrice: dto.salePrice,
       metaTitle: dto.metaTitle,

@@ -89,8 +89,10 @@ npm install
 
 ### 2. Environment
 
+The template lives next to the API (`apps/api/.env.example`) — only the API consumes env vars (web/admin use a hardcoded Vite proxy to `http://localhost:3001`).
+
 ```powershell
-copy .env.example apps\api\.env
+copy apps\api\.env.example apps\api\.env
 ```
 
 Edit `apps/api/.env` and set at least:
@@ -104,8 +106,6 @@ Edit `apps/api/.env` and set at least:
 | `GOOGLE_*` | Google OAuth (optional) |
 | `SMTP_*` | Password-reset email (optional) |
 | `SEPAY_*` | Bank-transfer webhook (optional in local mock) |
-
-Root `.env.example` is the template for these keys.
 
 ### 3. Database (Docker example)
 

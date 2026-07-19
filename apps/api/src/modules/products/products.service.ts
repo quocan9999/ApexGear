@@ -9,6 +9,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
 import { slugify } from '../../common/utils/slugify';
+import { sanitizeHtml } from '../../common/utils/sanitize-html';
 
 export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
 
@@ -339,12 +340,17 @@ export class ProductsService {
     const slug = await this.uniqueSlug(dto.name);
     const sku = await this.uniqueSku(slug);
 
+    // Sanitize rich HTML before persistence. Defense-in-depth: never trust
+    // the caller, even when the controller is admin-only.
+    const sanitizedDescription =
+      dto.description == null ? dto.description : sanitizeHtml(dto.description);
+
     return this.prisma.$transaction(async (tx) => {
       const product = await tx.product.create({
         data: {
           name: dto.name,
           slug,
-          description: dto.description,
+          description: sanitizedDescription,
           basePrice: dto.basePrice,
           salePrice: dto.salePrice,
           categoryId: dto.categoryId,
@@ -405,8 +411,13 @@ export class ProductsService {
       if (!brand) throw new BadRequestException('Brand not found');
     }
 
+    // Sanitize rich HTML before persistence. Defense-in-depth: never trust
+    // the caller, even when the controller is admin-only.
+    const sanitizedDescription =
+      dto.description == null ? dto.description : sanitizeHtml(dto.description);
+
     const data: Prisma.ProductUpdateInput = {
-      description: dto.description,
+      description: sanitizedDescription,
       basePrice: dto.basePrice,
       salePrice: dto.salePrice,
       metaTitle: dto.metaTitle,

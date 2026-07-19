@@ -111,5 +111,96 @@ describe('ProductsService', () => {
         } as never),
       ).rejects.toBeInstanceOf(BadRequestException);
     });
+
+    it('sanitizes description before persisting', async () => {
+      prisma.category.findFirst.mockResolvedValue({ id: 'c1' } as never);
+      prisma.brand.findFirst.mockResolvedValue({ id: 'b1' } as never);
+      prisma.product.findFirst.mockResolvedValue(null);
+      prisma.productVariant.findFirst.mockResolvedValue(null);
+      prisma.product.create.mockResolvedValue({ id: 'p1' } as never);
+
+      await service.create({
+        name: 'X',
+        basePrice: 100,
+        categoryId: 'c1',
+        brandId: 'b1',
+        description:
+          '<p>safe<script>alert(1)</script></p><a href="javascript:evil()">x</a>',
+        metaDescription: '<strong>text-only meta stays unchanged</strong>',
+      } as never);
+
+      const createArgs = prisma.product.create.mock.calls[0][0];
+      expect(createArgs.data.description).not.toContain('<script');
+      expect(createArgs.data.description).not.toContain('alert(1)');
+      expect(createArgs.data.description).not.toMatch(/javascript:/i);
+      expect(createArgs.data.description).toContain('<p>safe</p>');
+      expect(createArgs.data.description).toContain('<a>x</a>');
+      // metaDescription is text-only and out of scope for rich-HTML sanitization.
+      expect(createArgs.data.metaDescription).toBe(
+        '<strong>text-only meta stays unchanged</strong>',
+      );
+    });
+
+    it('leaves description undefined when create does not provide one', async () => {
+      prisma.category.findFirst.mockResolvedValue({ id: 'c1' } as never);
+      prisma.brand.findFirst.mockResolvedValue({ id: 'b1' } as never);
+      prisma.product.findFirst.mockResolvedValue(null);
+      prisma.productVariant.findFirst.mockResolvedValue(null);
+      prisma.product.create.mockResolvedValue({ id: 'p1' } as never);
+
+      await service.create({
+        name: 'X',
+        basePrice: 100,
+        categoryId: 'c1',
+        brandId: 'b1',
+      } as never);
+
+      const createArgs = prisma.product.create.mock.calls[0][0];
+      expect(createArgs.data.description).toBeUndefined();
+    });
+  });
+
+  describe('update', () => {
+    it('sanitizes description before persisting', async () => {
+      prisma.product.findFirst.mockResolvedValue({
+        id: 'p1',
+        name: 'Existing',
+        slug: 'existing',
+      } as never);
+      prisma.product.update.mockResolvedValue({ id: 'p1' } as never);
+
+      await service.update(
+        'p1',
+        {
+          description:
+            '<p>safe<script>alert(1)</script><a href="javascript:bad()">x</a></p>',
+          metaDescription: '<strong>text-only meta stays unchanged</strong>',
+        } as never,
+      );
+
+      const updateArgs = prisma.product.update.mock.calls[0][0];
+      expect(updateArgs.data.description).not.toContain('<script');
+      expect(updateArgs.data.description).not.toContain('alert(1)');
+      expect(updateArgs.data.description).not.toMatch(/javascript:/i);
+      expect(updateArgs.data.description).toContain('<p>safe<a>x</a></p>');
+      // metaDescription is text-only and out of scope for rich-HTML sanitization.
+      expect(updateArgs.data.metaDescription).toBe(
+        '<strong>text-only meta stays unchanged</strong>',
+      );
+    });
+
+    it('leaves description undefined when update does not provide one', async () => {
+      prisma.product.findFirst.mockResolvedValue({
+        id: 'p1',
+        name: 'Existing',
+        slug: 'existing',
+      } as never);
+      prisma.product.update.mockResolvedValue({ id: 'p1' } as never);
+
+      await service.update('p1', {} as never);
+
+      const updateArgs = prisma.product.update.mock.calls[0][0];
+      expect(updateArgs.data.description).toBeUndefined();
+    });
   });
 });

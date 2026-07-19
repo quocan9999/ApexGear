@@ -49,7 +49,8 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sanitize-html": "^2.17.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
@@ -64,6 +65,7 @@
     "@types/nodemailer": "^6.4.24",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-jwt": "^4.0.1",
+    "@types/sanitize-html": "^2.16.1",
     "@types/supertest": "^7.2.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
@@ -89,6 +91,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(htmlparser2|dom-serializer|domhandler|domutils|domelementtype|entities|sanitize-html)/)"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

@@ -61,6 +61,32 @@ describe('ProductsService', () => {
       const result = await service.findAll({}, true);
       expect(result.data[0].variants[0]).toHaveProperty('stockAvailable', 3);
     });
+
+    it('uses FREETEXT $queryRaw for ids+count and filters Prisma findMany by FTS ids in FTS order', async () => {
+      // FTS id query first, COUNT query second.
+      prisma.$queryRaw
+        .mockResolvedValueOnce([{ id: 'p2' }, { id: 'p1' }])
+        .mockResolvedValueOnce([{ count: 2 }]);
+      prisma.product.findMany.mockResolvedValue([
+        { id: 'p2', name: 'Tai nghe Sony', variants: [] },
+        { id: 'p1', name: 'Chuột Logitech', variants: [] },
+      ]);
+
+      const result = await service.findAll({ search: 'tai nghe' } as never, false);
+
+      // 1. raw FREETEXT was called twice (ids + count), and Prisma's count
+      //    helper is NOT used in the FTS path (we use a raw COUNT).
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
+      expect(prisma.product.count).not.toHaveBeenCalled();
+
+      // 2. Prisma findMany was called with the FTS ids in the IN clause.
+      const findManyArgs = prisma.product.findMany.mock.calls[0][0];
+      expect(findManyArgs.where.id).toEqual({ in: ['p2', 'p1'] });
+
+      // 3. Response preserves the FTS (id-page) order, not Prisma's default.
+      expect(result.data.map((p: { id: string }) => p.id)).toEqual(['p2', 'p1']);
+      expect(result.meta.total).toBe(2);
+    });
   });
 
   describe('findBySlug', () => {

@@ -53,25 +53,94 @@ export class ProductsService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ProductWhereInput = {
-      deletedAt: null,
-      ...(!isStaff && { isActive: true }),
-    };
-
     if (query.search) {
-      where.OR = [
-        { name: { contains: query.search } },
-        { description: { contains: query.search } },
-      ];
+      // ----- FTS path: pre-filter ids via FREETEXT, then hydrate via Prisma -----
+      // FREETEXT treats the term as a phrase; strip single quotes and percent
+      // chars that don't belong in a free-text query.
+      const term = query.search.replace(/['%]/g, ' ').trim();
+      if (!term) {
+        // Search string was only punctuation — fall back to the non-search path.
+        return this.findAllNoSearch({ ...query, search: undefined }, isStaff);
+      }
+
+      const where = this.buildFtsWhereClauses(query, isStaff, term);
+      const orderBy = this.buildFtsOrderBy(query.sortBy, query.sortOrder);
+
+      const ftsRows = await this.prisma.$queryRaw<{ id: string }[]>(
+        Prisma.sql`SELECT p.[id] FROM [dbo].[Product] p ${where} ${orderBy} OFFSET ${skip} ROWS FETCH NEXT ${limit} ROWS ONLY`,
+      );
+
+      const totalRow = await this.prisma.$queryRaw<{ count: number }[]>(
+        Prisma.sql`SELECT COUNT(*) AS [count] FROM [dbo].[Product] p ${where}`,
+      );
+      const total = Number(totalRow[0]?.count ?? 0);
+
+      const ids = ftsRows.map((r) => r.id);
+      if (ids.length === 0) {
+        return {
+          data: [],
+          meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+        };
+      }
+
+      // Hydrate with the same include graph; re-apply Prisma filters on top of
+      // `id: { in: ids }` so the contract holds even if a race between the raw
+      // query and hydrate changes the candidate set. No orderBy — we re-sort
+      // in JS to match FTS id order.
+      const baseWhere = this.buildProductWhere(query, isStaff);
+      const products = await this.prisma.product.findMany({
+        where: { ...baseWhere, id: { in: ids } },
+        include: {
+          brand: { select: { id: true, name: true, slug: true } },
+          category: { select: { id: true, name: true, slug: true } },
+          images: { where: { isPrimary: true }, take: 1 },
+          variants: {
+            where: { deletedAt: null, isActive: true },
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              stockAvailable: true,
+              lowStockThreshold: true,
+              isDefault: true,
+            },
+          },
+        },
+      });
+      const idOrder = new Map(ids.map((id, i) => [id, i]));
+      products.sort((a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0));
+
+      const data = products.map((p) => ({
+        ...p,
+        variants: p.variants.map((v) => {
+          const { stockAvailable, lowStockThreshold, ...rest } = v;
+          if (isStaff) return v;
+          return {
+            ...rest,
+            stockStatus: computeStockStatus(stockAvailable, lowStockThreshold),
+          };
+        }),
+      }));
+
+      return {
+        data,
+        meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      };
     }
-    if (query.categoryId) where.categoryId = query.categoryId;
-    if (query.brandId) where.brandId = query.brandId;
-    if (query.isFeatured !== undefined) where.isFeatured = query.isFeatured;
-    if (query.minPrice !== undefined || query.maxPrice !== undefined) {
-      where.basePrice = {};
-      if (query.minPrice !== undefined) where.basePrice.gte = query.minPrice;
-      if (query.maxPrice !== undefined) where.basePrice.lte = query.maxPrice;
-    }
+
+    // ----- Non-search path: unchanged -----
+    return this.findAllNoSearch(query, isStaff);
+  }
+
+  private async findAllNoSearch(
+    query: QueryProductDto,
+    isStaff: boolean,
+  ) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const where = this.buildProductWhere(query, isStaff);
 
     const orderBy: Prisma.ProductOrderByWithRelationInput = {};
     const sortBy = query.sortBy ?? 'createdAt';
@@ -90,10 +159,7 @@ export class ProductsService {
         include: {
           brand: { select: { id: true, name: true, slug: true } },
           category: { select: { id: true, name: true, slug: true } },
-          images: {
-            where: { isPrimary: true },
-            take: 1,
-          },
+          images: { where: { isPrimary: true }, take: 1 },
           variants: {
             where: { deletedAt: null, isActive: true },
             select: {
@@ -113,14 +179,11 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
-    // Public: replace exact stock with stockStatus
     const data = products.map((p) => ({
       ...p,
       variants: p.variants.map((v) => {
         const { stockAvailable, lowStockThreshold, ...rest } = v;
-        if (isStaff) {
-          return v;
-        }
+        if (isStaff) return v;
         return {
           ...rest,
           stockStatus: computeStockStatus(stockAvailable, lowStockThreshold),
@@ -130,13 +193,77 @@ export class ProductsService {
 
     return {
       data,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
+  }
+
+  /**
+   * Build the Prisma WHERE input shared by `findAllNoSearch` and the FTS hydrate
+   * step. Mirrors the filters that `buildFtsWhereClauses` applies in raw SQL so
+   * both paths return the same candidate set.
+   */
+  private buildProductWhere(
+    query: QueryProductDto,
+    isStaff: boolean,
+  ): Prisma.ProductWhereInput {
+    const where: Prisma.ProductWhereInput = {
+      deletedAt: null,
+      ...(!isStaff && { isActive: true }),
+    };
+    if (query.categoryId) where.categoryId = query.categoryId;
+    if (query.brandId) where.brandId = query.brandId;
+    if (query.isFeatured !== undefined) where.isFeatured = query.isFeatured;
+    if (query.minPrice !== undefined || query.maxPrice !== undefined) {
+      where.basePrice = {};
+      if (query.minPrice !== undefined) where.basePrice.gte = query.minPrice;
+      if (query.maxPrice !== undefined) where.basePrice.lte = query.maxPrice;
+    }
+    return where;
+  }
+
+  /**
+   * Build the shared WHERE clause for the FTS id query and the FTS count query.
+   * Always mirrors the Prisma filters (`deletedAt`, `isActive`, category, brand,
+   * isFeatured, basePrice) so the FTS candidate set matches what `findAllNoSearch`
+   * would return. All user inputs are bound via `${...}` placeholders in
+   * `Prisma.sql` — no string concatenation.
+   */
+  private buildFtsWhereClauses(
+    query: QueryProductDto,
+    isStaff: boolean,
+    term: string,
+  ): Prisma.Sql {
+    return Prisma.sql`
+      WHERE FREETEXT((p.[name], p.[description]), ${term}, LANGUAGE 'Vietnamese')
+        AND p.[deletedAt] IS NULL
+        ${!isStaff ? Prisma.sql`AND p.[isActive] = 1` : Prisma.empty}
+        ${query.categoryId ? Prisma.sql`AND p.[categoryId] = ${query.categoryId}` : Prisma.empty}
+        ${query.brandId ? Prisma.sql`AND p.[brandId] = ${query.brandId}` : Prisma.empty}
+        ${query.isFeatured !== undefined ? Prisma.sql`AND p.[isFeatured] = ${query.isFeatured ? 1 : 0}` : Prisma.empty}
+        ${query.minPrice !== undefined ? Prisma.sql`AND p.[basePrice] >= ${query.minPrice}` : Prisma.empty}
+        ${query.maxPrice !== undefined ? Prisma.sql`AND p.[basePrice] <= ${query.maxPrice}` : Prisma.empty}
+    `;
+  }
+
+  /**
+   * Build the ORDER BY for the FTS id query from a whitelist. The class-validator
+   * `IsIn(['price', 'name', 'createdAt'])` and `IsIn(['asc', 'desc'])` decorators
+   * on QueryProductDto already constrain inputs, but we re-whitelist here so the
+   * raw SQL surface stays narrow even if validation changes.
+   */
+  private buildFtsOrderBy(
+    sortBy: 'price' | 'name' | 'createdAt' | undefined,
+    sortOrder: 'asc' | 'desc' | undefined,
+  ): Prisma.Sql {
+    const column =
+      sortBy === 'price'
+        ? Prisma.raw('[basePrice]')
+        : sortBy === 'name'
+        ? Prisma.raw('[name]')
+        : Prisma.raw('[createdAt]');
+    const direction =
+      sortOrder === 'asc' ? Prisma.raw('ASC') : Prisma.raw('DESC');
+    return Prisma.sql`ORDER BY p.${column} ${direction}`;
   }
 
   async findBySlug(slug: string, isStaff = false) {

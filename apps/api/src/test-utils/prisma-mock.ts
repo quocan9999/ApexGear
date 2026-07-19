@@ -40,6 +40,7 @@ export function createPrismaMock() {
     $transaction: jest.fn(),
     $connect: jest.fn().mockResolvedValue(undefined),
     $disconnect: jest.fn().mockResolvedValue(undefined),
+    $queryRaw: jest.fn(),
   };
 
   // Interactive transaction: pass the same mock as tx
@@ -74,5 +75,6 @@ export function createPrismaMock() {
     $transaction: jest.Mock;
     $connect: jest.Mock;
     $disconnect: jest.Mock;
+    $queryRaw: jest.Mock;
   };
 }

@@ -234,7 +234,7 @@ export class ProductsService {
     term: string,
   ): Prisma.Sql {
     return Prisma.sql`
-      WHERE FREETEXT((p.[name], p.[description]), ${term}, LANGUAGE 'Vietnamese')
+      WHERE FREETEXT(p.[name], ${term}, LANGUAGE 'Vietnamese')
         AND p.[deletedAt] IS NULL
         ${!isStaff ? Prisma.sql`AND p.[isActive] = 1` : Prisma.empty}
         ${query.categoryId ? Prisma.sql`AND p.[categoryId] = ${query.categoryId}` : Prisma.empty}

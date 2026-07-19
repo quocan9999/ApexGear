@@ -97,7 +97,7 @@ model Brand {
 // ==================== PRODUCTS ====================
 
 model Product {
-  id               String    @id @default(uuid())
+  id               String    @id @default(uuid()) @db.UniqueIdentifier
   name             String    @db.NVarChar(500)
   slug             String    @unique(map: "unique_active_product_slug")
   description      String?   @db.NVarChar(Max)
@@ -130,7 +130,7 @@ model Product {
 
 model ProductImage {
   id        String   @id @default(uuid())
-  productId String
+  productId String   @db.UniqueIdentifier
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   url       String   @db.VarChar(500)
   publicId  String   @db.VarChar(255)
@@ -146,7 +146,7 @@ model ProductImage {
 
 model ProductSpec {
   id        String  @id @default(uuid())
-  productId String
+  productId String  @db.UniqueIdentifier
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   group     String? @db.NVarChar(255)
   name      String  @db.NVarChar(255)
@@ -160,7 +160,7 @@ model ProductSpec {
 
 model ProductOptionType {
   id        String  @id @default(uuid())
-  productId String
+  productId String  @db.UniqueIdentifier
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   name      String  @db.NVarChar(100)
   sortOrder Int     @default(0)
@@ -184,7 +184,7 @@ model ProductOptionValue {
 
 model ProductVariant {
   id                String    @id @default(uuid())
-  productId         String
+  productId         String    @db.UniqueIdentifier
   product           Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku               String    @unique(map: "unique_active_sku")
   name              String    @db.NVarChar(255)
@@ -223,7 +223,7 @@ model VariantOption {
 
 model Review {
   id        String   @id @default(uuid())
-  productId String
+  productId String   @db.UniqueIdentifier
   product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)

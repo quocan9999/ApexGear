@@ -21,7 +21,7 @@ import { UserEntity } from './entities/user.entity';
 import { LoginFailureThrottleService } from './services/login-failure-throttle.service';
 
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCK_DURATION_MS = 20 * 60 * 1000; // 20 minutes
+const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
 @Injectable()
 export class AuthService {

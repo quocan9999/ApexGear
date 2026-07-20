@@ -4,6 +4,7 @@ import {
   ConflictException,
   HttpException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -17,6 +18,8 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { UserEntity } from './entities/user.entity';
 import { LoginFailureThrottleService } from './services/login-failure-throttle.service';
 
@@ -25,6 +28,8 @@ const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -33,7 +38,32 @@ export class AuthService {
     private loginFailureThrottle: LoginFailureThrottleService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<UserEntity> {
+  private getFrontendUrl(): string {
+    return this.configService.get<string>(
+      'FRONTEND_URL',
+      'http://localhost:5173',
+    );
+  }
+
+  private async createVerificationToken(userId: string): Promise<string> {
+    await this.prisma.emailVerificationToken.updateMany({
+      where: { userId, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+
+    const token = randomUUID();
+    await this.prisma.emailVerificationToken.create({
+      data: {
+        token,
+        userId,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+    });
+
+    return token;
+  }
+
+  async register(dto: RegisterDto): Promise<void> {
     const existing = await this.prisma.user.findFirst({
       where: { email: dto.email, deletedAt: null },
     });
@@ -47,10 +77,96 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
+        emailVerifiedAt: null,
       },
     });
 
-    return new UserEntity(user);
+    const token = await this.createVerificationToken(user.id);
+    const verificationUrl = `${this.getFrontendUrl()}/verify-email?token=${token}`;
+
+    try {
+      await this.emailService.sendEmailVerificationEmail(
+        user.email,
+        user.name,
+        verificationUrl,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send email verification to ${user.email}`,
+        error,
+      );
+      throw new BadRequestException(
+        'Không thể gửi email xác minh. Vui lòng thử lại sau.',
+      );
+    }
+  }
+
+  async verifyEmail(dto: VerifyEmailDto): Promise<void> {
+    const verificationToken =
+      await this.prisma.emailVerificationToken.findUnique({
+        where: { token: dto.token },
+        include: { user: true },
+      });
+
+    if (
+      !verificationToken ||
+      verificationToken.usedAt ||
+      verificationToken.expiresAt < new Date() ||
+      !verificationToken.user ||
+      verificationToken.user.deletedAt
+    ) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: verificationToken.userId },
+        data: {
+          emailVerifiedAt: verificationToken.user.emailVerifiedAt ?? now,
+        },
+      }),
+      this.prisma.emailVerificationToken.update({
+        where: { id: verificationToken.id },
+        data: { usedAt: now },
+      }),
+      this.prisma.emailVerificationToken.updateMany({
+        where: {
+          userId: verificationToken.userId,
+          usedAt: null,
+          NOT: { id: verificationToken.id },
+        },
+        data: { usedAt: now },
+      }),
+    ]);
+  }
+
+  async resendVerification(dto: ResendVerificationDto): Promise<void> {
+    const user = await this.prisma.user.findFirst({
+      where: { email: dto.email, deletedAt: null },
+    });
+    if (!user || user.emailVerifiedAt || user.provider !== 'LOCAL') return;
+
+    const token = await this.createVerificationToken(user.id);
+    const verificationUrl = `${this.getFrontendUrl()}/verify-email?token=${token}`;
+
+    try {
+      await this.emailService.sendEmailVerificationEmail(
+        user.email,
+        user.name,
+        verificationUrl,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to resend verification email to ${user.email}`,
+        error,
+      );
+      if (process.env.NODE_ENV !== 'production') {
+        throw new BadRequestException(
+          'Không thể gửi email xác minh. Vui lòng thử lại sau.',
+        );
+      }
+    }
   }
 
   async login(
@@ -107,6 +223,13 @@ export class AuthService {
       });
     }
 
+    // Block local users where email is not verified
+    if (user.provider === 'LOCAL' && !user.emailVerifiedAt) {
+      throw new BadRequestException(
+        'Vui lòng xác minh email trước khi đăng nhập',
+      );
+    }
+
     // Reset failed attempts on successful login
     if (user.failedLoginAttempts > 0 || user.lockedUntil) {
       await this.prisma.user.update({
@@ -145,7 +268,9 @@ export class AuthService {
       where: { id: userId },
     });
     if (!user || !user.password) {
-      throw new BadRequestException('Cannot change password for OAuth accounts');
+      throw new BadRequestException(
+        'Cannot change password for OAuth accounts',
+      );
     }
 
     const valid = await bcrypt.compare(dto.currentPassword, user.password);
@@ -182,16 +307,24 @@ export class AuthService {
       },
     });
 
-    const frontendUrl = this.configService.get<string>(
-      'FRONTEND_URL',
-      'http://localhost:5173',
-    );
-    const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
-    await this.emailService.sendResetPasswordEmail(
-      user.email,
-      user.name,
-      resetUrl,
-    );
+    const resetUrl = `${this.getFrontendUrl()}/reset-password?token=${token}`;
+    try {
+      await this.emailService.sendResetPasswordEmail(
+        user.email,
+        user.name,
+        resetUrl,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send reset password email to ${user.email}`,
+        error,
+      );
+      if (process.env.NODE_ENV !== 'production') {
+        throw new BadRequestException(
+          'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.',
+        );
+      }
+    }
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<void> {
@@ -200,7 +333,11 @@ export class AuthService {
       include: { user: true },
     });
 
-    if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
+    if (
+      !resetToken ||
+      resetToken.usedAt ||
+      resetToken.expiresAt < new Date()
+    ) {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
@@ -240,6 +377,7 @@ export class AuthService {
             googleId: googleUser.googleId,
             provider: 'GOOGLE',
             avatar: user.avatar || googleUser.avatar,
+            emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
           },
         });
       }
@@ -251,6 +389,7 @@ export class AuthService {
           googleId: googleUser.googleId,
           avatar: googleUser.avatar,
           provider: 'GOOGLE',
+          emailVerifiedAt: new Date(),
         },
       });
     }

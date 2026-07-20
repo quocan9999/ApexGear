@@ -24,6 +24,7 @@ export function createPrismaMock() {
   const prisma: Record<string, unknown> = {
     user: modelMock(),
     passwordResetToken: modelMock(),
+    emailVerificationToken: modelMock(),
     category: modelMock(),
     brand: modelMock(),
     product: modelMock(),
@@ -59,6 +60,7 @@ export function createPrismaMock() {
   return prisma as {
     user: ReturnType<typeof modelMock>;
     passwordResetToken: ReturnType<typeof modelMock>;
+    emailVerificationToken: ReturnType<typeof modelMock>;
     category: ReturnType<typeof modelMock>;
     brand: ReturnType<typeof modelMock>;
     product: ReturnType<typeof modelMock>;

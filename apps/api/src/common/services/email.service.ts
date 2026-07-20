@@ -3,9 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import {
   getResetPasswordTemplate,
+  getEmailVerificationTemplate,
   getOrderConfirmationTemplate,
   getDeliveryConfirmationTemplate,
 } from './email.templates';
+import { MailDeliveryError } from '../errors/mail-delivery.error';
 
 @Injectable()
 export class EmailService {
@@ -44,7 +46,34 @@ export class EmailService {
       this.logger.log(`Reset password email sent to ${email}`);
     } catch (error) {
       this.logger.error(`Failed to send reset password email to ${email}`, error);
-      // Don't throw — email failure shouldn't block the flow
+      throw new MailDeliveryError(
+        'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.',
+        'reset-password',
+        email,
+      );
+    }
+  }
+
+  async sendEmailVerificationEmail(
+    email: string,
+    name: string,
+    verificationUrl: string,
+  ): Promise<void> {
+    try {
+      await this.transporter.sendMail({
+        from: this.from,
+        to: email,
+        subject: 'ApexGear - Xác thực email',
+        html: getEmailVerificationTemplate(name, verificationUrl),
+      });
+      this.logger.log(`Email verification email sent to ${email}`);
+    } catch (error) {
+      this.logger.error(`Failed to send email verification email to ${email}`, error);
+      throw new MailDeliveryError(
+        'Không thể gửi email xác thực. Vui lòng thử lại sau.',
+        'email-verification',
+        email,
+      );
     }
   }
 

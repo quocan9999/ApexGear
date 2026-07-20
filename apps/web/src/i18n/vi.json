@@ -282,7 +282,16 @@
     "passwordRequirements": "Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số",
     "or": "hoặc",
     "passwordMismatch": "Mật khẩu xác nhận không khớp",
-    "resetMissingToken": "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn"
+    "resetMissingToken": "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn",
+    "registerSuccess": "Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản.",
+    "verifyEmailTitle": "Xác minh email",
+    "verifyEmailLoading": "Đang xác minh email...",
+    "verifyEmailSuccess": "Xác minh email thành công. Bạn có thể đăng nhập ngay bây giờ.",
+    "verifyEmailMissingToken": "Liên kết xác minh không hợp lệ hoặc đã hết hạn.",
+    "resendVerificationCta": "Gửi lại email xác minh",
+    "verificationResent": "Nếu email cần xác minh, một email mới đã được gửi.",
+    "loginUnverified": "Vui lòng xác minh email trước khi đăng nhập",
+    "loginUnverifiedCta": "Gửi lại email xác minh"
   },
   "account": {
     "title": "Tài khoản của tôi",

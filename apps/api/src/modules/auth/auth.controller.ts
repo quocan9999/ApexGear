@@ -21,6 +21,8 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { Public, CurrentUser } from '../../common/decorators';
 import { UserEntity } from './entities/user.entity';
 
@@ -33,7 +35,29 @@ export class AuthController {
   @Public()
   @ApiOperation({ summary: 'Register a new customer account' })
   async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+    await this.authService.register(dto);
+    return {
+      message:
+        'Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản.',
+    };
+  }
+
+  @Post('verify-email')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify email address with token' })
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    await this.authService.verifyEmail(dto);
+    return { message: 'Xác minh email thành công' };
+  }
+
+  @Post('resend-verification')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend email verification link' })
+  async resendVerification(@Body() dto: ResendVerificationDto) {
+    await this.authService.resendVerification(dto);
+    return { message: 'Nếu email cần xác minh, một email mới đã được gửi' };
   }
 
   @Post('login')

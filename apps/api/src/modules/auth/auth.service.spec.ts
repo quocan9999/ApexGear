@@ -72,7 +72,7 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('registers an unverified local user and sends verification email', async () => {
+    it('registers an unverified local user and sends verification email (no JWT returned)', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-pw');
       prisma.user.create.mockResolvedValue({
@@ -83,12 +83,14 @@ describe('AuthService', () => {
       prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 0 });
       prisma.emailVerificationToken.create.mockResolvedValue({ id: 't1' });
 
-      await service.register({
+      const result = await service.register({
         email: 'user@example.com',
         password: 'Password1',
         name: 'User',
       });
 
+      expect(result).toBeUndefined();
+      expect(jwtService.sign).not.toHaveBeenCalled();
       expect(prisma.user.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -99,6 +101,10 @@ describe('AuthService', () => {
           }),
         }),
       );
+      expect(prisma.emailVerificationToken.updateMany).toHaveBeenCalledWith({
+        where: { userId: 'u1', usedAt: null },
+        data: { usedAt: expect.any(Date) },
+      });
       expect(prisma.emailVerificationToken.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -538,6 +544,29 @@ describe('AuthService', () => {
           'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.',
         ),
       );
+    });
+
+    it('swallows delivery failures in production for forgot-password anti-enumeration', async () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+      try {
+        prisma.user.findFirst.mockResolvedValue(baseUser);
+        prisma.passwordResetToken.updateMany.mockResolvedValue({ count: 0 });
+        prisma.passwordResetToken.create.mockResolvedValue({ id: 'r1' });
+        emailService.sendResetPasswordEmail.mockRejectedValueOnce(
+          new MailDeliveryError(
+            'Failed',
+            'reset-password',
+            'user@example.com',
+          ),
+        );
+
+        await expect(
+          service.forgotPassword({ email: 'user@example.com' }),
+        ).resolves.toBeUndefined();
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
     });
   });
 

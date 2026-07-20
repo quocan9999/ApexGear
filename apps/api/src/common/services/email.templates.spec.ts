@@ -2,6 +2,7 @@ import {
   getResetPasswordTemplate,
   getOrderConfirmationTemplate,
   getDeliveryConfirmationTemplate,
+  getEmailVerificationTemplate,
 } from './email.templates';
 
 describe('email templates', () => {
@@ -13,6 +14,16 @@ describe('email templates', () => {
     expect(html).toContain('An');
     expect(html).toContain('https://example.com/reset?token=abc');
     expect(html).toContain('Đặt lại mật khẩu');
+  });
+
+  it('includes name and verification url for email verification', () => {
+    const html = getEmailVerificationTemplate(
+      'An',
+      'https://example.com/verify?token=xyz',
+    );
+    expect(html).toContain('An');
+    expect(html).toContain('https://example.com/verify?token=xyz');
+    expect(html).toContain('Xác thực email');
   });
 
   it('includes order confirmation details', () => {

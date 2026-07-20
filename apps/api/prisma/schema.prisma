@@ -16,6 +16,7 @@ datasource db {
 model User {
   id                  String    @id @default(uuid())
   email               String    @unique(map: "unique_active_email")
+  emailVerifiedAt     DateTime?
   password            String?
   name                String    @db.NVarChar(100)
   phone               String?   @db.VarChar(15)
@@ -31,11 +32,12 @@ model User {
   updatedAt           DateTime  @updatedAt
   deletedAt           DateTime?
 
-  addresses   Address[]
-  orders      Order[]
-  cart        Cart?
-  reviews     Review[]
-  resetTokens PasswordResetToken[]
+  addresses          Address[]
+  orders             Order[]
+  cart               Cart?
+  reviews            Review[]
+  resetTokens        PasswordResetToken[]
+  verificationTokens EmailVerificationToken[]
 
   @@index([email, deletedAt])
   @@index([role])
@@ -49,6 +51,18 @@ model PasswordResetToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, usedAt])
 }
 
 // ==================== CATEGORIES (2-level) ====================

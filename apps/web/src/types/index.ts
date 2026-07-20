@@ -37,6 +37,18 @@ export interface RegisterPayload {
   name: string;
 }
 
+export interface AuthMessageResponse {
+  message: string;
+}
+
+export interface VerifyEmailPayload {
+  token: string;
+}
+
+export interface ResendVerificationPayload {
+  email: string;
+}
+
 // ========== Products ==========
 export interface Product {
   id: string;

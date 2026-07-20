@@ -80,4 +80,17 @@ describe('LoginPage', () => {
     expect(mergeGuestCart).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
   });
+
+  it('renders VerificationResendForm when login fails due to unverified email', async () => {
+    authState.error = 'Vui lòng xác minh email trước khi đăng nhập';
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <LoginPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Vui lòng xác minh email trước khi đăng nhập')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Gửi lại email xác minh' })).toBeInTheDocument();
+  });
 });
+

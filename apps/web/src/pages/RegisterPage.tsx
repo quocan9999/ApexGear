@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/auth.store';
-import { useCartStore } from '../stores/cart.store';
 import { Button, Input } from '../components/ui';
+import VerificationResendForm from '../components/auth/VerificationResendForm';
 
 function passwordMeetsRequirements(pwd: string): boolean {
   return pwd.length >= 8 && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[0-9]/.test(pwd);
@@ -11,14 +11,13 @@ function passwordMeetsRequirements(pwd: string): boolean {
 
 export default function RegisterPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { register, isLoading, error, clearError } = useAuthStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,16 +34,7 @@ export default function RegisterPage() {
 
     try {
       await register({ name, email, password });
-      // Register auto-logs-in; merge the guest cart into the server cart.
-      // Guard so a merge failure never blocks navigation into the app.
-      try {
-        await useCartStore.getState().mergeGuestCart();
-      } catch {
-        // Non-blocking
-      }
-      navigate(searchParams.get('redirect') || searchParams.get('returnUrl') || '/', {
-        replace: true,
-      });
+      setSubmitted(true);
     } catch {
       // Error handled by store
     }
@@ -52,7 +42,18 @@ export default function RegisterPage() {
 
   const displayError = validationError || error;
 
-  return (
+  return submitted ? (
+    <div className="flex flex-col gap-lg rounded-lg bg-surface-container-low p-md">
+      <h2 className="headline-sm text-on-surface">{t('auth.registerSuccess')}</h2>
+      <p className="body-sm text-outline">{t('auth.verifyEmailTitle')}</p>
+      <VerificationResendForm initialEmail={email} />
+      <div className="text-center body-sm text-outline">
+        <Link to="/login" className="text-primary font-semibold hover:underline">
+          {t('auth.loginCta')}
+        </Link>
+      </div>
+    </div>
+  ) : (
     <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
       <div className="text-center">
         <h1 className="headline-lg text-on-surface">{t('auth.registerTitle')}</h1>
@@ -128,3 +129,4 @@ export default function RegisterPage() {
     </form>
   );
 }
+

@@ -26,6 +26,17 @@
     "emailAlreadyRegisteredResent": "This email is already registered. We've sent another verification email. Please check your inbox.",
     "loginUnverifiedResent": "This email is registered but not verified yet. We've sent another verification email. Please check your inbox.",
     "resendEmail": "Resend email",
-    "resendEmailCooldown": "Resend in {{seconds}}s"
+    "resendEmailCooldown": "Resend in {{seconds}}s",
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Email is invalid",
+      "nameRequired": "Full name is required",
+      "nameTooShort": "Full name must be at least 2 characters long",
+      "nameTooLong": "Full name must be at most 100 characters long",
+      "passwordRequired": "Password is required",
+      "passwordRequirements": "Password must be at least 8 characters long and include uppercase, lowercase, and a number",
+      "confirmPasswordRequired": "Confirm password is required",
+      "passwordMismatch": "Confirm password does not match"
+    }
   }
 }

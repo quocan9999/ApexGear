@@ -34,6 +34,22 @@ afterEach(() => {
 });
 
 describe('RegisterPage', () => {
+  it('shows inline field errors and blocks submit for empty registration fields', async () => {
+    render(
+      <MemoryRouter initialEntries={['/register']}>
+        <RegisterPage />
+      </MemoryRouter>,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Đăng ký' }));
+
+    expect(screen.getByText('Họ tên là bắt buộc')).toBeInTheDocument();
+    expect(screen.getByText('Email là bắt buộc')).toBeInTheDocument();
+    expect(screen.getByText('Mật khẩu là bắt buộc')).toBeInTheDocument();
+    expect(screen.getByText('Xác nhận mật khẩu là bắt buộc')).toBeInTheDocument();
+    expect(register).not.toHaveBeenCalled();
+  });
+
   it('shows verification success panel and resend form on successful registration without navigating', async () => {
     render(
       <MemoryRouter initialEntries={['/register']}>

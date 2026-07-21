@@ -94,6 +94,20 @@ describe('LoginPage', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  it('shows inline field errors and blocks submit for empty login fields', async () => {
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <LoginPage />
+      </MemoryRouter>,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Đăng nhập' }));
+
+    expect(screen.getByText('Email là bắt buộc')).toBeInTheDocument();
+    expect(screen.getByText('Mật khẩu là bắt buộc')).toBeInTheDocument();
+    expect(login).not.toHaveBeenCalled();
+  });
+
   it('shows unverified email copy with compact resend action and 60 second cooldown', async () => {
     vi.useFakeTimers();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });

@@ -46,7 +46,7 @@ export default function LoginPage() {
         <div className="rounded-lg bg-error-container p-md body-sm text-on-error-container flex flex-col gap-md">
           <div>{displayError}</div>
           {isUnverifiedError && (
-            <VerificationResendForm initialEmail={email} />
+            <VerificationResendForm initialEmail={email} showEmailInput={false} />
           )}
         </div>
       )}

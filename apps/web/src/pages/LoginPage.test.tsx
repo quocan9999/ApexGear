@@ -17,6 +17,13 @@ vi.mock('../stores/cart.store', () => ({
   useCartStore: { getState: () => ({ mergeGuestCart }) },
 }));
 
+const resendVerification = vi.fn();
+vi.mock('../services/auth.service', () => ({
+  authService: {
+    resendVerification: (...args: any[]) => resendVerification(...args),
+  },
+}));
+
 const navigate = vi.fn();
 vi.mock('react-router-dom', async (orig) => ({
   ...(await (orig() as Promise<typeof import('react-router-dom')>)),
@@ -81,7 +88,7 @@ describe('LoginPage', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('renders VerificationResendForm when login fails due to the normalized unverified-email error', async () => {
+  it('resends verification for the typed login email without showing another editable email box', async () => {
     authState.error = 'Vui lòng xác minh email trước khi đăng nhập';
     render(
       <MemoryRouter initialEntries={['/login']}>
@@ -89,10 +96,16 @@ describe('LoginPage', () => {
       </MemoryRouter>,
     );
 
+    await userEvent.type(screen.getByLabelText('Email'), 'a@x.com');
+
     expect(
       screen.getByText('Vui lòng xác minh email trước khi đăng nhập'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Gửi lại email xác minh' })).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Email')).toHaveLength(1);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Gửi lại email xác minh' }));
+
+    await waitFor(() => expect(resendVerification).toHaveBeenCalledWith('a@x.com'));
   });
 });
 

@@ -3,7 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { authService } from '../../services/auth.service';
 import { Button, Input } from '../ui';
 
-export default function VerificationResendForm({ initialEmail = '' }: { initialEmail?: string }) {
+export default function VerificationResendForm({
+  initialEmail = '',
+  showEmailInput = true,
+}: {
+  initialEmail?: string;
+  showEmailInput?: boolean;
+}) {
   const { t } = useTranslation();
   const [email, setEmail] = useState(initialEmail);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +21,7 @@ export default function VerificationResendForm({ initialEmail = '' }: { initialE
     setError(null);
     setIsLoading(true);
     try {
-      await authService.resendVerification(email);
+      await authService.resendVerification(showEmailInput ? email : initialEmail);
       setSubmitted(true);
     } catch (err: any) {
       setError(err?.message ?? t('common.error'));
@@ -30,14 +36,16 @@ export default function VerificationResendForm({ initialEmail = '' }: { initialE
     </div>
   ) : (
     <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
-      <Input
-        id="verificationEmail"
-        label={t('auth.email')}
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
+      {showEmailInput && (
+        <Input
+          id="verificationEmail"
+          label={t('auth.email')}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      )}
       {error && <div className="rounded-lg bg-error-container p-md body-sm text-on-error-container">{error}</div>}
       <Button type="submit" isLoading={isLoading} className="w-full">
         {t('auth.resendVerificationCta')}

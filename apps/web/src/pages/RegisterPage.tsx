@@ -43,16 +43,72 @@ export default function RegisterPage() {
   const displayError = validationError || error;
 
   return submitted ? (
-    <div className="flex flex-col gap-lg rounded-lg bg-surface-container-low p-md">
-      <h2 className="headline-sm text-on-surface">{t('auth.registerSuccessTitle')}</h2>
-      <p className="body-sm text-outline">{t('auth.registerSuccessCopy')}</p>
-      <VerificationResendForm initialEmail={email} />
-      <div className="text-center body-sm text-outline">
-        <Link to="/login" className="text-primary font-semibold hover:underline">
-          {t('auth.loginCta')}
-        </Link>
+    <section className="flex flex-col items-center text-center">
+      <div className="mb-lg flex h-16 w-16 items-center justify-center rounded-full bg-primary-container/10 text-primary">
+        <svg
+          className="h-9 w-9"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 6h16v12H4z" />
+          <path d="m4 7 8 6 8-6" />
+        </svg>
       </div>
-    </div>
+
+      <p className="label-md mb-sm text-primary">{t('auth.registerSuccessEyebrow')}</p>
+      <h1 className="headline-md mb-md text-on-surface">{t('auth.registerSuccessTitle')}</h1>
+      <p className="body-md mb-lg text-on-surface-variant">{t('auth.registerSuccessCopy')}</p>
+
+      <div className="mb-xl w-full rounded-lg bg-surface-container-low p-md text-left">
+        <p className="label-sm text-outline">{t('auth.registerSuccessEmailSentTo')}</p>
+        <p className="body-md mt-xs break-all font-semibold text-on-surface">{email}</p>
+      </div>
+
+      <a
+        href="https://mail.google.com"
+        target="_blank"
+        rel="noreferrer"
+        className="mb-md inline-flex h-12 w-full items-center justify-center gap-sm rounded-lg bg-primary px-lg font-semibold text-on-primary transition-all hover:bg-primary-container active:scale-[0.98]"
+      >
+        {t('auth.openMailboxCta')}
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M7 17 17 7" />
+          <path d="M8 7h9v9" />
+        </svg>
+      </a>
+
+      <div className="w-full">
+        <VerificationResendForm initialEmail={email} showEmailInput={false} />
+      </div>
+
+      <div className="mt-lg w-full border-t border-outline-variant pt-lg">
+        <p className="body-sm text-on-surface-variant">
+          {t('auth.registerSuccessHelp')}{' '}
+          <a href="mailto:support@apexgear.local" className="font-semibold text-primary hover:underline">
+            {t('auth.contactSupportCta')}
+          </a>
+        </p>
+        <p className="mt-md body-sm text-outline">
+          <Link to="/login" className="font-semibold text-primary hover:underline">
+            {t('auth.loginCta')}
+          </Link>
+        </p>
+      </div>
+    </section>
   ) : (
     <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
       <div className="text-center">

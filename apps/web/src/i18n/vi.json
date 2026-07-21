@@ -284,6 +284,7 @@
     "passwordMismatch": "Mật khẩu xác nhận không khớp",
     "resetMissingToken": "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn",
     "emailAlreadyRegistered": "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.",
+    "emailAlreadyRegisteredResent": "Email này đã được đăng ký. Chúng tôi đã gửi lại email xác thực, vui lòng kiểm tra hộp thư.",
     "registerSuccessEyebrow": "Xác minh email",
     "registerSuccessTitle": "Kiểm tra hộp thư của bạn",
     "registerSuccessCopy": "Chúng tôi đã gửi liên kết xác minh đến email của bạn. Vui lòng nhấn vào liên kết trong email để kích hoạt tài khoản và bắt đầu mua sắm.",
@@ -298,6 +299,9 @@
     "resendVerificationCta": "Gửi lại email xác minh",
     "verificationResent": "Nếu email cần xác minh, một email mới đã được gửi.",
     "loginUnverified": "Vui lòng xác minh email trước khi đăng nhập",
+    "loginUnverifiedResent": "Email này đã được đăng ký nhưng chưa xác thực. Chúng tôi đã gửi lại email xác thực, vui lòng kiểm tra hộp thư.",
+    "resendEmail": "Gửi lại email",
+    "resendEmailCooldown": "Gửi lại sau {{seconds}}s",
     "loginUnverifiedCta": "Gửi lại email xác minh"
   },
   "account": {

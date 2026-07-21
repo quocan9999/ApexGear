@@ -12,7 +12,9 @@ function normalizeAuthError(error: unknown): string {
       return i18n.t('errors.invalidCredentials');
     case 'Vui lòng xác minh email trước khi đăng nhập':
     case 'auth.loginUnverified':
-      return i18n.t('auth.loginUnverified');
+      return i18n.t('auth.loginUnverifiedResent');
+    case 'Email already registered':
+      return i18n.t('auth.emailAlreadyRegisteredResent');
     default:
       return message ?? i18n.t('errors.generic');
   }

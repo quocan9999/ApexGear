@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import '../i18n';
@@ -22,10 +22,15 @@ import RegisterPage from './RegisterPage';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.useRealTimers();
   register.mockResolvedValue(undefined);
   resendVerification.mockResolvedValue(undefined);
   authState.error = null;
   authState.isLoading = false;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('RegisterPage', () => {
@@ -73,5 +78,56 @@ describe('RegisterPage', () => {
     expect(loginLink).toBeInTheDocument();
     expect(loginLink.getAttribute('href')).toBe('/login');
     expect(screen.getByRole('link', { name: 'Mở hộp thư' })).toHaveAttribute('href', 'https://mail.google.com');
+  });
+
+  it('shows duplicate email copy with compact resend action and 60 second cooldown', async () => {
+    vi.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    register.mockImplementationOnce(async () => {
+      authState.error = 'Email này đã được đăng ký. Chúng tôi đã gửi lại email xác thực, vui lòng kiểm tra hộp thư.';
+      throw new Error('Email already registered');
+    });
+    resendVerification.mockResolvedValue(undefined);
+    authState.error = null;
+    authState.isLoading = false;
+
+    render(
+      <MemoryRouter initialEntries={['/register']}>
+        <RegisterPage />
+      </MemoryRouter>,
+    );
+
+    await user.type(screen.getByLabelText('Họ tên'), 'Nguyen Van A');
+    await user.type(screen.getByLabelText('Email'), 'test@example.com');
+    await user.type(screen.getByLabelText('Mật khẩu'), 'Password123');
+    await user.type(screen.getByLabelText('Xác nhận mật khẩu'), 'Password123');
+
+    await user.click(screen.getByRole('button', { name: 'Đăng ký' }));
+
+    await waitFor(() => expect(resendVerification).toHaveBeenCalledWith('test@example.com'));
+    expect(
+      screen.getByText('Email này đã được đăng ký. Chúng tôi đã gửi lại email xác thực, vui lòng kiểm tra hộp thư.'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Email')).toHaveLength(1);
+
+    expect(await screen.findByRole('button', { name: /Gửi lại sau 60s/i })).toBeDisabled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+    expect(screen.getByRole('button', { name: /Gửi lại sau 59s/i })).toBeDisabled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(59_000);
+    });
+
+    const readyButton = screen.getByRole('button', { name: 'Gửi lại email' });
+    expect(readyButton).toBeEnabled();
+
+    await user.click(readyButton);
+
+    await waitFor(() => expect(resendVerification).toHaveBeenCalledTimes(2));
+    expect(resendVerification).toHaveBeenLastCalledWith('test@example.com');
+    expect(screen.getByRole('button', { name: /Gửi lại sau 60s/i })).toBeDisabled();
   });
 });

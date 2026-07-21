@@ -13,10 +13,12 @@ export default function LoginPage() {
   const { login, isLoading, error, clearError } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setServerError(null);
       await login({ email, password });
       // Merge the guest (localStorage) cart into the server cart on login.
       // Guard so a merge failure never blocks navigation into the app.
@@ -28,13 +30,15 @@ export default function LoginPage() {
       navigate(searchParams.get('redirect') || searchParams.get('returnUrl') || '/', {
         replace: true,
       });
-    } catch {
-      // Error handled by store
+    } catch (err: any) {
+      const message = typeof err?.message === 'string' ? err.message : null;
+      setServerError(message === 'Vui lòng xác minh email trước khi đăng nhập' ? t('auth.loginUnverifiedResent') : null);
     }
   };
 
-  const isUnverifiedError = error === t('auth.loginUnverified');
-  const displayError = error;
+  const displayError = serverError || error;
+  const isUnverifiedError = displayError === t('auth.loginUnverifiedResent') || displayError === t('auth.loginUnverified');
+  const resendLoginError = displayError === t('auth.loginUnverified') ? t('auth.loginUnverifiedResent') : displayError;
 
   return (
     <div className="flex flex-col gap-lg">
@@ -44,9 +48,16 @@ export default function LoginPage() {
 
       {displayError && (
         <div className="rounded-lg bg-error-container p-md body-sm text-on-error-container flex flex-col gap-md">
-          <div>{displayError}</div>
+          <div className="text-justify">{resendLoginError}</div>
           {isUnverifiedError && (
-            <VerificationResendForm initialEmail={email} showEmailInput={false} />
+            <VerificationResendForm
+              initialEmail={email}
+              showEmailInput={false}
+              compact
+              autoSend
+              cooldownSeconds={60}
+              buttonLabelKey="auth.resendEmail"
+            />
           )}
         </div>
       )}

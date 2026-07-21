@@ -81,7 +81,7 @@ describe('LoginPage', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('renders VerificationResendForm when login fails due to unverified email', async () => {
+  it('renders VerificationResendForm when login fails due to the normalized unverified-email error', async () => {
     authState.error = 'Vui lòng xác minh email trước khi đăng nhập';
     render(
       <MemoryRouter initialEntries={['/login']}>
@@ -89,7 +89,9 @@ describe('LoginPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Vui lòng xác minh email trước khi đăng nhập')).toBeInTheDocument();
+    expect(
+      screen.getByText('Vui lòng xác minh email trước khi đăng nhập'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Gửi lại email xác minh' })).toBeInTheDocument();
   });
 });

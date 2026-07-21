@@ -101,10 +101,6 @@ describe('AuthService', () => {
           }),
         }),
       );
-      expect(prisma.emailVerificationToken.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'u1', usedAt: null },
-        data: { usedAt: expect.any(Date) },
-      });
       expect(prisma.emailVerificationToken.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -113,6 +109,12 @@ describe('AuthService', () => {
             expiresAt: expect.any(Date),
           }),
         }),
+      );
+      expect(prisma.emailVerificationToken.updateMany).not.toHaveBeenCalled();
+      expect(emailService.sendEmailVerificationEmail).toHaveBeenCalledWith(
+        'user@example.com',
+        'User',
+        expect.stringContaining('/verify-email?token='),
       );
       expect(emailService.sendEmailVerificationEmail).toHaveBeenCalledWith(
         'user@example.com',
@@ -140,7 +142,6 @@ describe('AuthService', () => {
         password: 'hashed-pw',
         emailVerifiedAt: null,
       });
-      prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 0 });
       prisma.emailVerificationToken.create.mockResolvedValue({ id: 't1' });
       emailService.sendEmailVerificationEmail.mockRejectedValueOnce(
         new MailDeliveryError(
@@ -161,6 +162,37 @@ describe('AuthService', () => {
           'Không thể gửi email xác minh. Vui lòng thử lại sau.',
         ),
       );
+      expect(prisma.emailVerificationToken.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'u1',
+            token: expect.any(String),
+            expiresAt: expect.any(Date),
+          }),
+        }),
+      );
+      expect(prisma.emailVerificationToken.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('rethrows unexpected verification send errors instead of converting them to mail-delivery errors', async () => {
+      const unexpectedError = new Error('template rendering failed');
+      prisma.user.findFirst.mockResolvedValue(null);
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-pw');
+      prisma.user.create.mockResolvedValue({
+        ...baseUser,
+        password: 'hashed-pw',
+        emailVerifiedAt: null,
+      });
+      prisma.emailVerificationToken.create.mockResolvedValue({ id: 't1' });
+      emailService.sendEmailVerificationEmail.mockRejectedValueOnce(unexpectedError);
+
+      await expect(
+        service.register({
+          email: 'user@example.com',
+          password: 'Password1',
+          name: 'User',
+        }),
+      ).rejects.toBe(unexpectedError);
     });
   });
 
@@ -178,15 +210,37 @@ describe('AuthService', () => {
         ...baseUser,
         emailVerifiedAt: new Date(),
       });
-      prisma.emailVerificationToken.update.mockResolvedValue({
-        id: 't1',
-        usedAt: new Date(),
-      });
-      prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 0 });
+      prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 1 });
 
       await service.verifyEmail({ token: 'token-1' });
 
       expect(prisma.$transaction).toHaveBeenCalled();
+      expect(prisma.emailVerificationToken.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            id: 't1',
+            usedAt: null,
+          }),
+          data: { usedAt: expect.any(Date) },
+        }),
+      );
+      expect(prisma.emailVerificationToken.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects when the verification token was consumed concurrently', async () => {
+      prisma.emailVerificationToken.findUnique.mockResolvedValue({
+        id: 't1',
+        token: 'token-1',
+        userId: 'u1',
+        usedAt: null,
+        expiresAt: new Date(Date.now() + 60_000),
+        user: { ...baseUser, emailVerifiedAt: null },
+      });
+      prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 0 });
+
+      await expect(
+        service.verifyEmail({ token: 'token-1' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
 
     it('rejects missing token', async () => {
@@ -196,7 +250,7 @@ describe('AuthService', () => {
       ).rejects.toBeInstanceOf(BadRequestException);
     });
 
-    it('rejects already used token', async () => {
+    it('treats an already-used token for an already-verified user as success', async () => {
       prisma.emailVerificationToken.findUnique.mockResolvedValue({
         id: 't1',
         token: 'used-token',
@@ -204,6 +258,22 @@ describe('AuthService', () => {
         usedAt: new Date(),
         expiresAt: new Date(Date.now() + 60_000),
         user: baseUser,
+      });
+
+      await expect(
+        service.verifyEmail({ token: 'used-token' }),
+      ).resolves.toBeUndefined();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('rejects already used token when the user is still unverified', async () => {
+      prisma.emailVerificationToken.findUnique.mockResolvedValue({
+        id: 't1',
+        token: 'used-token',
+        userId: 'u1',
+        usedAt: new Date(),
+        expiresAt: new Date(Date.now() + 60_000),
+        user: { ...baseUser, emailVerifiedAt: null },
       });
       await expect(
         service.verifyEmail({ token: 'used-token' }),
@@ -245,21 +315,50 @@ describe('AuthService', () => {
         ...baseUser,
         emailVerifiedAt: null,
       });
-      prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 1 });
       prisma.emailVerificationToken.create.mockResolvedValue({ id: 't2' });
+      prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 1 });
 
       await service.resendVerification({ email: 'user@example.com' });
 
-      expect(prisma.emailVerificationToken.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'u1', usedAt: null },
-        data: { usedAt: expect.any(Date) },
-      });
       expect(prisma.emailVerificationToken.create).toHaveBeenCalled();
       expect(emailService.sendEmailVerificationEmail).toHaveBeenCalledWith(
         'user@example.com',
         'User',
         expect.stringContaining('/verify-email?token='),
       );
+      expect(prisma.emailVerificationToken.updateMany).toHaveBeenCalledWith({
+        where: { userId: 'u1', usedAt: null, NOT: { id: 't2' } },
+        data: { usedAt: expect.any(Date) },
+      });
+      expect(
+        prisma.emailVerificationToken.updateMany.mock.invocationCallOrder[0],
+      ).toBeGreaterThan(
+        emailService.sendEmailVerificationEmail.mock.invocationCallOrder[0],
+      );
+    });
+
+    it('keeps existing verification tokens active when resend delivery fails', async () => {
+      prisma.user.findFirst.mockResolvedValue({
+        ...baseUser,
+        emailVerifiedAt: null,
+      });
+      prisma.emailVerificationToken.create.mockResolvedValue({ id: 't2' });
+      emailService.sendEmailVerificationEmail.mockRejectedValueOnce(
+        new MailDeliveryError(
+          'Failed',
+          'email-verification',
+          'user@example.com',
+        ),
+      );
+
+      await expect(
+        service.resendVerification({ email: 'user@example.com' }),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Không thể gửi email xác minh. Vui lòng thử lại sau.',
+        ),
+      );
+      expect(prisma.emailVerificationToken.updateMany).not.toHaveBeenCalled();
     });
 
     it('silently ignores non-existent user', async () => {
@@ -287,28 +386,18 @@ describe('AuthService', () => {
       expect(emailService.sendEmailVerificationEmail).not.toHaveBeenCalled();
     });
 
-    it('throws BadRequestException when resend email fails in non-prod', async () => {
+    it('rethrows unexpected resend email errors', async () => {
+      const unexpectedError = new Error('template rendering failed');
       prisma.user.findFirst.mockResolvedValue({
         ...baseUser,
         emailVerifiedAt: null,
       });
-      prisma.emailVerificationToken.updateMany.mockResolvedValue({ count: 0 });
       prisma.emailVerificationToken.create.mockResolvedValue({ id: 't2' });
-      emailService.sendEmailVerificationEmail.mockRejectedValueOnce(
-        new MailDeliveryError(
-          'Failed',
-          'email-verification',
-          'user@example.com',
-        ),
-      );
+      emailService.sendEmailVerificationEmail.mockRejectedValueOnce(unexpectedError);
 
       await expect(
         service.resendVerification({ email: 'user@example.com' }),
-      ).rejects.toThrow(
-        new BadRequestException(
-          'Không thể gửi email xác minh. Vui lòng thử lại sau.',
-        ),
-      );
+      ).rejects.toBe(unexpectedError);
     });
   });
 
@@ -544,6 +633,18 @@ describe('AuthService', () => {
           'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.',
         ),
       );
+    });
+
+    it('rethrows unexpected reset email errors instead of treating them as delivery failures', async () => {
+      const unexpectedError = new Error('template rendering failed');
+      prisma.user.findFirst.mockResolvedValue(baseUser);
+      prisma.passwordResetToken.updateMany.mockResolvedValue({ count: 0 });
+      prisma.passwordResetToken.create.mockResolvedValue({ id: 'r1' });
+      emailService.sendResetPasswordEmail.mockRejectedValueOnce(unexpectedError);
+
+      await expect(
+        service.forgotPassword({ email: 'user@example.com' }),
+      ).rejects.toBe(unexpectedError);
     });
 
     it('swallows delivery failures in production for forgot-password anti-enumeration', async () => {

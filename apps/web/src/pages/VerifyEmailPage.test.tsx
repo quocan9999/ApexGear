@@ -49,7 +49,7 @@ describe('VerifyEmailPage', () => {
     );
   });
 
-  it('shows an error banner and resend form when verification fails', async () => {
+  it('shows a friendly error banner and resend form when verification fails', async () => {
     mockVerifyEmail.mockRejectedValueOnce(new Error('Invalid or expired verification token'));
 
     render(
@@ -59,8 +59,9 @@ describe('VerifyEmailPage', () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByText('Invalid or expired verification token')).toBeInTheDocument(),
+      expect(screen.getByText('Liên kết xác minh không hợp lệ hoặc đã hết hạn.')).toBeInTheDocument(),
     );
+    expect(screen.queryByText('Invalid or expired verification token')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Gửi lại email xác minh' })).toBeInTheDocument();
   });
 });

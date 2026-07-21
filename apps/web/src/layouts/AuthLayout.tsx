@@ -6,8 +6,7 @@ export default function AuthLayout() {
   const { t } = useTranslation();
   const { isAuthenticated, isLoading } = useAuthStore();
 
-  if (isLoading) return null;
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated && !isLoading) return <Navigate to="/" replace />;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-surface p-md">

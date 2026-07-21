@@ -33,7 +33,8 @@ export default function LoginPage() {
     }
   };
 
-  const isUnverifiedError = error === t('auth.loginUnverified') || error === 'Vui lòng xác minh email trước khi đăng nhập';
+  const isUnverifiedError = error === t('auth.loginUnverified');
+  const displayError = error;
 
   return (
     <div className="flex flex-col gap-lg">
@@ -41,9 +42,9 @@ export default function LoginPage() {
         <h1 className="headline-lg text-on-surface">{t('auth.loginTitle')}</h1>
       </div>
 
-      {error && (
+      {displayError && (
         <div className="rounded-lg bg-error-container p-md body-sm text-on-error-container flex flex-col gap-md">
-          <div>{error}</div>
+          <div>{displayError}</div>
           {isUnverifiedError && (
             <VerificationResendForm initialEmail={email} />
           )}

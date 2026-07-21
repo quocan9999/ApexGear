@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../common/services/email.service';
+import { MailDeliveryError } from '../../common/errors/mail-delivery.error';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -46,11 +47,6 @@ export class AuthService {
   }
 
   private async createVerificationToken(userId: string): Promise<string> {
-    await this.prisma.emailVerificationToken.updateMany({
-      where: { userId, usedAt: null },
-      data: { usedAt: new Date() },
-    });
-
     const token = randomUUID();
     await this.prisma.emailVerificationToken.create({
       data: {
@@ -61,6 +57,17 @@ export class AuthService {
     });
 
     return token;
+  }
+
+  private async invalidateOtherVerificationTokens(
+    userId: string,
+    tokenId: string,
+    usedAt: Date,
+  ): Promise<void> {
+    await this.prisma.emailVerificationToken.updateMany({
+      where: { userId, usedAt: null, NOT: { id: tokenId } },
+      data: { usedAt },
+    });
   }
 
   async register(dto: RegisterDto): Promise<void> {
@@ -95,9 +102,12 @@ export class AuthService {
         `Failed to send email verification to ${user.email}`,
         error,
       );
-      throw new BadRequestException(
-        'Không thể gửi email xác minh. Vui lòng thử lại sau.',
-      );
+      if (error instanceof MailDeliveryError) {
+        throw new BadRequestException(
+          'Không thể gửi email xác minh. Vui lòng thử lại sau.',
+        );
+      }
+      throw error;
     }
   }
 
@@ -110,7 +120,6 @@ export class AuthService {
 
     if (
       !verificationToken ||
-      verificationToken.usedAt ||
       verificationToken.expiresAt < new Date() ||
       !verificationToken.user ||
       verificationToken.user.deletedAt
@@ -118,27 +127,41 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired verification token');
     }
 
+    if (verificationToken.usedAt) {
+      if (verificationToken.user.emailVerifiedAt) return;
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
     const now = new Date();
-    await this.prisma.$transaction([
-      this.prisma.user.update({
+    await this.prisma.$transaction(async (tx) => {
+      const consumeResult = await tx.emailVerificationToken.updateMany({
+        where: { id: verificationToken.id, usedAt: null },
+        data: { usedAt: now },
+      });
+      if (consumeResult.count !== 1) {
+        const refreshedToken = await tx.emailVerificationToken.findUnique({
+          where: { id: verificationToken.id },
+          include: { user: true },
+        });
+        if (refreshedToken?.user?.emailVerifiedAt) return;
+        throw new BadRequestException('Invalid or expired verification token');
+      }
+
+      await tx.user.update({
         where: { id: verificationToken.userId },
         data: {
           emailVerifiedAt: verificationToken.user.emailVerifiedAt ?? now,
         },
-      }),
-      this.prisma.emailVerificationToken.update({
-        where: { id: verificationToken.id },
-        data: { usedAt: now },
-      }),
-      this.prisma.emailVerificationToken.updateMany({
+      });
+      await tx.emailVerificationToken.updateMany({
         where: {
           userId: verificationToken.userId,
           usedAt: null,
           NOT: { id: verificationToken.id },
         },
         data: { usedAt: now },
-      }),
-    ]);
+      });
+    });
   }
 
   async resendVerification(dto: ResendVerificationDto): Promise<void> {
@@ -147,7 +170,14 @@ export class AuthService {
     });
     if (!user || user.emailVerifiedAt || user.provider !== 'LOCAL') return;
 
-    const token = await this.createVerificationToken(user.id);
+    const token = randomUUID();
+    const createdToken = await this.prisma.emailVerificationToken.create({
+      data: {
+        token,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+    });
     const verificationUrl = `${this.getFrontendUrl()}/verify-email?token=${token}`;
 
     try {
@@ -161,12 +191,22 @@ export class AuthService {
         `Failed to resend verification email to ${user.email}`,
         error,
       );
-      if (process.env.NODE_ENV !== 'production') {
-        throw new BadRequestException(
-          'Không thể gửi email xác minh. Vui lòng thử lại sau.',
-        );
+      if (error instanceof MailDeliveryError) {
+        if (process.env.NODE_ENV !== 'production') {
+          throw new BadRequestException(
+            'Không thể gửi email xác minh. Vui lòng thử lại sau.',
+          );
+        }
+        return;
       }
+      throw error;
     }
+
+    await this.invalidateOtherVerificationTokens(
+      user.id,
+      createdToken.id,
+      new Date(),
+    );
   }
 
   async login(
@@ -319,11 +359,15 @@ export class AuthService {
         `Failed to send reset password email to ${user.email}`,
         error,
       );
-      if (process.env.NODE_ENV !== 'production') {
-        throw new BadRequestException(
-          'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.',
-        );
+      if (error instanceof MailDeliveryError) {
+        if (process.env.NODE_ENV !== 'production') {
+          throw new BadRequestException(
+            'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.',
+          );
+        }
+        return;
       }
+      throw error;
     }
   }
 

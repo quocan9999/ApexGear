@@ -53,8 +53,9 @@ describe('RegisterPage', () => {
 
     // Check success panel copy
     await waitFor(() => {
+      expect(screen.getByText('Đăng ký thành công')).toBeInTheDocument();
       expect(
-        screen.getByText('Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản.'),
+        screen.getByText('Vui lòng kiểm tra email và xác minh tài khoản trước khi đăng nhập.'),
       ).toBeInTheDocument();
     });
 

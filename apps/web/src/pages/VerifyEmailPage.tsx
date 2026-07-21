@@ -19,9 +19,12 @@ export default function VerifyEmailPage() {
       try {
         await authService.verifyEmail(token);
         if (alive) setStatus('success');
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (alive) {
-          setError(err?.message ?? t('common.error'));
+          const message = err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
+            ? err.message
+            : t('common.error');
+          setError(message === 'Invalid or expired verification token' ? t('auth.verifyEmailMissingToken') : message);
           setStatus('error');
         }
       }

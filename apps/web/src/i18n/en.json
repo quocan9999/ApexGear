@@ -1,4 +1,20 @@
 {
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "search": "Search",
+    "noResults": "No results found",
+    "viewAll": "View all",
+    "continueShopping": "Continue shopping",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock",
+    "lowStock": "Low stock",
+    "back": "Back"
+  },
   "auth": {
     "registerSuccessEyebrow": "Verify email",
     "registerSuccessTitle": "Check your inbox",
@@ -6,6 +22,10 @@
     "registerSuccessEmailSentTo": "Email sent to",
     "openMailboxCta": "Open email client",
     "registerSuccessHelp": "Need help?",
-    "contactSupportCta": "Contact support"
+    "contactSupportCta": "Contact support",
+    "emailAlreadyRegisteredResent": "This email is already registered. We've sent another verification email. Please check your inbox.",
+    "loginUnverifiedResent": "This email is registered but not verified yet. We've sent another verification email. Please check your inbox.",
+    "resendEmail": "Resend email",
+    "resendEmailCooldown": "Resend in {{seconds}}s"
   }
 }

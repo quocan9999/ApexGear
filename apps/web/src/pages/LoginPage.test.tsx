@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import '../i18n';
@@ -34,10 +34,16 @@ import LoginPage from './LoginPage';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.useRealTimers();
   login.mockResolvedValue(undefined);
   mergeGuestCart.mockResolvedValue(undefined);
+  resendVerification.mockResolvedValue(undefined);
   authState.error = null;
   authState.isLoading = false;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 async function fillAndSubmit() {
@@ -88,24 +94,51 @@ describe('LoginPage', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('resends verification for the typed login email without showing another editable email box', async () => {
-    authState.error = 'Vui lòng xác minh email trước khi đăng nhập';
+  it('shows unverified email copy with compact resend action and 60 second cooldown', async () => {
+    vi.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    login.mockRejectedValueOnce(new Error('Vui lòng xác minh email trước khi đăng nhập'));
+
     render(
       <MemoryRouter initialEntries={['/login']}>
         <LoginPage />
       </MemoryRouter>,
     );
 
-    await userEvent.type(screen.getByLabelText('Email'), 'a@x.com');
+    await user.type(screen.getByLabelText('Email'), 'a@x.com');
+    await user.type(screen.getByLabelText('Mật khẩu'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'Đăng nhập' }));
 
-    expect(
-      screen.getByText('Vui lòng xác minh email trước khi đăng nhập'),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Email này đã được đăng ký nhưng chưa xác thực. Chúng tôi đã gửi lại email xác thực, vui lòng kiểm tra hộp thư.',
+        ),
+      ).toBeInTheDocument();
+    });
+    expect(resendVerification).toHaveBeenCalledWith('a@x.com');
     expect(screen.getAllByLabelText('Email')).toHaveLength(1);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Gửi lại email xác minh' }));
+    const resendButton = await screen.findByRole('button', { name: /Gửi lại sau 60s/i });
+    expect(resendButton).toBeDisabled();
 
-    await waitFor(() => expect(resendVerification).toHaveBeenCalledWith('a@x.com'));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+    expect(screen.getByRole('button', { name: /Gửi lại sau 59s/i })).toBeDisabled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(59_000);
+    });
+
+    const readyButton = screen.getByRole('button', { name: 'Gửi lại email' });
+    expect(readyButton).toBeEnabled();
+
+    await user.click(readyButton);
+
+    await waitFor(() => expect(resendVerification).toHaveBeenCalledTimes(2));
+    expect(resendVerification).toHaveBeenLastCalledWith('a@x.com');
+    expect(screen.getByRole('button', { name: /Gửi lại sau 60s/i })).toBeDisabled();
   });
 });
 

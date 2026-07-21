@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,14 +34,21 @@ export default function RegisterPage() {
     }
 
     try {
+      setServerError(null);
       await register({ name, email, password });
       setSubmitted(true);
-    } catch {
-      // Error handled by store
+    } catch (err: any) {
+      const message = typeof err?.message === 'string' ? err.message : null;
+      setServerError(message === 'Email already registered' ? t('auth.emailAlreadyRegisteredResent') : null);
     }
   };
 
-  const displayError = validationError || error;
+  const displayError = validationError || serverError || error;
+  const isDuplicateEmailError = serverError === t('auth.emailAlreadyRegisteredResent') || error === t('auth.emailAlreadyRegisteredResent') || error === t('auth.emailAlreadyRegistered');
+
+  const resendEmailError = displayError === t('auth.emailAlreadyRegistered')
+    ? t('auth.emailAlreadyRegisteredResent')
+    : displayError;
 
   return submitted ? (
     <section className="flex flex-col items-center text-center">
@@ -116,8 +124,19 @@ export default function RegisterPage() {
       </div>
 
       {displayError && (
-        <div className="rounded-lg bg-error-container p-md body-sm text-on-error-container">
-          {displayError}
+        <div className="flex flex-col gap-md rounded-lg bg-error-container p-md body-sm text-on-error-container">
+          <div className="text-justify">{resendEmailError}</div>
+          {isDuplicateEmailError && (
+            <VerificationResendForm
+              initialEmail={email}
+              showEmailInput={false}
+              compact
+              autoSend
+              cooldownSeconds={60}
+              buttonLabelKey="auth.resendEmail"
+              cooldownLabelKey="auth.resendEmailCooldown"
+            />
+          )}
         </div>
       )}
 

@@ -22,13 +22,13 @@ function normalizeErrorMessage(message: string | null, status?: number): string 
     case 'Invalid credentials':
       return i18n.t('errors.invalidCredentials');
     case 'Vui lòng xác minh email trước khi đăng nhập':
-      return i18n.t('auth.loginUnverified');
+      return i18n.t('auth.loginUnverifiedResent');
     case 'Invalid or expired verification token':
       return i18n.t('auth.verifyEmailMissingToken');
     case 'Invalid or expired reset token':
       return i18n.t('auth.resetMissingToken');
     case 'Email already registered':
-      return i18n.t('auth.emailAlreadyRegistered');
+      return i18n.t('auth.emailAlreadyRegisteredResent');
     default:
       break;
   }

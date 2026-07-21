@@ -51,22 +51,27 @@ describe('RegisterPage', () => {
       });
     });
 
-    // Check success panel copy
+    // Check Stitch-inspired verification panel copy
     await waitFor(() => {
-      expect(screen.getByText('Đăng ký thành công')).toBeInTheDocument();
+      expect(screen.getByText('Kiểm tra hộp thư của bạn')).toBeInTheDocument();
       expect(
-        screen.getByText('Vui lòng kiểm tra email và xác minh tài khoản trước khi đăng nhập.'),
+        screen.getByText(
+          'Chúng tôi đã gửi liên kết xác minh đến email của bạn. Vui lòng nhấn vào liên kết trong email để kích hoạt tài khoản và bắt đầu mua sắm.',
+        ),
       ).toBeInTheDocument();
     });
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Cần hỗ trợ?')).toBeInTheDocument();
 
-    // Check resend form is present with pre-filled email
-    const resendInput = screen.getByLabelText('Email') as HTMLInputElement;
-    expect(resendInput.value).toBe('test@example.com');
-    expect(screen.getByRole('button', { name: 'Gửi lại email xác minh' })).toBeInTheDocument();
+    // Check resend action uses the registration email without letting the user edit it
+    expect(screen.queryByRole('textbox', { name: 'Email' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Gửi lại email xác minh' }));
+    await waitFor(() => expect(resendVerification).toHaveBeenCalledWith('test@example.com'));
 
-    // Check link to login
+    // Check links to login and mailbox
     const loginLink = screen.getByRole('link', { name: 'Đăng nhập' });
     expect(loginLink).toBeInTheDocument();
     expect(loginLink.getAttribute('href')).toBe('/login');
+    expect(screen.getByRole('link', { name: 'Mở hộp thư' })).toHaveAttribute('href', 'https://mail.google.com');
   });
 });

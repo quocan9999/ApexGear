@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "registerSuccessEyebrow": "Verify email",
+    "registerSuccessTitle": "Check your inbox",
+    "registerSuccessCopy": "We've sent a verification link to your email address. Please click the link in the email to activate your account and start shopping.",
+    "registerSuccessEmailSentTo": "Email sent to",
+    "openMailboxCta": "Open email client",
+    "registerSuccessHelp": "Need help?",
+    "contactSupportCta": "Contact support"
+  }
+}

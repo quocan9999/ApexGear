@@ -1,6 +1,24 @@
 import { create } from 'zustand';
+import i18n from '../i18n';
 import { authService } from '../services/auth.service';
 import type { User, LoginPayload, RegisterPayload } from '../types';
+
+function normalizeAuthError(error: unknown): string {
+  const candidate = error as { message?: unknown } | null;
+  const message = typeof candidate?.message === 'string' ? candidate.message : null;
+
+  switch (message) {
+    case 'Invalid credentials':
+      return i18n.t('errors.invalidCredentials');
+    case 'Vui lòng xác minh email trước khi đăng nhập':
+    case 'auth.loginUnverified':
+      return i18n.t('auth.loginUnverifiedResent');
+    case 'Email already registered':
+      return i18n.t('auth.emailAlreadyRegisteredResent');
+    default:
+      return message ?? i18n.t('errors.generic');
+  }
+}
 
 interface AuthState {
   user: User | null;
@@ -32,7 +50,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const user = await authService.login(data);
       set({ user, isAuthenticated: true, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+      set({ error: normalizeAuthError(err), isLoading: false });
       throw err;
     }
   },
@@ -41,11 +59,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await authService.register(data);
-      // Auto-login after register
-      const user = await authService.login({ email: data.email, password: data.password });
-      set({ user, isAuthenticated: true, isLoading: false });
+      set({ user: null, isAuthenticated: false, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+      set({ error: normalizeAuthError(err), isLoading: false });
       throw err;
     }
   },

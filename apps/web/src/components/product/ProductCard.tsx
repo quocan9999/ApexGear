@@ -5,6 +5,7 @@ import { formatPrice } from '../../utils/format';
 import { getCloudinaryUrl } from '../../utils/cloudinary';
 import StarRating from '../ui/StarRating';
 import Badge from '../ui/Badge';
+import { publicStockStatus } from './VariantSelector';
 import type { Product } from '../../types';
 
 interface ProductCardProps {
@@ -15,7 +16,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, className }: ProductCardProps) {
   const { t } = useTranslation();
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
-  const isOutOfStock = product.variants?.every((v) => v.stockStatus === 'OUT_OF_STOCK');
+  const isOutOfStock = product.variants?.every((v) => publicStockStatus(v) === 'out_of_stock');
 
   return (
     <Link

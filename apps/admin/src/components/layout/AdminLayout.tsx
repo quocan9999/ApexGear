@@ -5,7 +5,9 @@ import { Spinner } from '../ui';
 import { useAuth } from '../../hooks/useAuth';
 import Breadcrumb from './Breadcrumb';
 import Sidebar from './Sidebar';
+import { useAdminNotifications } from '../../hooks/useAdminNotifications';
 import TopBar from './TopBar';
+import NotificationBell from './NotificationBell';
 import { navItemForPath } from './nav-config';
 
 const SIDEBAR_STORAGE_KEY = 'admin.sidebar.collapsed';
@@ -14,6 +16,7 @@ export const DESKTOP_BREAKPOINT_QUERY = '(min-width: 1024px)';
 export default function AdminLayout() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const notifications = useAdminNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(
@@ -110,6 +113,7 @@ export default function AdminLayout() {
           menuButtonRef={menuButtonRef}
           onOpenMobile={() => setMobileOpen(true)}
           onLogout={handleLogout}
+          notificationSlot={<NotificationBell {...notifications} />}
         />
         <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
           <Breadcrumb />

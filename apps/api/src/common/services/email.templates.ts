@@ -32,6 +32,25 @@ export function getResetPasswordTemplate(name: string, resetUrl: string): string
   `;
 }
 
+export function getEmailVerificationTemplate(
+  name: string,
+  verificationUrl: string,
+): string {
+  return `
+    <div style="${baseStyle}">
+      <h2>Xin chào ${name},</h2>
+      <p>Cảm ơn bạn đã đăng ký tài khoản tại ApexGear.</p>
+      <p>Nhấn vào nút bên dưới để xác thực địa chỉ email của bạn (có hiệu lực trong 24 giờ):</p>
+      <p style="text-align:center; margin: 30px 0;">
+        <a href="${verificationUrl}" style="${buttonStyle}">Xác thực email</a>
+      </p>
+      <p>Nếu bạn không tạo tài khoản này, hãy bỏ qua email này.</p>
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+      <p style="color: #9ca3af; font-size: 12px;">ApexGear - Tech Gear cho game thủ Việt</p>
+    </div>
+  `;
+}
+
 export function getOrderConfirmationTemplate(
   name: string,
   order: { orderNumber: string; total: number; paymentMethod: string },

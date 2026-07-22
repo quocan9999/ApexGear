@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email.service';
+import { MailDeliveryError } from '../errors/mail-delivery.error';
 
 const sendMail = jest.fn();
 
@@ -41,6 +42,43 @@ describe('EmailService', () => {
         html: expect.stringContaining('https://x/reset?token=1'),
       }),
     );
+  });
+
+  it('throws MailDeliveryError when sending reset password email fails', async () => {
+    sendMail.mockRejectedValue(new Error('smtp down'));
+    await expect(
+      service.sendResetPasswordEmail(
+        'a@b.com',
+        'An',
+        'https://x/reset?token=1',
+      ),
+    ).rejects.toThrow(MailDeliveryError);
+  });
+
+  it('sends email verification email', async () => {
+    await service.sendEmailVerificationEmail(
+      'a@b.com',
+      'An',
+      'https://x/verify?token=1',
+    );
+    expect(sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'a@b.com',
+        subject: expect.stringContaining('Xác thực email'),
+        html: expect.stringContaining('https://x/verify?token=1'),
+      }),
+    );
+  });
+
+  it('throws MailDeliveryError when sending email verification fails', async () => {
+    sendMail.mockRejectedValue(new Error('smtp down'));
+    await expect(
+      service.sendEmailVerificationEmail(
+        'a@b.com',
+        'An',
+        'https://x/verify?token=1',
+      ),
+    ).rejects.toThrow(MailDeliveryError);
   });
 
   it('sends order confirmation email', async () => {

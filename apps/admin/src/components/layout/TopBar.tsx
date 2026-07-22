@@ -1,6 +1,7 @@
-import { useState, type Ref } from 'react';
+import { useState, type ReactNode, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { User } from '../../types';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface TopBarProps {
   user: User;
@@ -9,6 +10,7 @@ interface TopBarProps {
   menuButtonRef: Ref<HTMLButtonElement>;
   onOpenMobile: () => void;
   onLogout: () => Promise<void>;
+  notificationSlot?: ReactNode;
 }
 
 export default function TopBar({
@@ -18,6 +20,7 @@ export default function TopBar({
   menuButtonRef,
   onOpenMobile,
   onLogout,
+  notificationSlot,
 }: TopBarProps) {
   const { t } = useTranslation();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -53,6 +56,8 @@ export default function TopBar({
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
+        <LanguageSwitcher />
+        {notificationSlot}
         <div className="hidden min-w-0 text-right sm:block">
           <p className="label-md truncate text-on-surface">{user.name}</p>
           <p className="label-sm truncate text-on-surface-variant">{user.email}</p>

@@ -25,6 +25,7 @@ const originalGetBoundingClientRect =
 
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import '../../i18n';
 import { RevenueChart } from './RevenueChart';
 
 describe('RevenueChart', () => {
@@ -39,6 +40,8 @@ describe('RevenueChart', () => {
       </div>,
     );
     expect(container.querySelector('svg')).toBeInTheDocument();
+    expect(container.innerHTML).toContain('Doanh thu');
+    expect(container.innerHTML).not.toContain('revenue');
   });
 
   it('renders an empty state for empty data', () => {

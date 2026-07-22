@@ -58,4 +58,19 @@ describe('api instance', () => {
     const normalized = await rejected({}).catch((e: unknown) => e);
     expect(normalized).toEqual({ message: 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.', status: undefined });
   });
+
+  it('maps expired email-verification tokens to friendly localized copy', async () => {
+    const rejected = getRejectedHandler();
+    const normalized = await rejected({
+      response: {
+        data: { error: { message: 'Invalid or expired verification token' } },
+        status: 400,
+      },
+    }).catch((e: unknown) => e);
+
+    expect(normalized).toEqual({
+      message: 'Liên kết xác minh không hợp lệ hoặc đã hết hạn.',
+      status: 400,
+    });
+  });
 });

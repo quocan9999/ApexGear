@@ -17,6 +17,10 @@ describe('OrdersService', () => {
     sendOrderConfirmation: jest.Mock;
     sendDeliveryConfirmation: jest.Mock;
   };
+  let notificationsService: {
+    recordNewOrder: jest.Mock;
+    syncLowStockState: jest.Mock;
+  };
 
   const address = {
     id: 'a1',
@@ -57,12 +61,18 @@ describe('OrdersService', () => {
       sendOrderConfirmation: jest.fn().mockResolvedValue(undefined),
       sendDeliveryConfirmation: jest.fn().mockResolvedValue(undefined),
     };
+    notificationsService = {
+      recordNewOrder: jest.fn().mockResolvedValue(undefined),
+      syncLowStockState: jest.fn().mockResolvedValue(undefined),
+    };
+    prisma.productVariant.findMany.mockResolvedValue([]);
     service = new OrdersService(
       prisma as never,
       cartService as never,
       couponsService as never,
       shippingService as never,
       emailService as never,
+      notificationsService as never,
     );
   });
 
@@ -120,7 +130,7 @@ describe('OrdersService', () => {
       ).rejects.toThrow(/Only 1 available/);
     });
 
-    it('creates COD order, deducts stock, clears cart, sends email', async () => {
+    it('creates COD order, deducts stock, clears cart, sends email, and records notification', async () => {
       prisma.address.findFirst.mockResolvedValue(address);
       prisma.productVariant.findFirst.mockResolvedValue({
         id: 'v1',
@@ -133,6 +143,17 @@ describe('OrdersService', () => {
         value: '30000',
       });
       prisma.productVariant.updateMany.mockResolvedValue({ count: 1 });
+      prisma.productVariant.findMany.mockResolvedValue([
+        {
+          id: 'v1',
+          sku: 'SKU-1',
+          name: 'Black',
+          stockTotal: 10,
+          stockAvailable: 5,
+          lowStockThreshold: 5,
+          product: { id: 'p1', name: 'Mouse', slug: 'mouse' },
+        },
+      ]);
       prisma.cartItem.deleteMany.mockResolvedValue({ count: 1 });
       prisma.user.findUnique.mockResolvedValue({
         id: 'u1',
@@ -162,6 +183,14 @@ describe('OrdersService', () => {
       expect(prisma.productVariant.updateMany).toHaveBeenCalled();
       expect(prisma.cartItem.deleteMany).toHaveBeenCalled();
       expect(emailService.sendOrderConfirmation).toHaveBeenCalled();
+      expect(notificationsService.recordNewOrder).toHaveBeenCalledWith({
+        orderId: 'o1',
+        orderNumber: 'AG-20260714-ABCD',
+        total: 230000,
+      });
+      expect(notificationsService.syncLowStockState).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'v1', stockAvailable: 5 }),
+      );
       expect(result.total).toBe(230000);
       expect(typeof result.subtotal).toBe('number');
     });
@@ -341,13 +370,28 @@ describe('OrdersService', () => {
         items: [],
         coupon: null,
       });
-      prisma.productVariant.update.mockResolvedValue({});
+      const restoredVariant = {
+        id: 'v1',
+        sku: 'SKU-1',
+        name: 'Black',
+        stockTotal: 10,
+        stockAvailable: 7,
+        lowStockThreshold: 5,
+        product: { id: 'p1', name: 'Mouse', slug: 'mouse' },
+      };
+      prisma.productVariant.update.mockResolvedValue(restoredVariant);
 
       await service.cancelOrder('u1', 'o1');
       expect(prisma.productVariant.update).toHaveBeenCalledWith({
         where: { id: 'v1' },
         data: { stockAvailable: { increment: 2 } },
+        include: {
+          product: {
+            select: { id: true, name: true, slug: true },
+          },
+        },
       });
+      expect(notificationsService.syncLowStockState).toHaveBeenCalledWith(restoredVariant);
     });
   });
 

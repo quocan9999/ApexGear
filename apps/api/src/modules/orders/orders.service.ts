@@ -8,6 +8,10 @@ import { CartService } from '../cart/cart.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { ShippingService } from '../shipping/shipping.service';
 import { EmailService } from '../../common/services/email.service';
+import {
+  NotificationsService,
+  NotificationVariantSnapshot,
+} from '../notifications/notifications.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { QueryOrderDto } from './dto/query-order.dto';
@@ -48,6 +52,7 @@ export class OrdersService {
     private couponsService: CouponsService,
     private shippingService: ShippingService,
     private emailService: EmailService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async checkout(userId: string, dto: CreateOrderDto) {
@@ -176,6 +181,13 @@ export class OrdersService {
         paymentMethod: order.paymentMethod,
       });
     }
+
+    await this.notificationsService.recordNewOrder({
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      total: Number(order.total),
+    });
+    await this.syncLowStockForVariants(cart.items.map((item) => item.variantId));
 
     return this.serialize(order);
   }
@@ -360,7 +372,7 @@ export class OrdersService {
     cancelReason: string,
     status: string = OrderStatus.CANCELLED,
   ) {
-    return this.prisma.$transaction(async (tx) => {
+    const restoredVariants = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.order.update({
         where: { id: order.id },
         data: {
@@ -374,15 +386,43 @@ export class OrdersService {
         include: orderInclude,
       });
 
+      const variants: NotificationVariantSnapshot[] = [];
       for (const item of order.items) {
-        await tx.productVariant.update({
+        const variant = await tx.productVariant.update({
           where: { id: item.variantId },
           data: { stockAvailable: { increment: item.quantity } },
+          include: {
+            product: {
+              select: { id: true, name: true, slug: true },
+            },
+          },
         });
+        variants.push(variant as NotificationVariantSnapshot);
       }
 
-      return updated;
+      return { updated, variants };
     });
+
+    for (const variant of restoredVariants.variants) {
+      await this.notificationsService.syncLowStockState(variant);
+    }
+
+    return restoredVariants.updated;
+  }
+
+  private async syncLowStockForVariants(variantIds: string[]) {
+    const variants = await this.prisma.productVariant.findMany({
+      where: { id: { in: variantIds } },
+      include: {
+        product: {
+          select: { id: true, name: true, slug: true },
+        },
+      },
+    });
+
+    for (const variant of variants) {
+      await this.notificationsService.syncLowStockState(variant as NotificationVariantSnapshot);
+    }
   }
 
   private async generateOrderNumber(): Promise<string> {

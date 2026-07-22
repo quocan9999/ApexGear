@@ -38,6 +38,14 @@
     "dismiss": "Đóng thông báo",
     "providerMissing": "useToast phải được sử dụng bên trong ToastProvider"
   },
+  "notifications": {
+    "open": "Mở thông báo",
+    "title": "Thông báo quản trị",
+    "unreadCount": "{{count}} chưa đọc",
+    "markAllRead": "Đánh dấu đã đọc",
+    "loading": "Đang tải thông báo...",
+    "empty": "Chưa có thông báo mới"
+  },
   "nav": {
     "dashboard": "Tổng quan",
     "products": "Sản phẩm",

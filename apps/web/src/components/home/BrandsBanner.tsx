@@ -84,7 +84,7 @@ export default function BrandsBanner() {
 function BrandTile({ brand, className }: { brand: Brand; className?: string }) {
   return (
     <a
-      href={brand.website || '#'}
+      href={brand.website || `/products?brandId=${encodeURIComponent(brand.id)}`}
       target={brand.website ? '_blank' : undefined}
       rel={brand.website ? 'noopener noreferrer' : undefined}
       className={cn(

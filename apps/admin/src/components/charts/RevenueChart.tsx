@@ -46,7 +46,11 @@ export function RevenueChart({ data, height = 320 }: RevenueChartProps) {
   }
 
   return (
-    <div className="text-primary" style={{ width: '100%', height }}>
+    <div
+      className="text-primary"
+      style={{ width: '100%', height }}
+      aria-label={t('dashboard.chart.revenueLabel')}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-outline-variant)" />
@@ -63,7 +67,7 @@ export function RevenueChart({ data, height = 320 }: RevenueChartProps) {
             width={64}
           />
           <Tooltip
-            formatter={(value: number) => formatPrice(value)}
+            formatter={(value: number) => [formatPrice(value), t('dashboard.chart.revenueLabel')]}
             labelFormatter={formatAxisDate}
             contentStyle={{
               backgroundColor: 'var(--color-surface-container-lowest)',
@@ -75,6 +79,7 @@ export function RevenueChart({ data, height = 320 }: RevenueChartProps) {
           <Line
             type="monotone"
             dataKey="revenue"
+            name={t('dashboard.chart.revenueLabel')}
             stroke="var(--color-primary)"
             strokeWidth={2}
             dot={{ r: 3, fill: 'var(--color-primary)' }}

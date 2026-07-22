@@ -65,7 +65,7 @@ export class ProductsService {
       }
 
       const where = this.buildFtsWhereClauses(query, isStaff, term);
-      const orderBy = this.buildFtsOrderBy(query.sortBy, query.sortOrder);
+      const orderBy = this.buildFtsOrderBy(query.sortBy, query.sortOrder, term);
 
       const ftsRows = await this.prisma.$queryRaw<{ id: string }[]>(
         Prisma.sql`SELECT p.[id] FROM [dbo].[Product] p ${where} ${orderBy} OFFSET ${skip} ROWS FETCH NEXT ${limit} ROWS ONLY`,
@@ -255,6 +255,7 @@ export class ProductsService {
   private buildFtsOrderBy(
     sortBy: 'price' | 'name' | 'createdAt' | undefined,
     sortOrder: 'asc' | 'desc' | undefined,
+    term: string,
   ): Prisma.Sql {
     const column =
       sortBy === 'price'
@@ -264,7 +265,7 @@ export class ProductsService {
         : Prisma.raw('[createdAt]');
     const direction =
       sortOrder === 'asc' ? Prisma.raw('ASC') : Prisma.raw('DESC');
-    return Prisma.sql`ORDER BY p.${column} ${direction}`;
+    return Prisma.sql`ORDER BY CASE WHEN p.[name] = ${term} THEN 0 ELSE 1 END, p.${column} ${direction}`;
   }
 
   async findBySlug(slug: string, isStaff = false) {

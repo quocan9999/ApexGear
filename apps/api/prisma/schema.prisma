@@ -393,6 +393,36 @@ model Setting {
   value String @db.NVarChar(Max)
 }
 
+// ==================== ADMIN NOTIFICATIONS ====================
+
+model AdminNotification {
+  id        String    @id @default(uuid())
+  dedupeKey String    @unique @db.VarChar(191)
+  type      String    @db.VarChar(30)
+  title     String    @db.NVarChar(255)
+  body      String?   @db.NVarChar(500)
+  orderId   String?
+  variantId String?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([createdAt])
+  @@index([isRead, createdAt])
+  @@index([type])
+}
+
+model LowStockAlertState {
+  id                String    @id @default(uuid())
+  variantId         String    @unique
+  isActive          Boolean   @default(false)
+  lastNotifiedStock Int?
+  notifiedAt        DateTime?
+  resolvedAt        DateTime?
+  updatedAt         DateTime  @updatedAt
+}
+
 // ==================== SHIPPING ====================
 
 model ShippingRule {

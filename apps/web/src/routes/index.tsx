@@ -19,6 +19,13 @@ const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 const VerifyEmailPage = lazy(() => import('../pages/VerifyEmailPage'));
 const AuthCallbackPage = lazy(() => import('../pages/AuthCallbackPage'));
+const HelpPage = lazy(() => import('../pages/HelpPage'));
+const ShippingPage = lazy(() => import('../pages/ShippingPage'));
+const ReturnsPage = lazy(() => import('../pages/ReturnsPage'));
+const WarrantyPage = lazy(() => import('../pages/WarrantyPage'));
+const PolicyPage = lazy(() => import('../pages/PolicyPage'));
+const TermsPage = lazy(() => import('../pages/TermsPage'));
+const PrivacyPage = lazy(() => import('../pages/PrivacyPage'));
 
 const Loading = () => (
   <div className="flex min-h-screen items-center justify-center">
@@ -36,6 +43,15 @@ export default function AppRoutes() {
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/:slug" element={<ProductDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
+
+          {/* Info & legal */}
+          <Route path="/help" element={<HelpPage />} />
+          <Route path="/shipping" element={<ShippingPage />} />
+          <Route path="/returns" element={<ReturnsPage />} />
+          <Route path="/warranty" element={<WarrantyPage />} />
+          <Route path="/policy" element={<PolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
 
           {/* Authenticated-only routes */}
           <Route element={<ProtectedRoute />}>

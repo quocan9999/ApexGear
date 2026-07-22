@@ -31,6 +31,7 @@ async function main() {
       password: adminPassword,
       name: 'ApexGear Admin',
       role: Role.ADMIN,
+      emailVerifiedAt: new Date(),
       isActive: true,
     },
   });

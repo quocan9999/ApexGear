@@ -18,21 +18,21 @@ describe('JwtAuthGuard', () => {
     } as unknown as ExecutionContext;
   }
 
-  it('returns true for public routes without calling passport', () => {
+  it('returns true for public routes without calling passport', async () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
-    expect(guard.canActivate(ctx())).toBe(true);
+    await expect(guard.canActivate(ctx())).resolves.toBe(true);
   });
 
-  it('delegates to AuthGuard for protected routes', () => {
+  it('delegates to AuthGuard for protected routes', async () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
     const superSpy = jest
       .spyOn(
         Object.getPrototypeOf(JwtAuthGuard.prototype),
         'canActivate',
       )
-      .mockReturnValue(true as never);
+      .mockResolvedValue(true as never);
 
-    expect(guard.canActivate(ctx())).toBe(true);
+    await expect(guard.canActivate(ctx())).resolves.toBe(true);
     expect(superSpy).toHaveBeenCalled();
     superSpy.mockRestore();
   });

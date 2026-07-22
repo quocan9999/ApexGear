@@ -1,13 +1,10 @@
 import { Outlet, Navigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/auth.store';
 
 export default function AuthLayout() {
-  const { t } = useTranslation();
   const { isAuthenticated, isLoading } = useAuthStore();
 
-  if (isLoading) return null;
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated && !isLoading) return <Navigate to="/" replace />;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-surface p-md">
@@ -23,12 +20,6 @@ export default function AuthLayout() {
       <div className="w-full max-w-[28rem] rounded-xl bg-surface-container-lowest p-xl shadow-[var(--shadow-level-1)]">
         <Outlet />
       </div>
-      <Link
-        to="/"
-        className="mt-lg body-sm text-outline hover:text-primary hover:underline transition-colors"
-      >
-        {t('auth.backToHome')}
-      </Link>
     </div>
   );
 }

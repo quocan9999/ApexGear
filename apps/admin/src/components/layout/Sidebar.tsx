@@ -79,14 +79,15 @@ export default function Sidebar({
       className={cn(
         'admin-scrollbar fixed inset-y-0 left-0 z-40 flex w-60 flex-col overflow-y-auto border-r border-outline-variant bg-surface-container-low transition-[transform,width] duration-200',
         mobileOpen ? 'visible translate-x-0' : 'invisible -translate-x-full',
-        'lg:visible lg:static lg:translate-x-0',
+        'lg:visible lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
         collapsed && 'lg:w-20',
       )}
     >
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant px-4">
-        <span className={cn('headline-md truncate font-bold text-primary', collapsed && 'lg:hidden')}>
-          {t('admin.title')}
-        </span>
+        <div className={cn('min-w-0', collapsed && 'lg:hidden')}>
+          <p className="headline-md truncate font-bold text-primary">ApexGear</p>
+          <p className="label-sm truncate text-on-surface-variant">Admin Dashboard</p>
+        </div>
         <button
           type="button"
           aria-label={collapsed ? t('layout.expandSidebar') : t('layout.collapseSidebar')}

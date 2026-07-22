@@ -129,12 +129,18 @@ describe('AdminLayout', () => {
     renderLayout();
 
     const header = screen.getByRole('banner');
+    const languageSwitcher = within(header).getByRole('button', { name: i18n.t('language.open') });
+    expect(languageSwitcher).toHaveTextContent('文');
+    expect(languageSwitcher).toHaveTextContent('A');
     const bell = within(header).getByRole('button', { name: i18n.t('notifications.open') });
     const identity = within(header).getByText(baseUser.name);
+    expect(languageSwitcher.compareDocumentPosition(bell) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(bell.compareDocumentPosition(identity) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sidebar = screen.getByRole('complementary', { name: i18n.t('layout.sidebar') });
-    expect(sidebar).toHaveClass('w-60', 'lg:visible', 'lg:static');
+    expect(sidebar).toHaveClass('w-60', 'lg:visible', 'lg:sticky', 'lg:top-0', 'lg:h-screen');
+    expect(within(sidebar).getByText('ApexGear')).toBeInTheDocument();
+    expect(within(sidebar).getByText('Admin Dashboard')).toBeInTheDocument();
     const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
     expect(within(navigation).getAllByRole('link')).toHaveLength(11);
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toHaveAttribute(
@@ -157,6 +163,27 @@ describe('AdminLayout', () => {
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.dashboard') })).toBeInTheDocument();
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toBeInTheDocument();
     expect(within(navigation).queryByRole('link', { name: i18n.t('nav.products') })).not.toBeInTheDocument();
+  });
+
+  it('opens the language menu by click and switches languages through i18n', async () => {
+    const user = userEvent.setup();
+    renderLayout();
+
+    await user.click(screen.getByRole('button', { name: i18n.t('language.open') }));
+
+    expect(screen.getByRole('menuitemradio', { name: /EN English/ })).toBeInTheDocument();
+    expect(screen.getByRole('menuitemradio', { name: /VI Tiếng Việt/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('menuitemradio', { name: /EN English/ }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Open language menu' })).toBeInTheDocument());
+    expect(i18n.language).toBe('en');
+
+    await user.click(screen.getByRole('button', { name: 'Open language menu' }));
+    await user.click(screen.getByRole('menuitemradio', { name: /VI Tiếng Việt/ }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: i18n.t('language.open') })).toBeInTheDocument());
+    expect(i18n.language).toBe('vi');
   });
 
   it('supports keyboard-operable desktop collapse and persists the preference', async () => {

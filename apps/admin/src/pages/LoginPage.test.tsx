@@ -63,6 +63,7 @@ describe('LoginPage', () => {
   it('renders accessible fields with HTML validation', () => {
     renderLogin();
 
+    expect(screen.queryByText(i18n.t('login.copyright'))).not.toBeInTheDocument();
     const email = screen.getByLabelText(i18n.t('login.email'));
     const password = screen.getByLabelText(i18n.t('login.password'));
     expect(email).toHaveAttribute('type', 'email');

@@ -1,11 +1,33 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+// @vitest-environment jsdom
+
+import '@testing-library/jest-dom/vitest';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import i18n from '../../i18n';
 import { resetAuthStore, useAuthStore } from '../../stores/auth.store';
-import type { Role, User } from '../../types';
+import type { AdminNotification, Role, User } from '../../types';
+import { useAdminNotifications } from '../../hooks/useAdminNotifications';
 import AdminLayout from './AdminLayout';
+
+vi.mock('../../hooks/useAdminNotifications', () => ({
+  useAdminNotifications: vi.fn(),
+}));
+
+const unreadNotification: AdminNotification = {
+  id: 'n1',
+  dedupeKey: 'NEW_ORDER:o1',
+  type: 'NEW_ORDER',
+  title: 'Đơn hàng mới #AG-1',
+  body: 'Tổng 230.000 ₫',
+  orderId: 'o1',
+  variantId: null,
+  isRead: false,
+  readAt: null,
+  createdAt: '2026-07-22T12:00:00.000Z',
+  updatedAt: '2026-07-22T12:00:00.000Z',
+};
 
 const baseUser: User = {
   id: 'staff-1',
@@ -88,15 +110,28 @@ describe('AdminLayout', () => {
   beforeEach(() => {
     resetAuthStore();
     vi.clearAllMocks();
+    vi.mocked(useAdminNotifications).mockReturnValue({
+      notifications: [unreadNotification],
+      unreadCount: 1,
+      loading: false,
+      refresh: vi.fn(),
+      markAllRead: vi.fn(),
+    });
     installMatchMedia();
   });
 
   afterEach(() => {
+    cleanup();
     vi.unstubAllGlobals();
   });
 
-  it('renders the complete admin navigation, active state, user identity, role, breadcrumb, and content', () => {
+  it('renders the complete admin navigation, active state, user identity, role, notification bell, breadcrumb, and content', () => {
     renderLayout();
+
+    const header = screen.getByRole('banner');
+    const bell = within(header).getByRole('button', { name: i18n.t('notifications.open') });
+    const identity = within(header).getByText(baseUser.name);
+    expect(bell.compareDocumentPosition(identity) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sidebar = screen.getByRole('complementary', { name: i18n.t('layout.sidebar') });
     expect(sidebar).toHaveClass('w-60', 'lg:visible', 'lg:static');

@@ -5,12 +5,16 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { QueryInventoryDto } from './dto/query-inventory.dto';
 
 @Injectable()
 export class InventoryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async overview(query: QueryInventoryDto) {
     return this.listVariants(query);
@@ -56,7 +60,7 @@ export class InventoryService {
       );
     }
 
-    return this.prisma.productVariant.update({
+    const updated = await this.prisma.productVariant.update({
       where: { id: variantId },
       data: {
         stockAvailable: newAvailable,
@@ -68,6 +72,10 @@ export class InventoryService {
         },
       },
     });
+
+    await this.notificationsService.syncLowStockState(updated);
+
+    return updated;
   }
 
   private async listVariants(

@@ -5,9 +5,19 @@ import type { ProductVariant } from '../../types';
 
 export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
 
-export function publicStockStatus(s: ProductVariant['stockStatus']): StockStatus {
-  if (s === 'OUT_OF_STOCK') return 'out_of_stock';
-  if (s === 'LOW_STOCK') return 'low_stock';
+export function publicStockStatus(variant: ProductVariant): StockStatus {
+  if (variant.stockAvailable !== undefined) {
+    if (variant.stockAvailable <= 0) return 'out_of_stock';
+    if (
+      variant.lowStockThreshold !== undefined &&
+      variant.stockAvailable <= variant.lowStockThreshold
+    ) {
+      return 'low_stock';
+    }
+    return 'in_stock';
+  }
+  if (variant.stockStatus === 'OUT_OF_STOCK') return 'out_of_stock';
+  if (variant.stockStatus === 'LOW_STOCK') return 'low_stock';
   return 'in_stock';
 }
 
@@ -77,7 +87,7 @@ export default function VariantSelector({
       return s;
     };
 
-    const inStock = candidates.filter((v) => v.stockStatus !== 'OUT_OF_STOCK');
+    const inStock = candidates.filter((v) => publicStockStatus(v) !== 'out_of_stock');
     const pool = inStock.length > 0 ? inStock : candidates;
     const best = [...pool].sort((a, b) => score(b) - score(a))[0];
     return best ?? pool[0];
@@ -106,7 +116,7 @@ export default function VariantSelector({
             // OOS, otherwise the user can still pick it via resolveAttributeValue.
             const valueOOS = variants
               .filter((v) => v.attributes?.[label] === opt.value)
-              .every((v) => v.stockStatus === 'OUT_OF_STOCK');
+              .every((v) => publicStockStatus(v) === 'out_of_stock');
             const isOut = valueOOS;
             return (
               <button
@@ -148,7 +158,7 @@ export default function VariantSelector({
         <div className="flex flex-wrap gap-sm" role="radiogroup" aria-label={t('product.selectVariant')}>
           {variants.map((v) => {
             const isSelected = v.id === selectedId;
-            const isOut = v.stockStatus === 'OUT_OF_STOCK';
+            const isOut = publicStockStatus(v) === 'out_of_stock';
             return (
               <button
                 key={v.id}

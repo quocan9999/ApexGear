@@ -161,10 +161,6 @@ export default function LoginPage() {
           </section>
         </div>
       </main>
-
-      <footer className="border-t border-outline-variant px-6 py-4 text-center">
-        <p className="body-sm text-secondary">{t('login.copyright')}</p>
-      </footer>
     </div>
   );
 }

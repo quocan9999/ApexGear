@@ -243,7 +243,7 @@
     "stats": {
       "totalRevenue": "Tổng doanh thu",
       "totalOrders": "Tổng đơn hàng",
-      "lowStock": "Kho hàng",
+      "lowStock": "Hàng sắp hết",
       "totalUsers": "Người dùng"
     },
     "range": {
@@ -255,7 +255,12 @@
       "loading": "Đang tải dữ liệu biểu đồ...",
       "empty": "Chưa có dữ liệu",
       "compactBillion": "{{value}} tỷ",
-      "compactMillion": "{{value}} tr"
+      "compactMillion": "{{value}} tr",
+      "revenueLabel": "Doanh thu"
+    },
+    "lowStockList": {
+      "title": "Sản phẩm sắp hết hàng",
+      "empty": "Không có sản phẩm nào sắp hết tồn kho!"
     },
     "lowStockSuffix": "SP",
     "usersSuffix": "người",
@@ -402,7 +407,7 @@
       "product": "Sản phẩm",
       "variant": "Biến thể",
       "stockTotal": "Tổng",
-      "stockAvailable": "Có thể bán",
+      "stockAvailable": "Tồn kho",
       "threshold": "Ngưỡng",
       "adjust": "Điều chỉnh"
     }

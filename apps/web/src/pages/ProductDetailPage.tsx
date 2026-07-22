@@ -96,10 +96,10 @@ export default function ProductDetailPage() {
   );
 
   const stockStatus: StockStatus = selectedVariant
-    ? publicStockStatus(selectedVariant.stockStatus)
+    ? publicStockStatus(selectedVariant)
     : variants.length === 0
       ? 'in_stock'
-      : (variants.some((v) => publicStockStatus(v.stockStatus) !== 'out_of_stock')
+      : (variants.some((v) => publicStockStatus(v) !== 'out_of_stock')
           ? 'in_stock'
           : 'out_of_stock');
 

@@ -402,7 +402,7 @@
       "product": "Sản phẩm",
       "variant": "Biến thể",
       "stockTotal": "Tổng",
-      "stockAvailable": "Có thể bán",
+      "stockAvailable": "Tồn kho",
       "threshold": "Ngưỡng",
       "adjust": "Điều chỉnh"
     }

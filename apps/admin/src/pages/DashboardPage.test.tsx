@@ -54,9 +54,9 @@ describe('DashboardPage', () => {
     expect(
       await screen.findByRole('heading', { level: 2, name: i18n.t('pages.dashboard.title') }),
     ).toBeInTheDocument();
-    // lowStock text now appears twice: once as stat card label, once as section heading
-    const lowStockElements = screen.getAllByText(i18n.t('dashboard.stats.lowStock'));
-    expect(lowStockElements.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Hàng sắp hết')).toBeInTheDocument();
+    expect(screen.getByText(i18n.t('dashboard.lowStockList.title'))).toBeInTheDocument();
+    expect(screen.getByText('Không có sản phẩm nào sắp hết tồn kho!')).toBeInTheDocument();
     expect(screen.getByText(i18n.t('dashboard.stats.totalRevenue'))).toBeInTheDocument();
     expect(screen.getByText(i18n.t('dashboard.stats.totalOrders'))).toBeInTheDocument();
     expect(screen.getByText(i18n.t('dashboard.stats.totalUsers'))).toBeInTheDocument();

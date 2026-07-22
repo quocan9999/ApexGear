@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+// @vitest-environment jsdom
+
+import '@testing-library/jest-dom/vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import type { Product } from '../../types';
@@ -41,6 +44,10 @@ function renderCard(product: Product) {
 }
 
 describe('ProductCard', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it('links to the product detail page', () => {
     renderCard(makeProduct());
     expect(screen.getByRole('link')).toHaveAttribute('href', '/products/ban-phim-co-ag-pro');
@@ -74,6 +81,17 @@ describe('ProductCard', () => {
       makeProduct({
         variants: [
           { id: 'v1', name: null, sku: 'SKU1', price: null, stockStatus: 'OUT_OF_STOCK', isDefault: true, attributes: null, displayOrder: 0 },
+        ],
+      }),
+    );
+    expect(screen.getByText(/hết hàng/i)).toBeInTheDocument();
+  });
+
+  it('renders an out-of-stock badge when exact available stock is zero', () => {
+    renderCard(
+      makeProduct({
+        variants: [
+          { id: 'v1', name: null, sku: 'SKU1', price: null, stockAvailable: 0, isDefault: true, attributes: null, displayOrder: 0 },
         ],
       }),
     );

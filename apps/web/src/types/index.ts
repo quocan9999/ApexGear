@@ -84,7 +84,9 @@ export interface ProductVariant {
   name: string | null;
   sku: string;
   price: number | null;
-  stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+  stockStatus?: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+  stockAvailable?: number;
+  lowStockThreshold?: number;
   isDefault: boolean;
   attributes: Record<string, string> | null;
   displayOrder: number;

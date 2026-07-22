@@ -1,6 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react';
+// @vitest-environment jsdom
+
+import '@testing-library/jest-dom/vitest';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import i18n from '../i18n';
 import { useAuthStore } from '../stores/auth.store';
 import type { InventoryItem, User } from '../types';
@@ -70,10 +73,15 @@ describe('InventoryPage', () => {
     vi.mocked(inventoryService.adjust).mockReset().mockResolvedValue(item);
   });
 
-  it('renders inventory list for ADMIN with adjust control', async () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('renders inventory list for ADMIN with stock column label and adjust control', async () => {
     renderPage();
     expect(await screen.findByText('Sony WH-1000XM5')).toBeInTheDocument();
     expect(screen.getByText('WH-1000XM5-BLK')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Tồn kho' })).toBeInTheDocument();
     expect(inventoryService.list).toHaveBeenCalledWith({ page: 1, limit: 20 });
     // ADMIN sees adjust button (column header also has same text, scope to button)
     expect(screen.getByRole('button', { name: i18n.t('inventory.adjust') })).toBeInTheDocument();

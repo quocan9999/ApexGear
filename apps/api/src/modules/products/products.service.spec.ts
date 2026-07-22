@@ -87,6 +87,29 @@ describe('ProductsService', () => {
       expect(result.data.map((p: { id: string }) => p.id)).toEqual(['p2', 'p1']);
       expect(result.meta.total).toBe(2);
     });
+
+    it('ranks an exact product name match before looser full-text matches', async () => {
+      prisma.$queryRaw
+        .mockResolvedValueOnce([{ id: 'exact' }, { id: 'loose' }])
+        .mockResolvedValueOnce([{ count: 2 }]);
+      prisma.product.findMany.mockResolvedValue([
+        { id: 'loose', name: 'Chuột Razer Viper V4 Pro', variants: [] },
+        {
+          id: 'exact',
+          name: 'Bàn phím có dây Razer Huntsman V3 Pro Tenkeyless Counter-Strike 2 Edition',
+          variants: [],
+        },
+      ]);
+
+      const result = await service.findAll(
+        {
+          search: 'Bàn phím có dây Razer Huntsman V3 Pro Tenkeyless Counter-Strike 2 Edition',
+        } as never,
+        false,
+      );
+
+      expect(result.data.map((p: { id: string }) => p.id)).toEqual(['exact', 'loose']);
+    });
   });
 
   describe('findBySlug', () => {

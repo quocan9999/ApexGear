@@ -24,6 +24,9 @@ export function createPrismaMock() {
   const prisma: Record<string, unknown> = {
     user: modelMock(),
     passwordResetToken: modelMock(),
+    emailVerificationToken: modelMock(),
+    adminNotification: modelMock(),
+    lowStockAlertState: modelMock(),
     category: modelMock(),
     brand: modelMock(),
     product: modelMock(),
@@ -40,6 +43,7 @@ export function createPrismaMock() {
     $transaction: jest.fn(),
     $connect: jest.fn().mockResolvedValue(undefined),
     $disconnect: jest.fn().mockResolvedValue(undefined),
+    $queryRaw: jest.fn(),
   };
 
   // Interactive transaction: pass the same mock as tx
@@ -58,6 +62,9 @@ export function createPrismaMock() {
   return prisma as {
     user: ReturnType<typeof modelMock>;
     passwordResetToken: ReturnType<typeof modelMock>;
+    emailVerificationToken: ReturnType<typeof modelMock>;
+    adminNotification: ReturnType<typeof modelMock>;
+    lowStockAlertState: ReturnType<typeof modelMock>;
     category: ReturnType<typeof modelMock>;
     brand: ReturnType<typeof modelMock>;
     product: ReturnType<typeof modelMock>;
@@ -74,5 +81,6 @@ export function createPrismaMock() {
     $transaction: jest.Mock;
     $connect: jest.Mock;
     $disconnect: jest.Mock;
+    $queryRaw: jest.Mock;
   };
 }

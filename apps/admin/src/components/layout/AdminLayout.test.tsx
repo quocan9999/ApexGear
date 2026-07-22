@@ -1,11 +1,33 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+// @vitest-environment jsdom
+
+import '@testing-library/jest-dom/vitest';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import i18n from '../../i18n';
 import { resetAuthStore, useAuthStore } from '../../stores/auth.store';
-import type { Role, User } from '../../types';
+import type { AdminNotification, Role, User } from '../../types';
+import { useAdminNotifications } from '../../hooks/useAdminNotifications';
 import AdminLayout from './AdminLayout';
+
+vi.mock('../../hooks/useAdminNotifications', () => ({
+  useAdminNotifications: vi.fn(),
+}));
+
+const unreadNotification: AdminNotification = {
+  id: 'n1',
+  dedupeKey: 'NEW_ORDER:o1',
+  type: 'NEW_ORDER',
+  title: 'Đơn hàng mới #AG-1',
+  body: 'Tổng 230.000 ₫',
+  orderId: 'o1',
+  variantId: null,
+  isRead: false,
+  readAt: null,
+  createdAt: '2026-07-22T12:00:00.000Z',
+  updatedAt: '2026-07-22T12:00:00.000Z',
+};
 
 const baseUser: User = {
   id: 'staff-1',
@@ -88,18 +110,37 @@ describe('AdminLayout', () => {
   beforeEach(() => {
     resetAuthStore();
     vi.clearAllMocks();
+    vi.mocked(useAdminNotifications).mockReturnValue({
+      notifications: [unreadNotification],
+      unreadCount: 1,
+      loading: false,
+      refresh: vi.fn(),
+      markAllRead: vi.fn(),
+    });
     installMatchMedia();
   });
 
   afterEach(() => {
+    cleanup();
     vi.unstubAllGlobals();
   });
 
-  it('renders the complete admin navigation, active state, user identity, role, breadcrumb, and content', () => {
+  it('renders the complete admin navigation, active state, user identity, role, notification bell, breadcrumb, and content', () => {
     renderLayout();
 
+    const header = screen.getByRole('banner');
+    const languageSwitcher = within(header).getByRole('button', { name: i18n.t('language.open') });
+    expect(languageSwitcher).toHaveTextContent('文');
+    expect(languageSwitcher).toHaveTextContent('A');
+    const bell = within(header).getByRole('button', { name: i18n.t('notifications.open') });
+    const identity = within(header).getByText(baseUser.name);
+    expect(languageSwitcher.compareDocumentPosition(bell) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(bell.compareDocumentPosition(identity) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
     const sidebar = screen.getByRole('complementary', { name: i18n.t('layout.sidebar') });
-    expect(sidebar).toHaveClass('w-60', 'lg:visible', 'lg:static');
+    expect(sidebar).toHaveClass('w-60', 'lg:visible', 'lg:sticky', 'lg:top-0', 'lg:h-screen');
+    expect(within(sidebar).getByText('ApexGear')).toBeInTheDocument();
+    expect(within(sidebar).getByText('Admin Dashboard')).toBeInTheDocument();
     const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
     expect(within(navigation).getAllByRole('link')).toHaveLength(11);
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toHaveAttribute(
@@ -122,6 +163,27 @@ describe('AdminLayout', () => {
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.dashboard') })).toBeInTheDocument();
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toBeInTheDocument();
     expect(within(navigation).queryByRole('link', { name: i18n.t('nav.products') })).not.toBeInTheDocument();
+  });
+
+  it('opens the language menu by click and switches languages through i18n', async () => {
+    const user = userEvent.setup();
+    renderLayout();
+
+    await user.click(screen.getByRole('button', { name: i18n.t('language.open') }));
+
+    expect(screen.getByRole('menuitemradio', { name: /EN English/ })).toBeInTheDocument();
+    expect(screen.getByRole('menuitemradio', { name: /VI Tiếng Việt/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('menuitemradio', { name: /EN English/ }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Open language menu' })).toBeInTheDocument());
+    expect(i18n.language).toBe('en');
+
+    await user.click(screen.getByRole('button', { name: 'Open language menu' }));
+    await user.click(screen.getByRole('menuitemradio', { name: /VI Tiếng Việt/ }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: i18n.t('language.open') })).toBeInTheDocument());
+    expect(i18n.language).toBe('vi');
   });
 
   it('supports keyboard-operable desktop collapse and persists the preference', async () => {

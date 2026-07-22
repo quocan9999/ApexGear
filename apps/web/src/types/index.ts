@@ -37,6 +37,18 @@ export interface RegisterPayload {
   name: string;
 }
 
+export interface AuthMessageResponse {
+  message: string;
+}
+
+export interface VerifyEmailPayload {
+  token: string;
+}
+
+export interface ResendVerificationPayload {
+  email: string;
+}
+
 // ========== Products ==========
 export interface Product {
   id: string;
@@ -72,7 +84,9 @@ export interface ProductVariant {
   name: string | null;
   sku: string;
   price: number | null;
-  stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+  stockStatus?: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+  stockAvailable?: number;
+  lowStockThreshold?: number;
   isDefault: boolean;
   attributes: Record<string, string> | null;
   displayOrder: number;

@@ -5,6 +5,7 @@ import { createPrismaMock } from '../../test-utils/prisma-mock';
 describe('InventoryService', () => {
   let service: InventoryService;
   let prisma: ReturnType<typeof createPrismaMock>;
+  let notificationsService: { syncLowStockState: jest.Mock };
 
   const variant = {
     id: 'v1',
@@ -18,7 +19,8 @@ describe('InventoryService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new InventoryService(prisma as never);
+    notificationsService = { syncLowStockState: jest.fn().mockResolvedValue(undefined) };
+    service = new InventoryService(prisma as never, notificationsService as never);
   });
 
   it('findVariant throws when missing', async () => {
@@ -35,13 +37,14 @@ describe('InventoryService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('adjustStock applies positive adjustment', async () => {
-    prisma.productVariant.findFirst.mockResolvedValue(variant);
-    prisma.productVariant.update.mockResolvedValue({
+  it('adjustStock applies positive adjustment and syncs low-stock state', async () => {
+    const updatedVariant = {
       ...variant,
       stockAvailable: 13,
       stockTotal: 15,
-    });
+    };
+    prisma.productVariant.findFirst.mockResolvedValue(variant);
+    prisma.productVariant.update.mockResolvedValue(updatedVariant);
 
     await service.adjustStock('v1', { adjustment: 5 });
     expect(prisma.productVariant.update).toHaveBeenCalledWith(
@@ -49,6 +52,7 @@ describe('InventoryService', () => {
         data: { stockAvailable: 13, stockTotal: 15 },
       }),
     );
+    expect(notificationsService.syncLowStockState).toHaveBeenCalledWith(updatedVariant);
   });
 
   it('lowStock filters by threshold and paginates', async () => {

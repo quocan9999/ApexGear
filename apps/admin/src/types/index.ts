@@ -169,6 +169,29 @@ export interface InventoryItem {
   };
 }
 
+// ========== Admin notifications ==========
+export type AdminNotificationType = 'NEW_ORDER' | 'LOW_STOCK';
+
+export interface AdminNotification {
+  id: string;
+  dedupeKey: string;
+  type: AdminNotificationType;
+  title: string;
+  body: string | null;
+  orderId: string | null;
+  variantId: string | null;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminNotificationQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
 // ========== Orders ==========
 export interface OrderItem {
   id: string;

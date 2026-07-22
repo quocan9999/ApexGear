@@ -9,6 +9,7 @@ export class UserEntity {
   avatar: string | null;
   role: Role | string;
   provider: AuthProvider | string;
+  emailVerifiedAt: Date | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

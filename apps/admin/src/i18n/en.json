@@ -1,0 +1,518 @@
+{
+  "admin": {
+    "title": "ApexGear Admin"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "genericError": "Something went wrong. Please try again.",
+    "actions": "Actions",
+    "status": "Status",
+    "empty": "No data",
+    "name": "Name",
+    "requiredField": "Please enter {{field}}.",
+    "invalidNumber": "Invalid number."
+  },
+  "errors": {
+    "network": "Unable to connect to the server. Please try again later.",
+    "unauthorized": "Your session has expired. Please sign in again.",
+    "invalidCredentials": "Email or password is incorrect.",
+    "forbidden": "You do not have permission to perform this action.",
+    "tooManyRequests": "Too many failed attempts. Please try again in 20 minutes.",
+    "server": "The server is having problems. Please try again later."
+  },
+  "pagination": {
+    "navigation": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}}"
+  },
+  "toast": {
+    "notifications": "Notifications",
+    "dismiss": "Dismiss notification",
+    "providerMissing": "useToast must be used inside ToastProvider"
+  },
+  "notifications": {
+    "open": "Open notifications",
+    "title": "Admin notifications",
+    "unreadCount": "{{count}} unread",
+    "markAllRead": "Mark all as read",
+    "loading": "Loading notifications...",
+    "empty": "No new notifications"
+  },
+  "language": {
+    "open": "Open language menu",
+    "menu": "Language menu"
+  },
+  "nav": {
+    "dashboard": "Overview",
+    "products": "Products",
+    "categories": "Categories",
+    "brands": "Brands",
+    "orders": "Orders",
+    "inventory": "Inventory",
+    "reviews": "Reviews",
+    "users": "Customers",
+    "coupons": "Promotions",
+    "shipping": "Shipping",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "layout": {
+    "sidebar": "Admin navigation sidebar",
+    "primaryNavigation": "Primary navigation",
+    "breadcrumb": "Breadcrumb",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "closeMenuBackdrop": "Close menu backdrop"
+  },
+  "roles": {
+    "ADMIN": "Administrator",
+    "CONTENT_MANAGER": "Content manager",
+    "INVENTORY_MANAGER": "Inventory manager",
+    "ORDER_MANAGER": "Order manager",
+    "CUSTOMER": "Customer"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Overview",
+      "description": "Monitor ApexGear admin activity."
+    },
+    "products": {
+      "title": "Products",
+      "description": "Manage product lists and information."
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "Manage the product category structure."
+    },
+    "brands": {
+      "title": "Brands",
+      "description": "Manage product brands."
+    },
+    "orders": {
+      "title": "Orders",
+      "description": "Track and process orders."
+    },
+    "inventory": {
+      "title": "Inventory",
+      "description": "Track stock quantities and inventory status."
+    },
+    "reviews": {
+      "title": "Reviews",
+      "description": "Moderate product reviews.",
+      "columns": {
+        "product": "Product",
+        "user": "User",
+        "rating": "Rating",
+        "comment": "Content",
+        "date": "Created at"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      },
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "users": {
+      "title": "Users",
+      "description": "Manage accounts and access permissions.",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "createdAt": "Created at",
+        "actions": "Actions"
+      },
+      "filters": {
+        "role": "Role",
+        "allRoles": "All roles",
+        "isActive": "Active",
+        "allStatus": "All",
+        "active": "Active",
+        "inactive": "Disabled",
+        "isLocked": "Locked",
+        "allLocked": "All",
+        "locked": "Locked",
+        "notLocked": "Not locked"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Disabled",
+        "locked": "Locked",
+        "deleted": "Deleted"
+      },
+      "actions": {
+        "changeRole": "Change role",
+        "toggleActive": "Activate/Disable",
+        "unlock": "Unlock",
+        "restore": "Restore",
+        "delete": "Delete",
+        "deleteConfirm": "Delete user {{name}}?",
+        "deleteWarning": "This action will soft-delete the user. They can be restored later."
+      }
+    },
+    "coupons": {
+      "title": "Coupons",
+      "description": "Manage campaigns and discount codes.",
+      "create": "Create coupon",
+      "columns": {
+        "code": "Code",
+        "type": "Type",
+        "value": "Value",
+        "minOrderValue": "Minimum order",
+        "maxDiscount": "Maximum discount",
+        "used": "Used",
+        "startsAt": "Starts at",
+        "expiresAt": "Ends at",
+        "active": "Active",
+        "date": "Created at"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Disabled"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Disabled"
+      },
+      "type": {
+        "PERCENTAGE": "Percentage",
+        "FIXED": "Fixed"
+      },
+      "form": {
+        "createTitle": "Create coupon",
+        "editTitle": "Edit coupon",
+        "code": "Discount code",
+        "type": "Type",
+        "value": "Value",
+        "valuePercent": "% discount",
+        "valueFixed": "Discount amount",
+        "description": "Description",
+        "minOrderValue": "Minimum order value",
+        "maxDiscount": "Maximum discount",
+        "maxUses": "Maximum uses",
+        "startsAt": "Start date",
+        "expiresAt": "End date",
+        "isActive": "Active",
+        "validationRequired": "Please enter code, type, and value.",
+        "validationValue": "Invalid value.",
+        "validationMinOrder": "Invalid minimum order.",
+        "validationMaxDiscount": "Invalid maximum discount.",
+        "validationMaxUses": "Maximum uses must be ≥ 1."
+      },
+      "deleteTitle": "Delete coupon",
+      "deleteDescription": "Are you sure you want to delete code '{{code}}'? This action cannot be undone."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Configure system settings.",
+      "group": {
+        "general": "General",
+        "shipping": "Shipping"
+      },
+      "key": {
+        "store_name": "Store name",
+        "shipping_fee": "Shipping fee"
+      },
+      "updated": "Updated {{key}}",
+      "save": "Save",
+      "saving": "Saving..."
+    }
+  },
+  "shipping": {
+    "form": {
+      "name": "Rule name"
+    }
+  },
+  "dashboard": {
+    "title": "Overview",
+    "stats": {
+      "totalRevenue": "Total revenue",
+      "totalOrders": "Total orders",
+      "lowStock": "Low stock",
+      "totalUsers": "Users"
+    },
+    "range": {
+      "7days": "7 days",
+      "30days": "30 days"
+    },
+    "chart": {
+      "title": "Revenue chart",
+      "loading": "Loading chart data...",
+      "empty": "No data yet",
+      "compactBillion": "{{value}}B",
+      "compactMillion": "{{value}}M",
+      "revenueLabel": "Revenue"
+    },
+    "lowStockList": {
+      "title": "Low-stock products",
+      "empty": "No products are running low on stock!"
+    },
+    "lowStockSuffix": "items",
+    "usersSuffix": "users",
+    "ordersSuffix": "orders",
+    "recentOrders": {
+      "title": "Recent orders",
+      "viewAll": "View all",
+      "empty": "No recent orders yet",
+      "orderNumber": "Order no.",
+      "customer": "Customer",
+      "total": "Total",
+      "status": "Status",
+      "createdAt": "Time"
+    }
+  },
+  "products": {
+    "create": "Create product",
+    "searchPlaceholder": "Search by name or slug...",
+    "columns": {
+      "image": "Image",
+      "name": "Product name",
+      "brand": "Brand",
+      "category": "Category",
+      "price": "Price",
+      "status": "Status",
+      "stock": "Stock"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "filters": {
+      "category": "Category",
+      "brand": "Brand",
+      "allCategories": "All categories",
+      "allBrands": "All brands"
+    },
+    "deleteTitle": "Delete product",
+    "deleteDescription": "Are you sure you want to delete '{{name}}'? This action cannot be undone.",
+    "form": {
+      "createTitle": "Create product",
+      "editTitle": "Edit product",
+      "backToList": "Back to list",
+      "name": "Product name",
+      "slug": "Slug (auto-generated)",
+      "category": "Category",
+      "brand": "Brand",
+      "selectCategory": "Select category",
+      "selectBrand": "Select brand",
+      "basePrice": "Base price",
+      "salePrice": "Sale price",
+      "description": "Description",
+      "metaTitle": "Meta title",
+      "metaDescription": "Meta description",
+      "isFeatured": "Featured",
+      "isActive": "Active",
+      "specsTitle": "Specifications",
+      "addSpec": "Add specification",
+      "specGroup": "Group",
+      "specName": "Specification name",
+      "specValue": "Value",
+      "variantsTitle": "Variants",
+      "variantsHint": "The backend creates a default variant when creating a product. Manage detailed stock in Inventory.",
+      "validationRequired": "Please enter name, category, brand, and base price.",
+      "validationPrice": "Invalid price."
+    }
+  },
+  "editor": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "heading": "Heading",
+    "bulletList": "Bullet list",
+    "orderedList": "Numbered list",
+    "image": "Insert image",
+    "imagePrompt": "Enter image URL"
+  },
+  "categories": {
+    "create": "Create category",
+    "columns": {
+      "name": "Category name",
+      "sortOrder": "Sort order"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "deleteTitle": "Delete category",
+    "deleteDescription": "Are you sure you want to delete '{{name}}'? Child categories, if any, will also be soft-deleted.",
+    "form": {
+      "createTitle": "Create category",
+      "editTitle": "Edit category",
+      "name": "Category name",
+      "slug": "Slug (auto-generated)",
+      "parent": "Parent category",
+      "noParent": "None (level 1)",
+      "sortOrder": "Sort order",
+      "description": "Description",
+      "isActive": "Active",
+      "validationRequired": "Please enter category name.",
+      "validationSortOrder": "Sort order must be an integer ≥ 0."
+    }
+  },
+  "brands": {
+    "create": "Create brand",
+    "columns": {
+      "logo": "Logo",
+      "name": "Brand name",
+      "website": "Website"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "deleteTitle": "Delete brand",
+    "deleteDescription": "Are you sure you want to delete '{{name}}'? This action cannot be undone if products are assigned to this brand.",
+    "form": {
+      "createTitle": "Create brand",
+      "editTitle": "Edit brand",
+      "name": "Brand name",
+      "slug": "Slug (auto-generated)",
+      "logo": "Logo URL",
+      "website": "Website",
+      "description": "Description",
+      "isActive": "Active",
+      "validationRequired": "Please enter brand name."
+    }
+  },
+  "inventory": {
+    "searchPlaceholder": "Search by product name or SKU...",
+    "adjust": "Adjust",
+    "adjustPlaceholder": "+/-",
+    "adjustInputLabel": "Adjustment quantity for {{name}}",
+    "tabs": {
+      "all": "All",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock"
+    },
+    "status": {
+      "inStock": "In stock",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock"
+    },
+    "columns": {
+      "product": "Product",
+      "variant": "Variant",
+      "stockTotal": "Total",
+      "stockAvailable": "Stock",
+      "threshold": "Threshold",
+      "adjust": "Adjust"
+    }
+  },
+  "orders": {
+    "searchPlaceholder": "Search by order number or customer name...",
+    "viewDetail": "Details",
+    "backToList": "Back to orders",
+    "detailTitle": "Order {{orderNumber}}",
+    "createdAtLabel": "Created at {{date}}",
+    "notFound": "Order not found.",
+    "transitions": "Status transitions",
+    "reasonRequired": "Please enter a reason.",
+    "customerAccount": "Account: {{name}} ({{email}})",
+    "columns": {
+      "orderNumber": "Order no.",
+      "customer": "Customer",
+      "total": "Total amount",
+      "status": "Status",
+      "paymentStatus": "Payment",
+      "createdAt": "Created at"
+    },
+    "filters": {
+      "status": "Order status",
+      "paymentStatus": "Payment status",
+      "paymentMethod": "Method",
+      "allStatuses": "All statuses",
+      "allPaymentStatuses": "All payments",
+      "allPaymentMethods": "All methods"
+    },
+    "status": {
+      "PENDING": "Pending confirmation",
+      "CONFIRMED": "Confirmed",
+      "SHIPPING": "Shipping",
+      "DELIVERED": "Delivered",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "REFUNDED": "Refunded"
+    },
+    "paymentStatus": {
+      "UNPAID": "Unpaid",
+      "PAID": "Paid",
+      "REFUNDED": "Refunded"
+    },
+    "paymentMethod": {
+      "COD": "COD",
+      "SEPAY": "SePay"
+    },
+    "actions": {
+      "CONFIRMED": "Confirm order",
+      "SHIPPING": "Mark as shipping",
+      "DELIVERED": "Mark delivered",
+      "COMPLETED": "Complete",
+      "CANCELLED": "Cancel",
+      "REFUNDED": "Refund"
+    },
+    "shipping": {
+      "title": "Shipping information",
+      "name": "Recipient",
+      "phone": "Phone number",
+      "address": "Address",
+      "note": "Note",
+      "cancelReason": "Cancel/refund reason"
+    },
+    "totals": {
+      "title": "Summary",
+      "subtotal": "Subtotal",
+      "shippingFee": "Shipping fee",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "items": {
+      "title": "Order items",
+      "product": "Product",
+      "price": "Unit price",
+      "quantity": "Quantity",
+      "lineTotal": "Line total"
+    },
+    "reasonModal": {
+      "cancelTitle": "Cancel order",
+      "refundTitle": "Refund order",
+      "reason": "Reason"
+    }
+  },
+  "login": {
+    "title": "Admin sign in",
+    "description": "Admin area for system staff. Please sign in to continue.",
+    "email": "Email address",
+    "emailPlaceholder": "email@apexgear.vn",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "unauthorized": "This account does not have access to the admin area.",
+    "invalidCredentials": "Email or password is incorrect.",
+    "accountLocked": "This account is locked. Please try again later.",
+    "accountDeactivated": "This account has been deactivated.",
+    "tooManyAttempts": "Too many failed attempts. Please try again in 20 minutes.",
+    "genericError": "Unable to sign in. Please try again.",
+    "copyright": "© 2026 ApexGear Admin. All rights reserved."
+  }
+}

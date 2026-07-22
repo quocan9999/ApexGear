@@ -1,12 +1,26 @@
 import api from './api';
-import type { ApiResponse, User, LoginPayload, RegisterPayload } from '../types';
+import type {
+  ApiResponse,
+  User,
+  LoginPayload,
+  RegisterPayload,
+  AuthMessageResponse,
+  VerifyEmailPayload,
+  ResendVerificationPayload,
+} from '../types';
 
 export const authService = {
   login: (data: LoginPayload) =>
     api.post<ApiResponse<User>>('/auth/login', data).then((r) => r.data.data),
 
   register: (data: RegisterPayload) =>
-    api.post<ApiResponse<User>>('/auth/register', data).then((r) => r.data.data),
+    api.post<ApiResponse<AuthMessageResponse>>('/auth/register', data).then((r) => r.data.data),
+
+  verifyEmail: (token: string) =>
+    api.post<ApiResponse<AuthMessageResponse>>('/auth/verify-email', { token } satisfies VerifyEmailPayload).then((r) => r.data.data),
+
+  resendVerification: (email: string) =>
+    api.post<ApiResponse<AuthMessageResponse>>('/auth/resend-verification', { email } satisfies ResendVerificationPayload).then((r) => r.data.data),
 
   logout: () =>
     api.post('/auth/logout').then((r) => r.data),

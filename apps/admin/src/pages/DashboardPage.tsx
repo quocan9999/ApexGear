@@ -277,13 +277,13 @@ export function DashboardPage() {
 
       <section
         className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md shadow-level-1 md:p-lg"
-        aria-label={t('dashboard.stats.lowStock')}
+        aria-label={t('dashboard.lowStockList.title')}
       >
         <h3 className="body-lg font-semibold text-on-surface">
-          {t('dashboard.stats.lowStock')}
+          {t('dashboard.lowStockList.title')}
         </h3>
         {lowStock.length === 0 ? (
-          <p className="body-md text-on-surface-variant">{t('common.empty')}</p>
+          <p className="body-md text-on-surface-variant">{t('dashboard.lowStockList.empty')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left body-sm">

@@ -114,13 +114,17 @@
       },
       "filters": {
         "status": "Trạng thái",
-        "allStatuses": "Tất cả trạng thái"
+        "allStatuses": "Tất cả trạng thái",
+        "rating": "Số sao",
+        "allRatings": "Tất cả số sao"
       },
       "status": {
         "PENDING": "Chờ duyệt",
         "APPROVED": "Đã duyệt",
         "REJECTED": "Từ chối"
       },
+      "viewDetail": "Xem chi tiết",
+      "detailTitle": "Chi tiết đánh giá",
       "approve": "Duyệt",
       "reject": "Từ chối"
     },
@@ -234,8 +238,13 @@
     }
   },
   "shipping": {
+    "columns": {
+      "freeShippingThreshold": "Miễn phí từ"
+    },
     "form": {
-      "name": "Tên quy tắc"
+      "name": "Tên quy tắc",
+      "freeShippingThreshold": "Miễn phí ship từ (VNĐ)",
+      "freeShippingThresholdPlaceholder": "Bỏ trống nếu không miễn phí"
     }
   },
   "dashboard": {
@@ -252,6 +261,7 @@
     },
     "chart": {
       "title": "Biểu đồ doanh thu",
+      "rangeLabel": "Khoảng thời gian biểu đồ",
       "loading": "Đang tải dữ liệu biểu đồ...",
       "empty": "Chưa có dữ liệu",
       "compactBillion": "{{value}} tỷ",
@@ -260,7 +270,8 @@
     },
     "lowStockList": {
       "title": "Sản phẩm sắp hết hàng",
-      "empty": "Không có sản phẩm nào sắp hết tồn kho!"
+      "empty": "Không có sản phẩm nào sắp hết tồn kho!",
+      "viewMore": "Xem thêm {{count}} sản phẩm"
     },
     "lowStockSuffix": "SP",
     "usersSuffix": "người",
@@ -297,6 +308,12 @@
       "brand": "Thương hiệu",
       "allCategories": "Tất cả danh mục",
       "allBrands": "Tất cả thương hiệu"
+    },
+    "stats": {
+      "total": "Tổng sản phẩm",
+      "active": "Đang bán",
+      "inactive": "Ngừng bán",
+      "lowStock": "Sắp hết hàng"
     },
     "deleteTitle": "Xóa sản phẩm",
     "deleteDescription": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
@@ -389,6 +406,12 @@
     }
   },
   "inventory": {
+    "stats": {
+      "total": "Tổng phiên bản",
+      "inStock": "Còn hàng",
+      "lowStock": "Sắp hết",
+      "outOfStock": "Hết hàng"
+    },
     "searchPlaceholder": "Tìm theo tên SP hoặc SKU...",
     "adjust": "Điều chỉnh",
     "adjustPlaceholder": "+/-",
@@ -413,6 +436,12 @@
     }
   },
   "orders": {
+    "stats": {
+      "total": "Tổng đơn hàng",
+      "pending": "Chờ xác nhận",
+      "delivered": "Đã giao",
+      "cancelled": "Đã hủy"
+    },
     "searchPlaceholder": "Tìm theo mã đơn hoặc tên khách...",
     "viewDetail": "Chi tiết",
     "backToList": "Quay lại danh sách đơn hàng",

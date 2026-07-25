@@ -7,3 +7,5 @@ apps/api/uploads/
 .superpowers/
 .worktrees/
 .claude/
+.hallmark/
+.github/

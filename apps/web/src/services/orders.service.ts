@@ -14,6 +14,8 @@ export const ordersService = {
   cancel: (id: string) =>
     api.patch<ApiResponse<Order>>(`/orders/${id}/cancel`).then((r) => r.data.data),
 
-  getShippingFee: (provinceCode?: string, wardCode?: string) =>
-    api.get<ApiResponse<{ fee: number }>>('/shipping/fee', { params: { provinceCode, wardCode } }).then((r) => r.data.data.fee),
+  getShippingFee: (provinceCode?: string, wardCode?: string, subtotal?: number) =>
+    api.get<ApiResponse<{ fee: number }>>('/shipping/fee', {
+      params: { provinceCode, wardCode, subtotal },
+    }).then((r) => r.data.data.fee),
 };

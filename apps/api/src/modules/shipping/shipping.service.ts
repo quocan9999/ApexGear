@@ -5,29 +5,29 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class ShippingService {
   constructor(private prisma: PrismaService) {}
 
-  async calculateFee(provinceCode?: string, wardCode?: string): Promise<number> {
+  async calculateFee(provinceCode?: string, wardCode?: string, subtotal?: number): Promise<number> {
     if (provinceCode && wardCode) {
       const exactMatch = await this.prisma.shippingRegion.findFirst({
         where: { provinceCode, wardCode },
         include: { rule: true }
       });
-      if (exactMatch && exactMatch.rule.isActive) return Number(exactMatch.rule.fee);
+      if (exactMatch && exactMatch.rule.isActive) return this.applyFreeShipping(exactMatch.rule, subtotal);
     }
-    
+
     if (provinceCode) {
       const provMatch = await this.prisma.shippingRegion.findFirst({
         where: { provinceCode, wardCode: null },
         include: { rule: true }
       });
-      if (provMatch && provMatch.rule.isActive) return Number(provMatch.rule.fee);
+      if (provMatch && provMatch.rule.isActive) return this.applyFreeShipping(provMatch.rule, subtotal);
     }
 
     const defaultRule = await this.prisma.shippingRule.findFirst({
       where: { isDefault: true, isActive: true }
     });
-    
-    if (defaultRule) return Number(defaultRule.fee);
-    
+
+    if (defaultRule) return this.applyFreeShipping(defaultRule, subtotal);
+
     // Fallback to legacy setting if no default rule exists
     const legacySetting = await this.prisma.setting.findUnique({
       where: { key: 'SHIPPING_FEE' },
@@ -35,20 +35,34 @@ export class ShippingService {
     return legacySetting ? Number(legacySetting.value) || 0 : 30000;
   }
 
+  private applyFreeShipping(rule: { fee: unknown; freeShippingThreshold?: unknown }, subtotal?: number) {
+    const threshold = rule.freeShippingThreshold == null ? null : Number(rule.freeShippingThreshold);
+    if (threshold !== null && subtotal !== undefined && subtotal >= threshold) return 0;
+    return Number(rule.fee);
+  }
+
+  private serializeRule<T extends { fee: unknown }>(rule: T) {
+    const item = rule as T & { freeShippingThreshold?: unknown };
+    return {
+      ...item,
+      fee: Number(item.fee),
+      freeShippingThreshold:
+        item.freeShippingThreshold == null ? null : Number(item.freeShippingThreshold),
+    };
+  }
+
   async getRules() {
     const rules = await this.prisma.shippingRule.findMany({
       include: { regions: true },
       orderBy: { createdAt: 'desc' },
     });
-    return rules.map((r) => ({
-      ...r,
-      fee: Number(r.fee),
-    }));
+    return rules.map((r) => this.serializeRule(r));
   }
 
   async createRule(dto: {
     name: string;
     fee: number;
+    freeShippingThreshold?: number | null;
     isDefault?: boolean;
     isActive?: boolean;
     regions?: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }[];
@@ -60,24 +74,28 @@ export class ShippingService {
           data: { isDefault: false },
         });
       }
+      const data = {
+        name: dto.name,
+        fee: dto.fee,
+        ...(dto.freeShippingThreshold !== undefined && {
+          freeShippingThreshold: dto.freeShippingThreshold,
+        }),
+        isDefault: dto.isDefault ?? false,
+        isActive: dto.isActive ?? true,
+        regions: dto.regions?.length ? {
+          create: dto.regions.map(r => ({
+            provinceCode: r.provinceCode,
+            provinceName: r.provinceName,
+            wardCode: r.wardCode || null,
+            wardName: r.wardName || null,
+          }))
+        } : undefined
+      } as any;
       const rule = await tx.shippingRule.create({
-        data: {
-          name: dto.name,
-          fee: dto.fee,
-          isDefault: dto.isDefault ?? false,
-          isActive: dto.isActive ?? true,
-          regions: dto.regions?.length ? {
-            create: dto.regions.map(r => ({
-              provinceCode: r.provinceCode,
-              provinceName: r.provinceName,
-              wardCode: r.wardCode || null,
-              wardName: r.wardName || null,
-            }))
-          } : undefined
-        },
+        data,
         include: { regions: true }
       });
-      return { ...rule, fee: Number(rule.fee) };
+      return this.serializeRule(rule);
     });
   }
 
@@ -86,6 +104,7 @@ export class ShippingService {
     dto: {
       name?: string;
       fee?: number;
+      freeShippingThreshold?: number | null;
       isDefault?: boolean;
       isActive?: boolean;
       regions?: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }[];
@@ -108,6 +127,9 @@ export class ShippingService {
         data: {
           ...(dto.name && { name: dto.name }),
           ...(dto.fee !== undefined && { fee: dto.fee }),
+          ...(dto.freeShippingThreshold !== undefined && {
+            freeShippingThreshold: dto.freeShippingThreshold,
+          }),
           ...(dto.isDefault !== undefined && { isDefault: dto.isDefault }),
           ...(dto.isActive !== undefined && { isActive: dto.isActive }),
           ...(dto.regions && {
@@ -120,10 +142,10 @@ export class ShippingService {
               }))
             }
           })
-        },
+        } as any,
         include: { regions: true }
       });
-      return { ...rule, fee: Number(rule.fee) };
+      return this.serializeRule(rule);
     });
   }
 

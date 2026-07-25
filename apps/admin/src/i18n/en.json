@@ -118,13 +118,17 @@
       },
       "filters": {
         "status": "Status",
-        "allStatuses": "All statuses"
+        "allStatuses": "All statuses",
+        "rating": "Rating",
+        "allRatings": "All ratings"
       },
       "status": {
         "PENDING": "Pending",
         "APPROVED": "Approved",
         "REJECTED": "Rejected"
       },
+      "viewDetail": "View details",
+      "detailTitle": "Review details",
       "approve": "Approve",
       "reject": "Reject"
     },
@@ -238,8 +242,13 @@
     }
   },
   "shipping": {
+    "columns": {
+      "freeShippingThreshold": "Free from"
+    },
     "form": {
-      "name": "Rule name"
+      "name": "Rule name",
+      "freeShippingThreshold": "Free shipping from (VND)",
+      "freeShippingThresholdPlaceholder": "Leave blank to disable free shipping"
     }
   },
   "dashboard": {
@@ -291,6 +300,12 @@
       "price": "Price",
       "status": "Status",
       "stock": "Stock"
+    },
+    "stats": {
+      "total": "Total products",
+      "active": "Active",
+      "inactive": "Inactive",
+      "lowStock": "Low stock"
     },
     "status": {
       "active": "Active",
@@ -393,6 +408,12 @@
     }
   },
   "inventory": {
+    "stats": {
+      "total": "Total variants",
+      "inStock": "In stock",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock"
+    },
     "searchPlaceholder": "Search by product name or SKU...",
     "adjust": "Adjust",
     "adjustPlaceholder": "+/-",
@@ -417,6 +438,12 @@
     }
   },
   "orders": {
+    "stats": {
+      "total": "Total orders",
+      "pending": "Pending",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
     "searchPlaceholder": "Search by order number or customer name...",
     "viewDetail": "Details",
     "backToList": "Back to orders",

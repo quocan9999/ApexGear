@@ -127,7 +127,8 @@ export class OrdersService {
 
     const shippingFee = await this.shippingService.calculateFee(
       address.provinceCode,
-      address.wardCode
+      address.wardCode,
+      subtotal,
     );
 
     const total = Math.max(

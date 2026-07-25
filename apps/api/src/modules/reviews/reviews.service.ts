@@ -114,15 +114,16 @@ export class ReviewsService {
   }
 
   async findAll(
-    query: PaginationQueryDto & { status?: ReviewStatus; productId?: string },
+    query: PaginationQueryDto & { status?: ReviewStatus; productId?: string; rating?: number },
   ) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const where: { status?: string; productId?: string } = {};
+    const where: { status?: string; productId?: string; rating?: number } = {};
     if (query.status) where.status = query.status;
     if (query.productId) where.productId = query.productId;
+    if (query.rating) where.rating = query.rating;
 
     const [data, total] = await Promise.all([
       this.prisma.review.findMany({

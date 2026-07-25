@@ -6,6 +6,7 @@ interface QuantitySelectorProps {
   onChange: (next: number) => void;
   min?: number;
   max?: number;
+  onMaxExceeded?: (max: number) => void;
   className?: string;
 }
 
@@ -14,6 +15,7 @@ export default function QuantitySelector({
   onChange,
   min = 1,
   max,
+  onMaxExceeded,
   className,
 }: QuantitySelectorProps) {
   const { t } = useTranslation();
@@ -25,6 +27,10 @@ export default function QuantitySelector({
     onChange(Math.max(min, clamped - 1));
   };
   const increment = () => {
+    if (safeMax !== undefined && clamped >= safeMax) {
+      onMaxExceeded?.(safeMax);
+      return;
+    }
     onChange(Math.min(effectiveMax, clamped + 1));
   };
 
@@ -32,6 +38,11 @@ export default function QuantitySelector({
     const raw = Number(e.target.value.replace(/[^0-9]/g, ''));
     if (!Number.isFinite(raw)) {
       onChange(min);
+      return;
+    }
+    if (safeMax !== undefined && raw > safeMax) {
+      onChange(safeMax);
+      onMaxExceeded?.(safeMax);
       return;
     }
     onChange(Math.min(Math.max(raw, min), effectiveMax));
@@ -66,7 +77,7 @@ export default function QuantitySelector({
         <button
           type="button"
           onClick={increment}
-          disabled={safeMax !== undefined && clamped >= safeMax}
+          disabled={safeMax !== undefined && clamped >= safeMax && !onMaxExceeded}
           aria-label="Increase quantity"
           className="flex h-full w-12 items-center justify-center text-on-surface-variant transition-colors hover:bg-surface-container disabled:opacity-50"
         >

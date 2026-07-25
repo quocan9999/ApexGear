@@ -9,6 +9,7 @@ import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import Skeleton from '../components/ui/Skeleton';
 import StarRating from '../components/ui/StarRating';
+import Toast from '../components/ui/Toast';
 import ImageGallery from '../components/product/ImageGallery';
 import VariantSelector, {
   publicStockStatus,
@@ -59,6 +60,15 @@ export default function ProductDetailPage() {
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [maxStockError, setMaxStockError] = useState<{ show: boolean; max: number }>({
+    show: false,
+    max: 0,
+  });
+
+  const handleMaxStockError = (max: number) => {
+    setMaxStockError({ show: true, max });
+    window.setTimeout(() => setMaxStockError({ show: false, max: 0 }), 3000);
+  };
 
   useEffect(() => {
     if (!slug) return;
@@ -212,9 +222,18 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          <Badge variant={badge.variant} className="self-start">
+          <Badge
+            variant={badge.variant}
+            className="self-start px-3.5 py-1 text-[18px] font-[600] border-2 shadow-sm"
+          >
             {t(badge.labelKey)}
           </Badge>
+
+          {stockStatus !== 'out_of_stock' && selectedVariant?.stockAvailable !== undefined && selectedVariant.stockAvailable > 0 && (
+            <span className="body-sm text-on-surface-variant">
+              {t('product.stockAvailable', { count: selectedVariant.stockAvailable })}
+            </span>
+          )}
 
           {/* Only surface the variant picker for products with real choices
               (>1 variant). Single-variant products still transact on their
@@ -233,7 +252,8 @@ export default function ProductDetailPage() {
               value={quantity}
               onChange={setQuantity}
               min={1}
-              max={MAX_QUANTITY}
+              max={selectedVariant?.stockAvailable ?? MAX_QUANTITY}
+              onMaxExceeded={handleMaxStockError}
             />
             <Button
               variant="primary"
@@ -288,7 +308,7 @@ export default function ProductDetailPage() {
       {/* Toast Notification */}
       <AnimatePresence>
         {added && (
-          <div className="fixed top-6 left-1/2 z-50 -translate-x-1/2">
+          <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2">
             <motion.div
               initial={{ opacity: 0, y: -50, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -299,6 +319,19 @@ export default function ProductDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               <span className="body-md font-medium">{t('product.addedToCart')}</span>
+            </motion.div>
+          </div>
+        )}
+        {maxStockError.show && (
+          <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2">
+            <motion.div
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            >
+              <Toast variant="error">
+                {t('cart.maxStockError', { count: maxStockError.max })}
+              </Toast>
             </motion.div>
           </div>
         )}

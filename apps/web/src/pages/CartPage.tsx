@@ -1,13 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useCartStore } from '../stores/cart.store';
 import { useAuth } from '../hooks/useAuth';
 import CartLineItem from '../components/cart/CartLineItem';
 import CartSummary from '../components/cart/CartSummary';
 import Button from '../components/ui/Button';
 import Skeleton from '../components/ui/Skeleton';
+import Toast from '../components/ui/Toast';
 import type { BackendCartItem, Cart } from '../types';
 
 function unitPrice(item: BackendCartItem): number {
@@ -27,6 +28,16 @@ export default function CartPage() {
   const loadServerCart = useCartStore((s) => s.loadServerCart);
   const updateItem = useCartStore((s) => s.updateItem);
   const removeItem = useCartStore((s) => s.removeItem);
+
+  const [maxStockError, setMaxStockError] = useState<{ show: boolean; max: number }>({
+    show: false,
+    max: 0,
+  });
+
+  const handleMaxStockError = (max: number) => {
+    setMaxStockError({ show: true, max });
+    window.setTimeout(() => setMaxStockError({ show: false, max: 0 }), 3000);
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -123,6 +134,7 @@ export default function CartPage() {
               onQuantityChange={handleQuantityChange}
               onRemove={handleRemove}
               disabled={isSyncing}
+              onMaxStockError={handleMaxStockError}
             />
           ))}
         </section>
@@ -137,6 +149,23 @@ export default function CartPage() {
           />
         </aside>
       </div>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {maxStockError.show && (
+          <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2">
+            <motion.div
+              initial={{ opacity: 0, y: -50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            >
+              <Toast variant="error">
+                {t('cart.maxStockError', { count: maxStockError.max })}
+              </Toast>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

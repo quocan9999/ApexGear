@@ -242,8 +242,13 @@
     }
   },
   "shipping": {
+    "columns": {
+      "freeShippingThreshold": "Free from"
+    },
     "form": {
-      "name": "Rule name"
+      "name": "Rule name",
+      "freeShippingThreshold": "Free shipping from (VND)",
+      "freeShippingThresholdPlaceholder": "Leave blank to disable free shipping"
     }
   },
   "dashboard": {

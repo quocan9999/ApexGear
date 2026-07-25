@@ -238,8 +238,13 @@
     }
   },
   "shipping": {
+    "columns": {
+      "freeShippingThreshold": "Miễn phí từ"
+    },
     "form": {
-      "name": "Tên quy tắc"
+      "name": "Tên quy tắc",
+      "freeShippingThreshold": "Miễn phí ship từ (VNĐ)",
+      "freeShippingThresholdPlaceholder": "Bỏ trống nếu không miễn phí"
     }
   },
   "dashboard": {

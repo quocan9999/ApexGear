@@ -15,8 +15,13 @@ export class ShippingController {
   async getFee(
     @Query('provinceCode') provinceCode?: string,
     @Query('wardCode') wardCode?: string,
+    @Query('subtotal') subtotal?: string,
   ) {
-    const fee = await this.shippingService.calculateFee(provinceCode, wardCode);
+    const fee = await this.shippingService.calculateFee(
+      provinceCode,
+      wardCode,
+      subtotal === undefined ? undefined : Number(subtotal),
+    );
     return { success: true, data: { fee } };
   }
 
@@ -36,6 +41,7 @@ export class ShippingController {
     fee: number;
     isDefault?: boolean;
     isActive?: boolean;
+    freeShippingThreshold?: number | null;
     regions?: { provinceCode: string; provinceName: string; wardCode?: string; wardName?: string }[];
   }) {
     const rule = await this.shippingService.createRule(dto);

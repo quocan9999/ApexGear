@@ -128,19 +128,19 @@ export default function CheckoutPage() {
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null;
 
-  // Fetch dynamic shipping fee when address changes
+  // Fetch dynamic shipping fee when the address or cart subtotal changes
   useEffect(() => {
     if (selectedAddress) {
       setIsFetchingFee(true);
       ordersService
-        .getShippingFee(selectedAddress.provinceCode, selectedAddress.wardCode)
+        .getShippingFee(selectedAddress.provinceCode, selectedAddress.wardCode, subtotal)
         .then((fee) => setShippingFee(fee))
         .catch(() => setShippingFee(30000)) // fallback to 30k
         .finally(() => setIsFetchingFee(false));
     } else {
       setShippingFee(null);
     }
-  }, [selectedAddress?.provinceCode, selectedAddress?.wardCode]);
+  }, [selectedAddress?.provinceCode, selectedAddress?.wardCode, subtotal]);
 
   const handleSaveAddress = async (payload: CreateAddressPayload) => {
     setSavingAddress(true);

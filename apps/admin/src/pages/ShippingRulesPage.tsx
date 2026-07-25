@@ -15,6 +15,7 @@ interface RegionState {
 interface FormState {
   name: string;
   fee: string;
+  freeShippingThreshold: string;
   isDefault: boolean;
   isActive: boolean;
   regions: RegionState[];
@@ -23,6 +24,7 @@ interface FormState {
 const EMPTY_FORM: FormState = {
   name: '',
   fee: '30000',
+  freeShippingThreshold: '',
   isDefault: false,
   isActive: true,
   regions: [],
@@ -83,6 +85,8 @@ export function ShippingRulesPage() {
     setForm({
       name: rule.name,
       fee: String(rule.fee),
+      freeShippingThreshold:
+        rule.freeShippingThreshold == null ? '' : String(rule.freeShippingThreshold),
       isDefault: rule.isDefault,
       isActive: rule.isActive,
       regions: rule.regions?.map(r => ({
@@ -156,6 +160,14 @@ export function ShippingRulesPage() {
       return;
     }
 
+    const freeThresholdNum = form.freeShippingThreshold.trim()
+      ? Number(form.freeShippingThreshold)
+      : null;
+    if (freeThresholdNum !== null && (!Number.isFinite(freeThresholdNum) || freeThresholdNum < 0)) {
+      setFormError(t('common.invalidNumber'));
+      return;
+    }
+
     if (!form.isDefault && form.regions.length === 0) {
       setFormError('Vui lòng thêm ít nhất một khu vực áp dụng hoặc chọn "Là mức phí mặc định".');
       return;
@@ -164,6 +176,7 @@ export function ShippingRulesPage() {
     const payload = {
       name: form.name.trim(),
       fee: feeNum,
+      freeShippingThreshold: freeThresholdNum,
       isDefault: form.isDefault,
       regions: form.isDefault ? [] : form.regions,
       ...(editing ? { isActive: form.isActive } : {}),
@@ -222,6 +235,14 @@ export function ShippingRulesPage() {
         key: 'fee',
         header: 'Phí',
         render: (row) => `${new Intl.NumberFormat('vi-VN').format(row.fee)} ₫`,
+      },
+      {
+        key: 'freeShippingThreshold',
+        header: t('shipping.columns.freeShippingThreshold'),
+        render: (row) =>
+          row.freeShippingThreshold == null
+            ? '—'
+            : `${new Intl.NumberFormat('vi-VN').format(row.freeShippingThreshold)} ₫`,
       },
       {
         key: 'regions',
@@ -336,6 +357,17 @@ export function ShippingRulesPage() {
               value={form.fee}
               onChange={(event) => setForm((prev) => ({ ...prev, fee: event.target.value }))}
               required
+            />
+            <Input
+              label={t('shipping.form.freeShippingThreshold')}
+              type="number"
+              min={0}
+              step={1000}
+              value={form.freeShippingThreshold}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, freeShippingThreshold: event.target.value }))
+              }
+              placeholder={t('shipping.form.freeShippingThresholdPlaceholder')}
             />
           </div>
 

@@ -426,15 +426,16 @@ model LowStockAlertState {
 // ==================== SHIPPING ====================
 
 model ShippingRule {
-  id          String           @id @default(uuid())
-  name        String           @db.NVarChar(255)
-  fee         Decimal          @db.Decimal(18, 2)
-  isDefault   Boolean          @default(false)
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  
-  regions     ShippingRegion[]
+  id                    String           @id @default(uuid())
+  name                  String           @db.NVarChar(255)
+  fee                   Decimal          @db.Decimal(18, 2)
+  freeShippingThreshold Decimal?         @db.Decimal(18, 2)
+  isDefault             Boolean          @default(false)
+  isActive              Boolean          @default(true)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  regions               ShippingRegion[]
 }
 
 model ShippingRegion {

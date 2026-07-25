@@ -114,13 +114,17 @@
       },
       "filters": {
         "status": "Trạng thái",
-        "allStatuses": "Tất cả trạng thái"
+        "allStatuses": "Tất cả trạng thái",
+        "rating": "Số sao",
+        "allRatings": "Tất cả số sao"
       },
       "status": {
         "PENDING": "Chờ duyệt",
         "APPROVED": "Đã duyệt",
         "REJECTED": "Từ chối"
       },
+      "viewDetail": "Xem chi tiết",
+      "detailTitle": "Chi tiết đánh giá",
       "approve": "Duyệt",
       "reject": "Từ chối"
     },
@@ -300,6 +304,12 @@
       "allCategories": "Tất cả danh mục",
       "allBrands": "Tất cả thương hiệu"
     },
+    "stats": {
+      "total": "Tổng sản phẩm",
+      "active": "Đang bán",
+      "inactive": "Ngừng bán",
+      "lowStock": "Sắp hết hàng"
+    },
     "deleteTitle": "Xóa sản phẩm",
     "deleteDescription": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
     "form": {
@@ -391,6 +401,12 @@
     }
   },
   "inventory": {
+    "stats": {
+      "total": "Tổng phiên bản",
+      "inStock": "Còn hàng",
+      "lowStock": "Sắp hết",
+      "outOfStock": "Hết hàng"
+    },
     "searchPlaceholder": "Tìm theo tên SP hoặc SKU...",
     "adjust": "Điều chỉnh",
     "adjustPlaceholder": "+/-",
@@ -415,6 +431,12 @@
     }
   },
   "orders": {
+    "stats": {
+      "total": "Tổng đơn hàng",
+      "pending": "Chờ xác nhận",
+      "delivered": "Đã giao",
+      "cancelled": "Đã hủy"
+    },
     "searchPlaceholder": "Tìm theo mã đơn hoặc tên khách...",
     "viewDetail": "Chi tiết",
     "backToList": "Quay lại danh sách đơn hàng",

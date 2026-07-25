@@ -5,6 +5,8 @@ import {
   Input,
   Pagination,
   Spinner,
+  StatCard,
+  StatIcon,
   Table,
   type TableColumn,
 } from '../components/ui';
@@ -16,6 +18,20 @@ import type { BadgeVariant } from '../components/ui/Badge';
 type Tab = 'all' | 'low' | 'out';
 
 const DEFAULT_META: PageMeta = { page: 1, limit: 20, total: 0, totalPages: 0 };
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat('vi-VN').format(value);
+}
+
+function inventoryStats(items: InventoryItem[], meta: PageMeta) {
+  const total = meta.total;
+  const inStock = items.filter((i) => i.stockAvailable > i.lowStockThreshold).length;
+  const lowStock = items.filter(
+    (i) => i.stockAvailable > 0 && i.stockAvailable <= i.lowStockThreshold,
+  ).length;
+  const outOfStock = items.filter((i) => i.stockAvailable === 0).length;
+  return { total, inStock, lowStock, outOfStock };
+}
 
 function stockVariant(item: InventoryItem): BadgeVariant {
   if (item.stockAvailable === 0) return 'error';
@@ -207,6 +223,38 @@ export function InventoryPage() {
           {t('pages.inventory.title')}
         </h2>
       </div>
+
+      {!loading && meta.total > 0 && (() => {
+        const stats = inventoryStats(items, meta);
+        return (
+          <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              label={t('inventory.stats.total')}
+              value={formatCount(stats.total)}
+              tone="primary"
+              icon={<StatIcon><path d="M4 7h16" /><path d="M6 7v13h12V7" /><path d="M9 7V4h6v3" /><path d="M9 12h6" /><path d="M9 16h4" /></StatIcon>}
+            />
+            <StatCard
+              label={t('inventory.stats.inStock')}
+              value={formatCount(stats.inStock)}
+              tone="success"
+              icon={<StatIcon><path d="M20 6 9 17l-5-5" /></StatIcon>}
+            />
+            <StatCard
+              label={t('inventory.stats.lowStock')}
+              value={formatCount(stats.lowStock)}
+              tone="warning"
+              icon={<StatIcon><path d="M12 9v4" /><path d="M12 17h.01" /><path d="M10.3 4.7 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.7a2 2 0 0 0-3.4 0Z" /></StatIcon>}
+            />
+            <StatCard
+              label={t('inventory.stats.outOfStock')}
+              value={formatCount(stats.outOfStock)}
+              tone="error"
+              icon={<StatIcon><circle cx="12" cy="12" r="8" /><path d="m9 9 6 6M15 9l-6 6" /></StatIcon>}
+            />
+          </div>
+        );
+      })()}
 
       <div className="flex flex-col gap-md md:flex-row md:items-end md:justify-between">
         <div

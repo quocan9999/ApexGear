@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Badge,
   Button,
+  Modal,
   Pagination,
   Select,
   Spinner,
@@ -49,11 +50,13 @@ export function ReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
+  const [ratingFilter, setRatingFilter] = useState('');
+  const [detailReview, setDetailReview] = useState<Review | null>(null);
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, ratingFilter]);
 
   const loadReviews = useCallback(async () => {
     setLoading(true);
@@ -63,6 +66,7 @@ export function ReviewsPage() {
         page,
         limit: 20,
         ...(statusFilter ? { status: statusFilter as ReviewStatus } : {}),
+        ...(ratingFilter ? { rating: Number(ratingFilter) } : {}),
       });
       setReviews(result.data);
       setMeta({
@@ -82,11 +86,13 @@ export function ReviewsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, statusFilter, t]);
+  }, [page, ratingFilter, statusFilter, t]);
 
   useEffect(() => {
     void loadReviews();
   }, [loadReviews]);
+
+  const RATING_OPTIONS = [1, 2, 3, 4, 5];
 
   const handleApprove = async (reviewId: string) => {
     setActionLoading((prev) => ({ ...prev, [reviewId]: true }));
@@ -135,14 +141,6 @@ export function ReviewsPage() {
         render: (row) => <StarRating rating={row.rating} />,
       },
       {
-        key: 'comment',
-        header: t('pages.reviews.columns.comment'),
-        cellClassName: 'max-w-xs',
-        render: (row) => (
-          <span className="body-sm text-on-surface line-clamp-2">{row.comment ?? '—'}</span>
-        ),
-      },
-      {
         key: 'status',
         header: t('common.status'),
         render: (row) => (
@@ -160,38 +158,40 @@ export function ReviewsPage() {
         key: 'actions',
         header: t('common.actions'),
         cellClassName: 'whitespace-nowrap',
-        render: (row) =>
-          row.status === 'PENDING' ? (
-            <div className="flex items-center gap-xs">
-              <Button
-                type="button"
-                size="sm"
-                variant="primary"
-                isLoading={actionLoading[row.id]}
-                loadingLabel={t('common.loading')}
-                disabled={actionLoading[row.id]}
-                onClick={() => void handleApprove(row.id)}
-              >
-                {t('pages.reviews.approve')}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                isLoading={actionLoading[row.id]}
-                loadingLabel={t('common.loading')}
-                disabled={actionLoading[row.id]}
-                onClick={() => void handleReject(row.id)}
-                className="border-error text-error hover:bg-error/5"
-              >
-                {t('pages.reviews.reject')}
-              </Button>
-            </div>
-          ) : (
-            <Badge variant={statusVariant(row.status)}>
-              {t(`pages.reviews.status.${row.status}`)}
-            </Badge>
-          ),
+        render: (row) => (
+          <div className="flex items-center gap-xs">
+            <Button type="button" size="sm" variant="outline" onClick={() => setDetailReview(row)}>
+              {t('pages.reviews.viewDetail')}
+            </Button>
+            {row.status === 'PENDING' && (
+              <>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="primary"
+                  isLoading={actionLoading[row.id]}
+                  loadingLabel={t('common.loading')}
+                  disabled={actionLoading[row.id]}
+                  onClick={() => void handleApprove(row.id)}
+                >
+                  {t('pages.reviews.approve')}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  isLoading={actionLoading[row.id]}
+                  loadingLabel={t('common.loading')}
+                  disabled={actionLoading[row.id]}
+                  onClick={() => void handleReject(row.id)}
+                  className="border-error text-error hover:bg-error/5"
+                >
+                  {t('pages.reviews.reject')}
+                </Button>
+              </>
+            )}
+          </div>
+        ),
       },
     ],
     [actionLoading, t],
@@ -205,19 +205,35 @@ export function ReviewsPage() {
         </h2>
       </div>
 
-      <div className="md:w-64">
-        <Select
-          label={t('pages.reviews.filters.status')}
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
-        >
-          <option value="">{t('pages.reviews.filters.allStatuses')}</option>
-          {STATUSES.map((value) => (
-            <option key={value} value={value}>
-              {t(`pages.reviews.status.${value}`)}
-            </option>
-          ))}
-        </Select>
+      <div className="flex flex-wrap gap-md">
+        <div className="w-48">
+          <Select
+            label={t('pages.reviews.filters.status')}
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+          >
+            <option value="">{t('pages.reviews.filters.allStatuses')}</option>
+            {STATUSES.map((value) => (
+              <option key={value} value={value}>
+                {t(`pages.reviews.status.${value}`)}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div className="w-40">
+          <Select
+            label={t('pages.reviews.filters.rating')}
+            value={ratingFilter}
+            onChange={(event) => setRatingFilter(event.target.value)}
+          >
+            <option value="">{t('pages.reviews.filters.allRatings')}</option>
+            {RATING_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       {error && (
@@ -242,6 +258,44 @@ export function ReviewsPage() {
           <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
         </>
       )}
+
+      <Modal
+        isOpen={Boolean(detailReview)}
+        onClose={() => setDetailReview(null)}
+        title={t('pages.reviews.detailTitle')}
+      >
+        {detailReview && (
+          <div className="flex flex-col gap-md">
+            <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+              <div>
+                <p className="label-sm text-on-surface-variant">{t('pages.reviews.columns.product')}</p>
+                <p className="body-md text-on-surface">{detailReview.product?.name ?? '—'}</p>
+              </div>
+              <div>
+                <p className="label-sm text-on-surface-variant">{t('pages.reviews.columns.user')}</p>
+                <p className="body-md text-on-surface">{detailReview.user?.name ?? '—'}</p>
+                <p className="body-sm text-on-surface-variant">{detailReview.user?.email}</p>
+              </div>
+              <div>
+                <p className="label-sm text-on-surface-variant">{t('pages.reviews.columns.rating')}</p>
+                <StarRating rating={detailReview.rating} />
+              </div>
+              <div>
+                <p className="label-sm text-on-surface-variant">{t('common.status')}</p>
+                <Badge variant={statusVariant(detailReview.status)}>
+                  {t(`pages.reviews.status.${detailReview.status}`)}
+                </Badge>
+              </div>
+            </div>
+            <div>
+              <p className="label-sm text-on-surface-variant">{t('pages.reviews.columns.comment')}</p>
+              <p className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-outline-variant bg-surface-container-low p-md body-md text-on-surface">
+                {detailReview.comment ?? '—'}
+              </p>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

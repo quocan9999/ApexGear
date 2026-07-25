@@ -7,6 +7,8 @@ import {
   Pagination,
   Select,
   Spinner,
+  StatCard,
+  StatIcon,
   Table,
   type TableColumn,
 } from '../../components/ui';
@@ -35,6 +37,19 @@ const ORDER_STATUSES: OrderStatus[] = [
 
 const PAYMENT_STATUSES: PaymentStatus[] = ['UNPAID', 'PAID', 'REFUNDED'];
 const PAYMENT_METHODS: PaymentMethod[] = ['COD', 'SEPAY'];
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat('vi-VN').format(value);
+}
+
+function orderStats(orders: Order[], meta: PageMeta) {
+  return {
+    total: meta.total,
+    pending: orders.filter((o) => o.status === 'PENDING').length,
+    delivered: orders.filter((o) => o.status === 'DELIVERED' || o.status === 'COMPLETED').length,
+    cancelled: orders.filter((o) => o.status === 'CANCELLED').length,
+  };
+}
 
 export function orderStatusVariant(status: OrderStatus): BadgeVariant {
   switch (status) {
@@ -199,6 +214,38 @@ export function OrderListPage() {
           {t('pages.orders.title')}
         </h2>
       </div>
+
+      {!loading && meta.total > 0 && (() => {
+        const stats = orderStats(orders, meta);
+        return (
+          <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              label={t('orders.stats.total')}
+              value={formatCount(stats.total)}
+              tone="primary"
+              icon={<StatIcon><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M8 9h8M8 13h8M8 17h5" /></StatIcon>}
+            />
+            <StatCard
+              label={t('orders.stats.pending')}
+              value={formatCount(stats.pending)}
+              tone="warning"
+              icon={<StatIcon><circle cx="12" cy="12" r="8" /><path d="M12 8v5l3 2" /></StatIcon>}
+            />
+            <StatCard
+              label={t('orders.stats.delivered')}
+              value={formatCount(stats.delivered)}
+              tone="success"
+              icon={<StatIcon><path d="M20 6 9 17l-5-5" /><path d="M4 20h16" /></StatIcon>}
+            />
+            <StatCard
+              label={t('orders.stats.cancelled')}
+              value={formatCount(stats.cancelled)}
+              tone="error"
+              icon={<StatIcon><circle cx="12" cy="12" r="8" /><path d="m9 9 6 6M15 9l-6 6" /></StatIcon>}
+            />
+          </div>
+        );
+      })()}
 
       <div className="grid grid-cols-1 gap-md md:grid-cols-2 xl:grid-cols-4">
         <Input

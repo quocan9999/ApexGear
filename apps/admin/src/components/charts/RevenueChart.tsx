@@ -1,3 +1,4 @@
+/* Hallmark · chart surface · Lumina Tech tokens · no gradient */
 import { useTranslation } from 'react-i18next';
 import {
   CartesianGrid,
@@ -52,28 +53,40 @@ export function RevenueChart({ data, height = 320 }: RevenueChartProps) {
       aria-label={t('dashboard.chart.revenueLabel')}
     >
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-outline-variant)" />
+        <LineChart data={data} margin={{ top: 12, right: 12, bottom: 4, left: 4 }}>
+          <CartesianGrid
+            strokeDasharray="2 6"
+            stroke="var(--color-outline-variant)"
+            vertical={false}
+          />
           <XAxis
             dataKey="date"
             tickFormatter={formatAxisDate}
             stroke="var(--color-on-surface-variant)"
             fontSize={12}
+            tickLine={false}
+            axisLine={{ stroke: 'var(--color-outline-variant)' }}
+            dy={6}
           />
           <YAxis
             tickFormatter={compactCurrency}
             stroke="var(--color-on-surface-variant)"
             fontSize={12}
-            width={64}
+            width={68}
+            tickLine={false}
+            axisLine={false}
           />
           <Tooltip
             formatter={(value: number) => [formatPrice(value), t('dashboard.chart.revenueLabel')]}
             labelFormatter={formatAxisDate}
+            cursor={{ stroke: 'var(--color-outline)', strokeDasharray: '4 4' }}
             contentStyle={{
               backgroundColor: 'var(--color-surface-container-lowest)',
               border: '1px solid var(--color-outline-variant)',
-              borderRadius: 8,
-              fontSize: 14,
+              borderRadius: 10,
+              fontSize: 13,
+              boxShadow: 'var(--shadow-level-1)',
+              color: 'var(--color-on-surface)',
             }}
           />
           <Line
@@ -81,9 +94,14 @@ export function RevenueChart({ data, height = 320 }: RevenueChartProps) {
             dataKey="revenue"
             name={t('dashboard.chart.revenueLabel')}
             stroke="var(--color-primary)"
-            strokeWidth={2}
-            dot={{ r: 3, fill: 'var(--color-primary)' }}
-            activeDot={{ r: 5 }}
+            strokeWidth={2.25}
+            dot={false}
+            activeDot={{
+              r: 5,
+              fill: 'var(--color-primary)',
+              stroke: 'var(--color-surface-container-lowest)',
+              strokeWidth: 2,
+            }}
           />
         </LineChart>
       </ResponsiveContainer>

@@ -47,4 +47,27 @@ describe('CartPage', () => {
     // 2 x 2.000.000 => subtotal 4.000.000
     expect(screen.getByText(/4\.000\.000/)).toBeInTheDocument();
   });
+
+  it('shows error toast notification when exceeding max stock', async () => {
+    const itemWithStock = makeItem({
+      quantity: 2,
+      variant: {
+        id: 'v1',
+        sku: 'SKU',
+        name: 'Đen',
+        price: 2000000,
+        stockAvailable: 2,
+        product: { id: 'p1', name: 'Bàn phím cơ', slug: 'ban-phim-co', basePrice: 2000000, salePrice: null, images: [] },
+      },
+    });
+    cartState.cart = { id: 'k1', userId: 'u1', items: [itemWithStock] };
+    cartState.itemCount = 2;
+    const { default: fireEvent } = await import('@testing-library/react').then((m) => ({ default: m.fireEvent }));
+    render(<MemoryRouter><CartPage /></MemoryRouter>);
+
+    const plusBtn = screen.getByRole('button', { name: /increase quantity/i });
+    fireEvent.click(plusBtn);
+
+    expect(screen.getByText('Sản phẩm chỉ còn tối đa 2 cái')).toBeInTheDocument();
+  });
 });

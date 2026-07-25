@@ -15,6 +15,12 @@
     "lowStock": "Low stock",
     "back": "Back"
   },
+  "product": {
+    "stockAvailable": "{{count}} in stock"
+  },
+  "cart": {
+    "maxStockError": "Only {{count}} available in stock"
+  },
   "auth": {
     "registerSuccessEyebrow": "Verify email",
     "registerSuccessTitle": "Check your inbox",

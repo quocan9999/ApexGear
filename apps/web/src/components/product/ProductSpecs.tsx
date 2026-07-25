@@ -68,7 +68,7 @@ export default function ProductSpecs({
     >
       <h2
         id="specs-heading"
-        className="label-lg border-b border-outline-variant bg-surface-container-low px-lg py-md text-on-surface"
+        className="border-b border-outline-variant bg-surface-container-high px-lg py-md text-lg font-bold text-on-surface"
       >
         {t('product.specifications')}
       </h2>

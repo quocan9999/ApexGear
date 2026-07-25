@@ -111,7 +111,7 @@ export default function ProductReviews({
       ) : error ? (
         <p className="body-md text-error">{error}</p>
       ) : reviews.length === 0 ? (
-        <p className="body-md text-on-surface-variant">
+        <p className="body-md text-on-surface-variant text-center py-md">
           {t('review.noReviewsYet')}
         </p>
       ) : (

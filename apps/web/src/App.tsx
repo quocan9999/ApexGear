@@ -4,6 +4,7 @@ import { useAuthInit } from './hooks/useAuth';
 import { useAuthStore } from './stores/auth.store';
 import { useCartStore } from './stores/cart.store';
 import AppRoutes from './routes';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 function AuthProvider({ children }: { children: ReactNode }) {
   useAuthInit();
@@ -27,6 +28,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>

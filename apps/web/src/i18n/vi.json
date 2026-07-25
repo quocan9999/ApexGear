@@ -366,5 +366,293 @@
     "terms": "Điều khoản",
     "privacy": "Bảo mật",
     "copyright": "© {{year}} ApexGear. Đã đăng ký bản quyền."
+  },
+  "info": {
+    "common": {
+      "contactTitle": "Bạn cần thêm hỗ trợ?",
+      "contactSubtitle": "Đội ngũ ApexGear luôn sẵn sàng hỗ trợ bạn.",
+      "contactEmailLabel": "Email hỗ trợ",
+      "contactPhoneLabel": "Hotline",
+      "contactHoursLabel": "Giờ làm việc",
+      "contactHoursValue": "Thứ 2 - Chủ nhật, 8:00 - 21:00"
+    },
+    "help": {
+      "eyebrow": "Hỗ trợ",
+      "title": "Trung tâm hỗ trợ",
+      "subtitle": "Chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc của bạn.",
+      "ordering": {
+        "title": "Mua hàng & Thanh toán",
+        "intro": "ApexGear hỗ trợ nhiều phương thức thanh toán để bạn hoàn tất đơn hàng nhanh chóng và an toàn.",
+        "items": [
+          "Thanh toán khi nhận hàng (COD) trên toàn quốc.",
+          "Chuyển khoản ngân hàng qua QR hoặc số tài khoản chính thức.",
+          "Thẻ ATM nội địa, Visa, Mastercard qua cổng thanh toán bảo mật.",
+          "Ví MoMo, ZaloPay và ShopeePay.",
+          "Trả góp 0% qua thẻ tín dụng cho đơn hàng từ 3.000.000đ."
+        ]
+      },
+      "shipping": {
+        "title": "Vận chuyển",
+        "intro": "Đơn hàng được đóng gói cẩn thận và vận chuyển qua đối tác uy tín trên toàn quốc.",
+        "items": [
+          "Nội thành TP.HCM và Hà Nội: giao trong 24 giờ.",
+          "Các tỉnh thành khác: giao trong 2 - 4 ngày làm việc.",
+          "Miễn phí vận chuyển cho đơn hàng từ 1.000.000đ.",
+          "Theo dõi đơn hàng theo thời gian thực trong trang Đơn hàng của tài khoản."
+        ]
+      },
+      "returns": {
+        "title": "Đổi trả",
+        "intro": "Chúng tôi hỗ trợ đổi trả trong các trường hợp sản phẩm lỗi hoặc không đúng mô tả.",
+        "items": [
+          "Đổi trả miễn phí trong 7 ngày kể từ khi nhận hàng.",
+          "Sản phẩm còn nguyên tem, hộp và chưa qua sử dụng.",
+          "Đổi size, đổi màu trong vòng 7 ngày với sản phẩm còn hàng.",
+          "Hoàn tiền qua hình thức thanh toán ban đầu trong 3 - 5 ngày làm việc."
+        ]
+      },
+      "warranty": {
+        "title": "Bảo hành",
+        "intro": "Sản phẩm chính hãng được bảo hành theo chính sách của nhà sản xuất và ApexGear.",
+        "items": [
+          "Bảo hành chính hãng từ 12 đến 36 tháng tuỳ sản phẩm.",
+          "Lỗi phần cứng do nhà sản xuất được đổi mới hoặc sửa chữa miễn phí.",
+          "Giữ nguyên hộp, phụ kiện và hoá đơn mua hàng để được bảo hành.",
+          "Hỗ trợ gửi bảo hành qua bưu điện đối với khách hàng ở xa."
+        ]
+      },
+      "contact": {
+        "title": "Liên hệ",
+        "intro": "Đội ngũ hỗ trợ ApexGear phản hồi trong vòng 24 giờ làm việc.",
+        "items": [
+          "Email: support@apexgear.vn.",
+          "Hotline: 1900 0000, miễn phí từ thuê bao di động.",
+          "Trực tuyến qua trang Liên hệ và fanpage chính thức.",
+          "Văn phòng tại TP. Hồ Chí Minh, giờ làm việc 8:00 - 21:00."
+        ]
+      }
+    },
+    "shipping": {
+      "eyebrow": "Vận chuyển",
+      "title": "Chính sách vận chuyển",
+      "subtitle": "Thời gian giao hàng và phí vận chuyển áp dụng cho đơn hàng tại ApexGear.",
+      "regions": {
+        "title": "Thời gian giao hàng",
+        "intro": "Thời gian tính từ khi đơn hàng được xác nhận, không tính ngày lễ và chủ nhật.",
+        "items": [
+          "Nội thành TP.HCM và Hà Nội: giao trong 24 giờ.",
+          "Các quận huyện lân cận TP.HCM và Hà Nội: 1 - 2 ngày.",
+          "Các tỉnh thành miền Trung và miền Nam: 2 - 3 ngày.",
+          "Các tỉnh thành miền Bắc (trừ Hà Nội): 2 - 4 ngày.",
+          "Vùng sâu, vùng xa: 4 - 6 ngày, tuỳ khu vực."
+        ]
+      },
+      "fees": {
+        "title": "Phí vận chuyển",
+        "intro": "Phí vận chuyển được tính theo khu vực và trọng lượng đơn hàng.",
+        "items": [
+          "Miễn phí vận chuyển cho đơn hàng từ 1.000.000đ.",
+          "Đơn hàng dưới 1.000.000đ: phí 25.000đ - 40.000đ tuỳ khu vực.",
+          "Phụ kiện nhỏ: áp dụng phí cố định 20.000đ.",
+          "Đơn hàng nặng trên 5kg: tính thêm phí theo bảng giá của đơn vị vận chuyển."
+        ]
+      },
+      "tracking": {
+        "title": "Theo dõi đơn hàng",
+        "intro": "Bạn có thể theo dõi trạng thái đơn hàng theo thời gian thực trong tài khoản ApexGear.",
+        "items": [
+          "Đăng nhập vào trang Đơn hàng của tôi.",
+          "Mỗi lần cập nhật sẽ hiển thị mã vận đơn và trạng thái mới nhất.",
+          "Email thông báo được gửi khi đơn hàng được giao cho đơn vị vận chuyển.",
+          "Liên hệ hotline nếu đơn hàng chậm hơn thời gian dự kiến trên 48 giờ."
+        ]
+      }
+    },
+    "returns": {
+      "eyebrow": "Đổi trả",
+      "title": "Chính sách đổi trả",
+      "subtitle": "ApexGear hỗ trợ đổi trả sản phẩm trong các trường hợp theo quy định dưới đây.",
+      "eligibility": {
+        "title": "Điều kiện đổi trả",
+        "intro": "Sản phẩm được chấp nhận đổi trả khi đáp ứng đầy đủ các điều kiện sau.",
+        "items": [
+          "Trong vòng 7 ngày kể từ khi nhận hàng.",
+          "Sản phẩm còn nguyên tem, hộp và phụ kiện đi kèm.",
+          "Chưa qua sử dụng, không có dấu hiệu trầy xước hay vào nước.",
+          "Có hoá đơn mua hàng hoặc xác nhận đơn hàng từ ApexGear."
+        ]
+      },
+      "process": {
+        "title": "Quy trình đổi trả",
+        "intro": "Quy trình đổi trả được thực hiện theo các bước dưới đây.",
+        "items": [
+          "Liên hệ hotline hoặc email để được hướng dẫn đổi trả.",
+          "Đóng gói sản phẩm cùng hoá đơn và phụ kiện.",
+          "Gửi hàng về kho ApexGear hoặc mang đến văn phòng.",
+          "ApexGear kiểm tra và xác nhận đổi trả trong 2 ngày làm việc.",
+          "Hoàn tiền hoặc gửi sản phẩm mới trong 3 - 5 ngày làm việc tiếp theo."
+        ]
+      },
+      "refund": {
+        "title": "Hoàn tiền",
+        "intro": "ApexGear hoàn tiền qua hình thức thanh toán ban đầu của khách hàng.",
+        "items": [
+          "Thanh toán COD: hoàn tiền qua chuyển khoản ngân hàng.",
+          "Thẻ ATM, Visa, Mastercard: hoàn về thẻ trong 3 - 5 ngày làm việc.",
+          "Ví MoMo, ZaloPay, ShopeePay: hoàn về ví trong 1 - 2 ngày làm việc.",
+          "Phí vận chuyển phát sinh khi đổi trả do lỗi ApexGear được miễn."
+        ]
+      }
+    },
+    "warranty": {
+      "eyebrow": "Bảo hành",
+      "title": "Chính sách bảo hành",
+      "subtitle": "Sản phẩm chính hãng tại ApexGear được bảo hành theo chính sách của nhà sản xuất.",
+      "terms": {
+        "title": "Điều kiện bảo hành",
+        "intro": "ApexGear áp dụng bảo hành cho sản phẩm chính hãng còn trong thời hạn bảo hành.",
+        "items": [
+          "Thời hạn bảo hành từ 12 đến 36 tháng tuỳ sản phẩm và nhà sản xuất.",
+          "Lỗi phần cứng do nhà sản xuất được sửa chữa hoặc đổi mới miễn phí.",
+          "Giữ nguyên hộp, phụ kiện, hoá đơn và số serial của sản phẩm.",
+          "Tem bảo hành phải còn nguyên vẹn, không bị rách hoặc tẩy xoá."
+        ]
+      },
+      "exclusions": {
+        "title": "Trường hợp không áp dụng bảo hành",
+        "intro": "ApexGear không áp dụng bảo hành cho các trường hợp dưới đây.",
+        "items": [
+          "Sản phẩm bị vào nước, cháy nổ, rơi vỡ hoặc tác động vật lý.",
+          "Tự ý tháo lắp, sửa chữa hoặc can thiệp phần cứng, phần mềm.",
+          "Hết thời hạn bảo hành ghi trên hoá đơn hoặc tem bảo hành.",
+          "Phụ kiện tiêu hao như pin, dây cáp, đầu nối nếu không có quy định riêng."
+        ]
+      },
+      "process": {
+        "title": "Quy trình bảo hành",
+        "intro": "Khách hàng có thể yêu cầu bảo hành theo các bước dưới đây.",
+        "items": [
+          "Liên hệ ApexGear qua email hoặc hotline để mô tả lỗi sản phẩm.",
+          "Gửi sản phẩm về trung tâm bảo hành hoặc mang đến văn phòng.",
+          "ApexGear tiếp nhận và gửi sản phẩm đến trung tâm bảo hành chính hãng.",
+          "Thời gian xử lý bảo hành từ 7 đến 21 ngày tuỳ mức độ lỗi."
+        ]
+      }
+    },
+    "policy": {
+      "eyebrow": "Chính sách",
+      "title": "Chính sách mua hàng",
+      "subtitle": "Các nguyên tắc chung khi mua sắm tại ApexGear, áp dụng cho mọi khách hàng.",
+      "general": {
+        "title": "Nguyên tắc chung",
+        "intro": "ApexGear cam kết cung cấp sản phẩm chính hãng và dịch vụ rõ ràng cho khách hàng.",
+        "items": [
+          "Tất cả sản phẩm được bán tại ApexGear là hàng chính hãng có nguồn gốc rõ ràng.",
+          "Giá niêm yết trên website đã bao gồm VAT theo quy định.",
+          "Đơn hàng được xác nhận qua email và tin nhắn sau khi thanh toán thành công.",
+          "ApexGear có quyền từ chối đơn hàng nếu phát hiện dấu hiệu gian lận hoặc vi phạm điều khoản."
+        ]
+      },
+      "pricing": {
+        "title": "Giá và khuyến mãi",
+        "intro": "Giá sản phẩm và chương trình khuyến mãi được cập nhật theo từng thời điểm.",
+        "items": [
+          "Giá bán áp dụng tại thời điểm khách hàng đặt hàng.",
+          "Khuyến mãi có thể áp dụng đồng thời hoặc không, tuỳ chương trình cụ thể.",
+          "Mã giảm giá không áp dụng cho sản phẩm đang giảm giá trừ khi có quy định riêng.",
+          "ApexGear có thể điều chỉnh giá mà không cần báo trước cho đơn hàng chưa đặt."
+        ]
+      },
+      "account": {
+        "title": "Tài khoản khách hàng",
+        "intro": "Khách hàng cần đăng ký tài khoản để theo dõi đơn hàng và sử dụng các tiện ích thành viên.",
+        "items": [
+          "Một khách hàng có thể sở hữu một tài khoản duy nhất tại ApexGear.",
+          "Khách hàng tự chịu trách nhiệm bảo mật thông tin đăng nhập.",
+          "Tài khoản có thể bị tạm khoá nếu phát hiện hành vi vi phạm điều khoản sử dụng.",
+          "Thông tin cá nhân được bảo mật theo Chính sách bảo mật của ApexGear."
+        ]
+      }
+    },
+    "terms": {
+      "eyebrow": "Điều khoản",
+      "title": "Điều khoản sử dụng",
+      "subtitle": "Điều khoản áp dụng khi truy cập và sử dụng website ApexGear.",
+      "acceptance": {
+        "title": "Chấp nhận điều khoản",
+        "intro": "Bằng việc truy cập website ApexGear, khách hàng đồng ý với các điều khoản dưới đây.",
+        "items": [
+          "Điều khoản có hiệu lực từ ngày truy cập và được cập nhật theo từng thời điểm.",
+          "ApexGear có quyền điều chỉnh nội dung điều khoản mà không cần thông báo trước.",
+          "Việc tiếp tục sử dụng website đồng nghĩa với chấp nhận các điều chỉnh mới.",
+          "Nếu không đồng ý, khách hàng nên ngừng sử dụng website và dịch vụ."
+        ]
+      },
+      "usage": {
+        "title": "Sử dụng website",
+        "intro": "Khách hàng cam kết sử dụng website đúng mục đích và tuân thủ pháp luật.",
+        "items": [
+          "Không sử dụng website cho mục đích phi pháp hoặc gây hại đến ApexGear.",
+          "Không tự ý can thiệp, tấn công hoặc thu thập dữ liệu trái phép.",
+          "Không đăng tải nội dung vi phạm thuần phong mỹ tục, quyền của bên thứ ba.",
+          "Không sử dụng tài khoản của người khác hoặc chia sẻ tài khoản cho bên thứ ba."
+        ]
+      },
+      "liability": {
+        "title": "Giới hạn trách nhiệm",
+        "intro": "ApexGear không chịu trách nhiệm trong một số trường hợp được quy định dưới đây.",
+        "items": [
+          "Gián đoạn dịch vụ do sự cố kỹ thuật, bảo trì hoặc sự kiện bất khả kháng.",
+          "Thiệt hại phát sinh từ việc sử dụng sản phẩm sai hướng dẫn của nhà sản xuất.",
+          "Sai lệch thông tin do lỗi của khách hàng khi nhập dữ liệu trên website.",
+          "Tranh chấp phát sinh giữa khách hàng với bên thứ ba ngoài ApexGear."
+        ]
+      }
+    },
+    "privacy": {
+      "eyebrow": "Bảo mật",
+      "title": "Chính sách bảo mật",
+      "subtitle": "Cách ApexGear thu thập, sử dụng và bảo vệ thông tin cá nhân của khách hàng.",
+      "collection": {
+        "title": "Thu thập thông tin",
+        "intro": "ApexGear chỉ thu thập thông tin cần thiết để phục vụ việc mua hàng và chăm sóc khách hàng.",
+        "items": [
+          "Họ tên, email, số điện thoại và địa chỉ giao hàng.",
+          "Lịch sử đơn hàng và lịch sử giao dịch trên website.",
+          "Thông tin thiết bị và trình duyệt để cải thiện trải nghiệm sử dụng.",
+          "Cookie và dữ liệu phiên đăng nhập để duy trì phiên làm việc."
+        ]
+      },
+      "usage": {
+        "title": "Sử dụng thông tin",
+        "intro": "Thông tin khách hàng được sử dụng cho các mục đích được nêu dưới đây.",
+        "items": [
+          "Xử lý đơn hàng, giao hàng và hỗ trợ sau bán.",
+          "Thông báo về đơn hàng, chương trình khuyến mãi và cập nhật dịch vụ.",
+          "Cải thiện chất lượng sản phẩm, dịch vụ và trải nghiệm website.",
+          "Tuân thủ các nghĩa vụ pháp lý theo quy định pháp luật Việt Nam."
+        ]
+      },
+      "sharing": {
+        "title": "Chia sẻ thông tin",
+        "intro": "ApexGear không bán thông tin khách hàng cho bên thứ ba vì mục đích thương mại.",
+        "items": [
+          "Đơn vị vận chuyển: cung cấp thông tin giao hàng cần thiết.",
+          "Cổng thanh toán: cung cấp thông tin giao dịch để xử lý thanh toán.",
+          "Cơ quan nhà nước: cung cấp khi có yêu cầu theo quy định pháp luật.",
+          "Đối tác dịch vụ: chỉ chia sẻ trong phạm vi cần thiết để vận hành website."
+        ]
+      },
+      "rights": {
+        "title": "Quyền của khách hàng",
+        "intro": "Khách hàng có các quyền sau đối với thông tin cá nhân của mình.",
+        "items": [
+          "Yêu cầu truy cập và nhận bản sao thông tin cá nhân.",
+          "Yêu cầu chỉnh sửa hoặc cập nhật thông tin không chính xác.",
+          "Yêu cầu xoá thông tin cá nhân trừ trường hợp pháp luật yêu cầu lưu trữ.",
+          "Rút lại sự đồng ý nhận thông tin marketing qua email hoặc tin nhắn."
+        ]
+      }
+    }
   }
 }

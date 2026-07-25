@@ -64,6 +64,25 @@ export default function ProductListPage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const skipNextSearchSync = useRef(false);
 
+  useEffect(() => {
+    setSearchInput(search);
+    skipNextSearchSync.current = true;
+  }, [search]);
+
+  useEffect(() => {
+    if (skipNextSearchSync.current) {
+      skipNextSearchSync.current = false;
+      return;
+    }
+    const next = new URLSearchParams(searchParams);
+    const trimmed = debouncedSearch.trim();
+    if (trimmed) next.set('search', trimmed);
+    else next.delete('search');
+    next.delete('page');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
   // ----- Filter data -----
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);

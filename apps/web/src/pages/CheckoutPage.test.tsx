@@ -76,6 +76,9 @@ describe('CheckoutPage', () => {
       </MemoryRouter>,
     );
     await waitFor(() => expect(screen.getByText(/^A$/)).toBeInTheDocument());
+    await waitFor(() =>
+      expect(ordersService.getShippingFee).toHaveBeenCalledWith('79', '1', 500000),
+    );
     await userEvent.click(screen.getByRole('button', { name: /tiếp tục/i })); // to payment
     await userEvent.click(screen.getByRole('button', { name: /tiếp tục/i })); // to review (COD default)
     await userEvent.click(screen.getByRole('button', { name: /đặt hàng/i }));

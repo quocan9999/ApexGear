@@ -8,7 +8,8 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsUUID, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 import { ReviewsService } from './reviews.service';
 import { UpdateReviewStatusDto } from './dto/update-review-status.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
@@ -25,6 +26,13 @@ class AdminReviewQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsUUID()
   productId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => (value ? Number(value) : undefined))
+  @Min(1)
+  @Max(5)
+  rating?: number;
 }
 
 @ApiTags('Admin Reviews')

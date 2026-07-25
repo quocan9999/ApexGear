@@ -252,6 +252,7 @@
     },
     "chart": {
       "title": "Biểu đồ doanh thu",
+      "rangeLabel": "Khoảng thời gian biểu đồ",
       "loading": "Đang tải dữ liệu biểu đồ...",
       "empty": "Chưa có dữ liệu",
       "compactBillion": "{{value}} tỷ",
@@ -260,7 +261,8 @@
     },
     "lowStockList": {
       "title": "Sản phẩm sắp hết hàng",
-      "empty": "Không có sản phẩm nào sắp hết tồn kho!"
+      "empty": "Không có sản phẩm nào sắp hết tồn kho!",
+      "viewMore": "Xem thêm {{count}} sản phẩm"
     },
     "lowStockSuffix": "SP",
     "usersSuffix": "người",

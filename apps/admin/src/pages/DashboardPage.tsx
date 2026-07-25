@@ -109,11 +109,11 @@ function MetricCard({
       />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="label-md text-on-surface-variant">{label}</p>
+          <p className={cn('text-on-surface-variant', featured ? 'label-sm' : 'label-md')}>{label}</p>
           <p
             className={cn(
-              'mt-2 font-semibold tracking-tight text-on-surface',
-              featured ? 'text-3xl leading-9 md:text-4xl md:leading-10' : 'headline-md',
+              'font-semibold tracking-tight text-on-surface',
+              featured ? 'mt-6 text-3xl leading-9 md:text-4xl md:leading-10' : 'mt-2 headline-md',
             )}
           >
             {value}
@@ -186,6 +186,30 @@ function Panel({
   );
 }
 
+/* Skeleton placeholder — animated pulse bars matching card shape. */
+function MetricCardSkeleton({ index, featured }: { index: number; featured?: boolean }) {
+  return (
+    <div
+      className={cn(
+        'admin-reveal relative overflow-hidden rounded-xl border border-outline-variant/80 bg-surface-container-lowest p-md shadow-level-1 md:p-lg',
+        featured && 'lg:min-h-[168px]',
+      )}
+      style={{ ['--i' as string]: index }}
+      aria-hidden
+    >
+      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 rounded-l-xl bg-primary" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="h-3 w-20 animate-pulse rounded bg-surface-container-high" />
+          <div className={cn('mt-3 h-6 animate-pulse rounded bg-surface-container-high', featured ? 'w-36' : 'w-24')} />
+          <div className="mt-2 h-3 w-16 animate-pulse rounded bg-surface-container-high" />
+        </div>
+        <div className="h-10 w-10 animate-pulse rounded-lg bg-surface-container-high" />
+      </div>
+    </div>
+  );
+}
+
 export function DashboardPage() {
   const { t } = useTranslation();
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -194,6 +218,7 @@ export function DashboardPage() {
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [lowStock, setLowStock] = useState<InventoryItem[]>([]);
+  const lowStockTotal = stats?.lowStockCount ?? 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -248,9 +273,40 @@ export function DashboardPage() {
       ? `${formatCount(stats.pendingOrders)} ${t('orders.status.PENDING').toLowerCase()}`
       : undefined;
 
+  const rangePills = (
+    <div
+      className="inline-flex items-center gap-xs rounded-full border border-outline-variant bg-surface-container-lowest p-xs shadow-level-1"
+      role="group"
+      aria-label={t('dashboard.chart.rangeLabel')}
+    >
+      {RANGE_OPTIONS.map((value) => {
+        const isActive = value === days;
+        return (
+          <button
+            key={value}
+            type="button"
+            onClick={() => void handleRangeChange(value)}
+            aria-pressed={isActive}
+            className={cn(
+              'label-sm rounded-full px-md py-sm transition-[color,background-color,transform] duration-[var(--dur-short)] ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+              isActive
+                ? 'bg-primary text-on-primary'
+                : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface active:scale-[0.98]',
+            )}
+          >
+            {t(value === 7 ? 'dashboard.range.7days' : 'dashboard.range.30days')}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const topLowStock = lowStock.slice(0, 3);
+  const lowStockMore = lowStockTotal - topLowStock.length;
+
   return (
     <div className="flex flex-col gap-lg">
-      {/* Command strip */}
+      {/* Command strip — no pills, just title */}
       <div
         className="admin-reveal flex flex-col gap-md border-b border-outline-variant pb-md md:flex-row md:items-end md:justify-between"
         style={{ ['--i' as string]: 0 }}
@@ -261,77 +317,59 @@ export function DashboardPage() {
           </h2>
           <p className="mt-1 body-md text-on-surface-variant">{t('pages.dashboard.description')}</p>
         </div>
-
-        <div
-          className="inline-flex items-center gap-xs self-start rounded-full border border-outline-variant bg-surface-container-lowest p-xs shadow-level-1"
-          role="group"
-          aria-label={t('dashboard.chart.title')}
-        >
-          {RANGE_OPTIONS.map((value) => {
-            const isActive = value === days;
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => void handleRangeChange(value)}
-                aria-pressed={isActive}
-                className={cn(
-                  'label-sm rounded-full px-md py-sm transition-[color,background-color,transform] duration-[var(--dur-short)] ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-                  isActive
-                    ? 'bg-primary text-on-primary'
-                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface active:scale-[0.98]',
-                )}
-              >
-                {t(value === 7 ? 'dashboard.range.7days' : 'dashboard.range.30days')}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
-      {/* KPI grid — 4 cols, revenue leads visually via featured prop not col-span */}
+      {/* KPI grid — 4 cols, skeleton while loading, sparkline when data ready */}
       <section
         aria-label={t('pages.dashboard.title')}
         className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4"
       >
-        <MetricCard
-          index={1}
-          featured
-          tone="primary"
-          label={t('dashboard.stats.totalRevenue')}
-          value={stats ? formatPrice(stats.totalRevenue) : '—'}
-          hint={t(days === 7 ? 'dashboard.range.7days' : 'dashboard.range.30days')}
-          icon={<IconRevenue className="h-5 w-5" />}
-        />
-        <MetricCard
-          index={2}
-          label={t('dashboard.stats.totalOrders')}
-          value={stats ? `${formatCount(stats.totalOrders)} ${t('dashboard.ordersSuffix')}` : '—'}
-          hint={pendingHint}
-          icon={<IconOrders className="h-5 w-5" />}
-          to="/orders"
-        />
-        <MetricCard
-          index={3}
-          tone="warning"
-          label={t('dashboard.stats.lowStock')}
-          value={
-            stats ? `${formatCount(stats.lowStockCount)} ${t('dashboard.lowStockSuffix')}` : '—'
-          }
-          icon={<IconLowStock className="h-5 w-5" />}
-          to="/inventory"
-        />
-        <MetricCard
-          index={4}
-          label={t('dashboard.stats.totalUsers')}
-          value={stats ? `${formatCount(stats.totalUsers)} ${t('dashboard.usersSuffix')}` : '—'}
-          icon={<IconUsers className="h-5 w-5" />}
-          to="/users"
-        />
+        {!stats ? (
+          <>
+            <MetricCardSkeleton index={1} featured />
+            <MetricCardSkeleton index={2} />
+            <MetricCardSkeleton index={3} />
+            <MetricCardSkeleton index={4} />
+          </>
+        ) : (
+          <>
+            <MetricCard
+              index={1}
+              featured
+              tone="primary"
+              label={t('dashboard.stats.totalRevenue')}
+              value={formatPrice(stats.totalRevenue)}
+              icon={<IconRevenue className="h-5 w-5" />}
+            />
+            <MetricCard
+              index={2}
+              label={t('dashboard.stats.totalOrders')}
+              value={`${formatCount(stats.totalOrders)} ${t('dashboard.ordersSuffix')}`}
+              hint={pendingHint}
+              icon={<IconOrders className="h-5 w-5" />}
+              to="/orders"
+            />
+            <MetricCard
+              index={3}
+              tone="warning"
+              label={t('dashboard.stats.lowStock')}
+              value={`${formatCount(stats.lowStockCount)} ${t('dashboard.lowStockSuffix')}`}
+              icon={<IconLowStock className="h-5 w-5" />}
+              to="/inventory"
+            />
+            <MetricCard
+              index={4}
+              label={t('dashboard.stats.totalUsers')}
+              value={`${formatCount(stats.totalUsers)} ${t('dashboard.usersSuffix')}`}
+              icon={<IconUsers className="h-5 w-5" />}
+              to="/users"
+            />
+          </>
+        )}
       </section>
 
-      {/* Revenue chart — full bleed panel */}
-      <Panel title={t('dashboard.chart.title')} index={6} aria-label={t('dashboard.chart.title')}>
+      {/* Revenue chart — full bleed panel, range pills in header */}
+      <Panel title={t('dashboard.chart.title')} index={6} action={revenue.length > 0 ? rangePills : undefined} aria-label={t('dashboard.chart.title')}>
         <div className="relative min-h-[280px] rounded-lg border border-outline-variant/60 bg-surface-container-low/40 p-sm md:p-md">
           {revenueLoading ? (
             <div
@@ -448,18 +486,27 @@ export function DashboardPage() {
             </Link>
           }
         >
-          {lowStock.length === 0 ? (
+          {topLowStock.length === 0 ? (
             <p className="body-md text-on-surface-variant">{t('dashboard.lowStockList.empty')}</p>
           ) : (
             <ul className="flex flex-col gap-sm">
-              {lowStock.map((item) => (
+              {topLowStock.map((item) => (
                 <li
                   key={item.id}
                   className="flex items-center justify-between gap-3 rounded-lg border border-outline-variant/70 bg-surface-container-low/50 px-3 py-2.5 transition-colors hover:border-outline hover:bg-surface-container-low"
                 >
-                  <div className="min-w-0">
-                    <p className="label-sm truncate text-on-surface">{item.product.name}</p>
-                    <p className="body-sm text-on-surface-variant">{item.sku}</p>
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className={cn(
+                        'mt-0.5 h-2 w-2 shrink-0 rounded-full',
+                        item.stockAvailable <= 1 ? 'bg-error' : 'bg-warning',
+                      )}
+                      aria-hidden
+                    />
+                    <div className="min-w-0">
+                      <p className="label-sm truncate text-on-surface">{item.product.name}</p>
+                      <p className="body-sm text-on-surface-variant">{item.sku}</p>
+                    </div>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="label-md font-semibold text-warning">{item.stockAvailable}</p>
@@ -470,6 +517,14 @@ export function DashboardPage() {
                 </li>
               ))}
             </ul>
+          )}
+          {lowStockMore > 0 && (
+            <Link
+              to="/inventory"
+              className="label-sm mt-xs self-start font-semibold text-primary transition-colors hover:text-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              {t('dashboard.lowStockList.viewMore', { count: lowStockMore })}
+            </Link>
           )}
         </Panel>
       </div>

@@ -160,10 +160,11 @@ export function ProductListPage() {
       {
         key: 'name',
         header: t('products.columns.name'),
+        cellClassName: 'max-w-[220px]',
         render: (row) => (
-          <div className="min-w-0">
-            <div className="label-md text-on-surface">{row.name}</div>
-            <div className="body-sm text-on-surface-variant">{row.slug}</div>
+          <div className="min-w-0 truncate">
+            <div className="label-md truncate text-on-surface">{row.name}</div>
+            <div className="body-sm truncate text-on-surface-variant">{row.slug}</div>
           </div>
         ),
       },

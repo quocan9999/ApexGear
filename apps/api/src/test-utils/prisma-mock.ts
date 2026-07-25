@@ -40,6 +40,8 @@ export function createPrismaMock() {
     orderItem: modelMock(),
     review: modelMock(),
     setting: modelMock(),
+    shippingRule: modelMock(),
+    shippingRegion: modelMock(),
     $transaction: jest.fn(),
     $connect: jest.fn().mockResolvedValue(undefined),
     $disconnect: jest.fn().mockResolvedValue(undefined),
@@ -78,6 +80,8 @@ export function createPrismaMock() {
     orderItem: ReturnType<typeof modelMock>;
     review: ReturnType<typeof modelMock>;
     setting: ReturnType<typeof modelMock>;
+    shippingRule: ReturnType<typeof modelMock>;
+    shippingRegion: ReturnType<typeof modelMock>;
     $transaction: jest.Mock;
     $connect: jest.Mock;
     $disconnect: jest.Mock;

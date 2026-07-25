@@ -28,6 +28,8 @@ describe('OrdersService', () => {
     name: 'An',
     phone: '090',
     detail: '1 St',
+    provinceCode: '79',
+    wardCode: '760',
     wardName: 'W',
     provinceName: 'P',
   };
@@ -191,6 +193,7 @@ describe('OrdersService', () => {
       expect(notificationsService.syncLowStockState).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'v1', stockAvailable: 5 }),
       );
+      expect(shippingService.calculateFee).toHaveBeenCalledWith('79', '760', 200000);
       expect(result.total).toBe(230000);
       expect(typeof result.subtotal).toBe('number');
     });

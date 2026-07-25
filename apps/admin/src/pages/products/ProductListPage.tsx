@@ -8,6 +8,8 @@ import {
   Pagination,
   Select,
   Spinner,
+  StatCard,
+  StatIcon,
   Table,
   type TableColumn,
 } from '../../components/ui';
@@ -23,6 +25,19 @@ const DEFAULT_META: PageMeta = { page: 1, limit: 20, total: 0, totalPages: 0 };
 function sumStock(product: Product): number {
   if (!product.variants?.length) return 0;
   return product.variants.reduce((sum, variant) => sum + (variant.stockAvailable ?? 0), 0);
+}
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat('vi-VN').format(value);
+}
+
+function productStats(products: Product[], meta: PageMeta) {
+  return {
+    total: meta.total,
+    active: products.filter((p) => p.isActive).length,
+    inactive: products.filter((p) => !p.isActive).length,
+    lowStock: products.filter((p) => sumStock(p) > 0 && sumStock(p) <= 5).length,
+  };
 }
 
 function flattenCategories(tree: Category[]): Category[] {
@@ -205,16 +220,26 @@ export function ProductListPage() {
           <div className="flex flex-wrap items-center gap-sm">
             <Link
               to={`/products/${row.slug}/edit`}
-              className="label-sm text-primary hover:underline"
+              className="label-sm inline-flex items-center gap-1 text-primary hover:underline"
             >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+              </svg>
               {t('common.edit')}
             </Link>
             {isAdmin && (
               <button
                 type="button"
-                className="label-sm text-error hover:underline"
+                className="label-sm inline-flex items-center gap-1 text-error hover:underline"
                 onClick={() => setDeleteTarget(row)}
               >
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
+                </svg>
                 {t('common.delete')}
               </button>
             )}
@@ -238,6 +263,37 @@ export function ProductListPage() {
           {t('products.create')}
         </Link>
       </div>
+
+      {!loading && meta.total > 0 && (() => {
+        const stats = productStats(products, meta);
+        return (
+          <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              label={t('products.stats.total')}
+              value={formatCount(stats.total)}
+              tone="primary"
+              icon={<StatIcon><path d="M4 7.5 12 3l8 4.5-8 4.5L4 7.5Z" /><path d="m4 12 8 4.5L20 12" /><path d="m4 16.5 8 4.5 8-4.5" /></StatIcon>}
+            />
+            <StatCard
+              label={t('products.stats.active')}
+              value={formatCount(stats.active)}
+              tone="success"
+              icon={<StatIcon><path d="M20 6 9 17l-5-5" /></StatIcon>}
+            />
+            <StatCard
+              label={t('products.stats.inactive')}
+              value={formatCount(stats.inactive)}
+              icon={<StatIcon><circle cx="12" cy="12" r="8" /><path d="m9 9 6 6M15 9l-6 6" /></StatIcon>}
+            />
+            <StatCard
+              label={t('products.stats.lowStock')}
+              value={formatCount(stats.lowStock)}
+              tone="warning"
+              icon={<StatIcon><path d="M12 9v4" /><path d="M12 17h.01" /><path d="M10.3 4.7 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.7a2 2 0 0 0-3.4 0Z" /></StatIcon>}
+            />
+          </div>
+        );
+      })()}
 
       <div className="grid grid-cols-1 gap-md md:grid-cols-3">
         <Input

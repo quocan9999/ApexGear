@@ -6,6 +6,7 @@ export interface ReviewQuery {
   limit?: number;
   status?: ReviewStatus;
   productId?: string;
+  rating?: number;
 }
 
 export const reviewsService = {

@@ -118,13 +118,17 @@
       },
       "filters": {
         "status": "Status",
-        "allStatuses": "All statuses"
+        "allStatuses": "All statuses",
+        "rating": "Rating",
+        "allRatings": "All ratings"
       },
       "status": {
         "PENDING": "Pending",
         "APPROVED": "Approved",
         "REJECTED": "Rejected"
       },
+      "viewDetail": "View details",
+      "detailTitle": "Review details",
       "approve": "Approve",
       "reject": "Reject"
     },
@@ -292,6 +296,12 @@
       "status": "Status",
       "stock": "Stock"
     },
+    "stats": {
+      "total": "Total products",
+      "active": "Active",
+      "inactive": "Inactive",
+      "lowStock": "Low stock"
+    },
     "status": {
       "active": "Active",
       "inactive": "Inactive"
@@ -393,6 +403,12 @@
     }
   },
   "inventory": {
+    "stats": {
+      "total": "Total variants",
+      "inStock": "In stock",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock"
+    },
     "searchPlaceholder": "Search by product name or SKU...",
     "adjust": "Adjust",
     "adjustPlaceholder": "+/-",
@@ -417,6 +433,12 @@
     }
   },
   "orders": {
+    "stats": {
+      "total": "Total orders",
+      "pending": "Pending",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
     "searchPlaceholder": "Search by order number or customer name...",
     "viewDetail": "Details",
     "backToList": "Back to orders",

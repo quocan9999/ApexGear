@@ -11,6 +11,7 @@ export type { PaginationProps } from './Pagination';
 export { default as Select } from './Select';
 export type { SelectProps } from './Select';
 export { default as Spinner } from './Spinner';
+export { StatCard, StatIcon } from './StatCard';
 export { default as Table } from './Table';
 export type { TableColumn, TableProps } from './Table';
 export { default as Textarea } from './Textarea';

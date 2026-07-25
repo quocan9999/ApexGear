@@ -83,7 +83,7 @@ export default function Sidebar({
         collapsed && 'lg:w-20',
       )}
     >
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant px-4">
+      <div className={cn('flex h-16 shrink-0 items-center border-b border-outline-variant px-4', collapsed ? 'lg:justify-center lg:px-0' : 'justify-between')}>
         <div className={cn('min-w-0', collapsed && 'lg:overflow-hidden lg:max-h-0 lg:opacity-0 lg:pointer-events-none lg:invisible')}>
           <p className="headline-md truncate font-bold text-primary">ApexGear</p>
           <p className="label-sm truncate text-on-surface-variant">Admin Dashboard</p>

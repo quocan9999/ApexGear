@@ -9,6 +9,7 @@ import {
   Select,
   Spinner,
   StatCard,
+  StatCardSkeleton,
   StatIcon,
   Table,
   type TableColumn,
@@ -264,28 +265,39 @@ export function ProductListPage() {
         </Link>
       </div>
 
-      {!loading && meta.total > 0 && (() => {
+      {loading ? (
+        <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
+          <StatCardSkeleton index={1} />
+          <StatCardSkeleton index={2} />
+          <StatCardSkeleton index={3} />
+          <StatCardSkeleton index={4} />
+        </div>
+      ) : meta.total > 0 ? (() => {
         const stats = productStats(products, meta);
         return (
           <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
+              index={1}
               label={t('products.stats.total')}
               value={formatCount(stats.total)}
               tone="primary"
               icon={<StatIcon><path d="M4 7.5 12 3l8 4.5-8 4.5L4 7.5Z" /><path d="m4 12 8 4.5L20 12" /><path d="m4 16.5 8 4.5 8-4.5" /></StatIcon>}
             />
             <StatCard
+              index={2}
               label={t('products.stats.active')}
               value={formatCount(stats.active)}
               tone="success"
               icon={<StatIcon><path d="M20 6 9 17l-5-5" /></StatIcon>}
             />
             <StatCard
+              index={3}
               label={t('products.stats.inactive')}
               value={formatCount(stats.inactive)}
               icon={<StatIcon><circle cx="12" cy="12" r="8" /><path d="m9 9 6 6M15 9l-6 6" /></StatIcon>}
             />
             <StatCard
+              index={4}
               label={t('products.stats.lowStock')}
               value={formatCount(stats.lowStock)}
               tone="warning"
@@ -293,7 +305,7 @@ export function ProductListPage() {
             />
           </div>
         );
-      })()}
+      })() : null}
 
       <div className="grid grid-cols-1 gap-md md:grid-cols-3">
         <Input

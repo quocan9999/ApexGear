@@ -6,6 +6,7 @@ import {
   Pagination,
   Spinner,
   StatCard,
+  StatCardSkeleton,
   StatIcon,
   Table,
   type TableColumn,
@@ -224,29 +225,40 @@ export function InventoryPage() {
         </h2>
       </div>
 
-      {!loading && meta.total > 0 && (() => {
+      {loading ? (
+        <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
+          <StatCardSkeleton index={1} />
+          <StatCardSkeleton index={2} />
+          <StatCardSkeleton index={3} />
+          <StatCardSkeleton index={4} />
+        </div>
+      ) : meta.total > 0 ? (() => {
         const stats = inventoryStats(items, meta);
         return (
           <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
+              index={1}
               label={t('inventory.stats.total')}
               value={formatCount(stats.total)}
               tone="primary"
               icon={<StatIcon><path d="M4 7h16" /><path d="M6 7v13h12V7" /><path d="M9 7V4h6v3" /><path d="M9 12h6" /><path d="M9 16h4" /></StatIcon>}
             />
             <StatCard
+              index={2}
               label={t('inventory.stats.inStock')}
               value={formatCount(stats.inStock)}
               tone="success"
               icon={<StatIcon><path d="M20 6 9 17l-5-5" /></StatIcon>}
             />
             <StatCard
+              index={3}
               label={t('inventory.stats.lowStock')}
               value={formatCount(stats.lowStock)}
               tone="warning"
               icon={<StatIcon><path d="M12 9v4" /><path d="M12 17h.01" /><path d="M10.3 4.7 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.7a2 2 0 0 0-3.4 0Z" /></StatIcon>}
             />
             <StatCard
+              index={4}
               label={t('inventory.stats.outOfStock')}
               value={formatCount(stats.outOfStock)}
               tone="error"
@@ -254,7 +266,7 @@ export function InventoryPage() {
             />
           </div>
         );
-      })()}
+      })() : null}
 
       <div className="flex flex-col gap-md md:flex-row md:items-end md:justify-between">
         <div

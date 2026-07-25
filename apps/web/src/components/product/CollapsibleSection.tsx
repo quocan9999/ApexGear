@@ -52,7 +52,7 @@ export default function CollapsibleSection({
         className,
       )}
     >
-      <h2 className="label-lg border-b border-outline-variant bg-surface-container-low px-lg py-md text-on-surface">
+      <h2 className="border-b border-outline-variant bg-surface-container-high px-lg py-md text-lg font-bold text-on-surface">
         {title}
       </h2>
 

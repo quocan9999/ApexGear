@@ -74,6 +74,7 @@
     "collapseSpecs": "Thu gọn",
     "readMore": "Đọc tiếp bài viết",
     "collapse": "Thu gọn",
+    "stockAvailable": "Còn {{count}} sản phẩm",
     "sortOptions": {
       "newest": "Mới nhất",
       "priceAsc": "Giá tăng dần",
@@ -96,6 +97,7 @@
     "checkout": "Tiến hành thanh toán",
     "remove": "Xóa",
     "quantity": "Số lượng",
+    "maxStockError": "Sản phẩm chỉ còn tối đa {{count}} cái",
     "coupon": {
       "placeholder": "Nhập mã giảm giá",
       "apply": "Áp dụng",
@@ -365,7 +367,7 @@
     "policy": "Chính sách",
     "terms": "Điều khoản",
     "privacy": "Bảo mật",
-    "copyright": "© {{year}} ApexGear. Đã đăng ký bản quyền."
+    "copyright": "© {{year}} ApexGear."
   },
   "info": {
     "common": {

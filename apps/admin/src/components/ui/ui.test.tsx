@@ -1,6 +1,7 @@
 import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import i18n from '../../i18n';
 import {
@@ -10,6 +11,9 @@ import {
   Pagination,
   Select,
   Spinner,
+  StatCard,
+  StatCardSkeleton,
+  StatIcon,
   Table,
   Textarea,
   type TableColumn,
@@ -103,7 +107,7 @@ describe('admin UI primitives', () => {
     const expectedClasses = {
       default: ['bg-surface-container', 'text-on-surface-variant'],
       primary: ['bg-primary/10', 'text-primary'],
-      success: ['bg-success/10', 'text-on-surface'],
+      success: ['bg-green-100', 'text-green-700'],
       warning: ['bg-warning/10', 'text-on-surface'],
       error: ['bg-error-container', 'text-on-error-container'],
     } as const;
@@ -115,6 +119,37 @@ describe('admin UI primitives', () => {
       expect(screen.getByText(variant)).toHaveClass(...classNames);
       unmount();
     }
+  });
+
+  it('renders a linked featured stat card with semantic tone styling', () => {
+    render(
+      <MemoryRouter>
+        <StatCard
+          label="Revenue"
+          value="328.500.000₫"
+          hint="This month"
+          tone="success"
+          featured
+          index={2}
+          to="/orders"
+          icon={<StatIcon><path d="M4 19V5" /></StatIcon>}
+        />
+      </MemoryRouter>,
+    );
+
+    const card = screen.getByRole('link', { name: /Revenue 328\.500\.000₫ This month/i });
+    expect(card).toHaveAttribute('href', '/orders');
+    expect(card).toHaveClass('admin-reveal', 'admin-hover-lift-active', 'lg:min-h-[168px]');
+    expect(card).toHaveStyle({ '--i': '2' });
+    expect(card.querySelector('.text-success')).toBeInTheDocument();
+  });
+
+  it('renders a stat card skeleton with a hidden loading shape', () => {
+    render(<StatCardSkeleton featured index={3} />);
+
+    const skeleton = document.querySelector('[aria-hidden="true"]');
+    expect(skeleton).toHaveClass('admin-reveal', 'rounded-lg', 'lg:min-h-[168px]');
+    expect(skeleton).toHaveStyle({ '--i': '3' });
   });
 });
 

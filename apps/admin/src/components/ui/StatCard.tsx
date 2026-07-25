@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { cn } from '../../utils/cn';
 
@@ -7,69 +8,125 @@ interface StatCardProps {
   label: string;
   value: string;
   hint?: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   tone?: Tone;
+  featured?: boolean;
+  index?: number;
+  to?: string;
 }
 
-const toneStyles: Record<Tone, { bar: string; icon: string; value: string }> = {
+const toneStyles: Record<Tone, { dot: string; value: string }> = {
   default: {
-    bar: 'bg-outline',
-    icon: 'bg-surface-container text-on-surface-variant',
+    dot: 'bg-on-surface-variant/60',
     value: 'text-on-surface',
   },
   primary: {
-    bar: 'bg-primary',
-    icon: 'bg-primary/10 text-primary',
+    dot: 'bg-primary',
     value: 'text-primary',
   },
   success: {
-    bar: 'bg-green-500',
-    icon: 'bg-green-100 text-green-700',
-    value: 'text-green-700',
+    dot: 'bg-success',
+    value: 'text-success',
   },
   warning: {
-    bar: 'bg-warning',
-    icon: 'bg-warning/15 text-warning',
+    dot: 'bg-warning',
     value: 'text-warning',
   },
   error: {
-    bar: 'bg-error',
-    icon: 'bg-error-container text-on-error-container',
+    dot: 'bg-error',
     value: 'text-error',
   },
 };
 
-export function StatCard({ label, value, hint, icon, tone = 'default' }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+  tone = 'default',
+  featured = false,
+  index,
+  to,
+}: StatCardProps) {
   const styles = toneStyles[tone];
+  const className = cn(
+    'group admin-reveal admin-hover-lift admin-hover-lift-active relative flex min-w-0 flex-col gap-sm overflow-hidden rounded-lg border border-outline-variant/70 bg-surface-container-low p-md transition-colors duration-[var(--dur-short)] hover:border-outline md:p-lg',
+    featured && 'lg:min-h-[168px]',
+    to && 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+  );
+  const style = index === undefined ? undefined : { ['--i' as string]: index };
+
+  const body = (
+    <>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <span aria-hidden="true" className={cn('inline-block h-1.5 w-1.5 shrink-0 rounded-full', styles.dot)} />
+          <p className="truncate text-[15px] font-medium uppercase tracking-[0.12em] text-on-surface-variant">{label}</p>
+        </div>
+        {icon ? (
+          <span aria-hidden="true" className="shrink-0 text-on-surface-variant/50 transition-colors group-hover:text-on-surface-variant">
+            {icon}
+          </span>
+        ) : null}
+      </div>
+      <p
+        className={cn(
+          'break-all font-semibold tracking-tight tabular-nums leading-tight',
+          featured ? 'mt-1 text-xl sm:text-2xl xl:text-3xl' : 'mt-2 text-2xl',
+          styles.value,
+        )}
+      >
+        {value}
+      </p>
+      {hint ? <p className="label-sm text-on-surface-variant">{hint}</p> : null}
+    </>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className={className} style={style}>
+        {body}
+      </Link>
+    );
+  }
 
   return (
-    <section className="group relative overflow-hidden rounded-2xl border border-outline-variant/80 bg-surface-container-lowest p-md shadow-level-1 transition-[border-color,transform,box-shadow] duration-[var(--dur-short)] hover:-translate-y-0.5 hover:border-outline hover:shadow-level-2">
-      <span aria-hidden="true" className={cn('absolute inset-x-0 top-0 h-1', styles.bar)} />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="label-sm text-on-surface-variant">{label}</p>
-          <p className={cn('mt-2 truncate text-2xl font-semibold tracking-tight', styles.value)}>
-            {value}
-          </p>
-          {hint ? <p className="mt-1 label-sm text-on-surface-variant">{hint}</p> : null}
-        </div>
-        <span
-          aria-hidden="true"
-          className={cn(
-            'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-[var(--dur-short)] group-hover:scale-105',
-            styles.icon,
-          )}
-        >
-          {icon}
-        </span>
-      </div>
+    <section className={className} style={style}>
+      {body}
     </section>
+  );
+}
+
+export function StatCardSkeleton({ index, featured = false }: { index?: number; featured?: boolean }) {
+  const style = index === undefined ? undefined : { ['--i' as string]: index };
+
+  return (
+    <div
+      className={cn(
+        'admin-reveal relative flex min-w-0 flex-col gap-sm overflow-hidden rounded-lg border border-outline-variant/70 bg-surface-container-low p-md md:p-lg',
+        featured && 'lg:min-h-[168px]',
+      )}
+      style={style}
+      aria-hidden="true"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="h-2.5 w-20 animate-pulse rounded-full bg-surface-container-high" />
+        <div className="h-3.5 w-3.5 animate-pulse rounded bg-surface-container-high" />
+      </div>
+      <div
+        className={cn(
+          'mt-2 h-7 animate-pulse rounded bg-surface-container-high',
+          featured ? 'w-36' : 'w-24',
+        )}
+      />
+      <div className="h-2.5 w-16 animate-pulse rounded-full bg-surface-container-high" />
+    </div>
   );
 }
 
 export function StatIcon({ children }: { children: ReactNode }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       {children}
     </svg>
   );

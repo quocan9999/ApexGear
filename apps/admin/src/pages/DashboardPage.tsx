@@ -6,7 +6,7 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Badge, Spinner } from '../components/ui';
+import { Badge, Spinner, StatCard, StatCardSkeleton } from '../components/ui';
 import { dashboardService } from '../services/dashboard.service';
 import { inventoryService } from '../services/inventory.service';
 import { ordersService } from '../services/orders.service';
@@ -29,26 +29,26 @@ function formatCount(value: number): string {
   return new Intl.NumberFormat('vi-VN').format(value);
 }
 
-function IconRevenue({ className }: { className?: string }) {
+function IconRevenue() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 19V5m0 14h16M8 15l3-4 3 2 4-6" />
     </svg>
   );
 }
 
-function IconOrders({ className }: { className?: string }) {
+function IconOrders() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
       <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h10M7 12h10M7 17h6" />
       <rect x="4" y="4" width="16" height="16" rx="2" />
     </svg>
   );
 }
 
-function IconUsers({ className }: { className?: string }) {
+function IconUsers() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
       <circle cx="9" cy="8" r="3" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 19c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5" />
       <circle cx="17" cy="9" r="2.5" />
@@ -57,99 +57,11 @@ function IconUsers({ className }: { className?: string }) {
   );
 }
 
-function IconLowStock({ className }: { className?: string }) {
+function IconLowStock() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.3 4.7 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.7a2 2 0 0 0-3.4 0Z" />
     </svg>
-  );
-}
-
-interface MetricCardProps {
-  label: string;
-  value: string;
-  hint?: string;
-  tone?: 'default' | 'warning' | 'primary';
-  featured?: boolean;
-  icon: ReactNode;
-  index: number;
-  to?: string;
-}
-
-function MetricCard({
-  label,
-  value,
-  hint,
-  tone = 'default',
-  featured = false,
-  icon,
-  index,
-  to,
-}: MetricCardProps) {
-  const toneStyles = {
-    default: {
-      iconWrap: 'bg-surface-container text-primary',
-      bar: 'bg-primary',
-    },
-    primary: {
-      iconWrap: 'bg-primary/10 text-primary',
-      bar: 'bg-primary',
-    },
-    warning: {
-      iconWrap: 'bg-warning/15 text-warning',
-      bar: 'bg-warning',
-    },
-  }[tone];
-
-  const body = (
-    <>
-      <span
-        aria-hidden="true"
-        className={cn('absolute inset-y-0 left-0 w-1 rounded-l-xl', toneStyles.bar)}
-      />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className={cn('text-on-surface-variant', featured ? 'label-sm' : 'label-md')}>{label}</p>
-          <p
-            className={cn(
-              'font-semibold tracking-tight text-on-surface',
-              featured ? 'mt-6 text-3xl leading-9 md:text-4xl md:leading-10' : 'mt-2 headline-md',
-            )}
-          >
-            {value}
-          </p>
-          {hint ? <p className="mt-1 label-sm text-on-surface-variant">{hint}</p> : null}
-        </div>
-        <span
-          className={cn(
-            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
-            toneStyles.iconWrap,
-          )}
-        >
-          {icon}
-        </span>
-      </div>
-    </>
-  );
-
-  const className = cn(
-    'admin-reveal admin-hover-lift admin-hover-lift-active relative overflow-hidden rounded-xl border border-outline-variant/80 bg-surface-container-lowest p-md shadow-level-1 md:p-lg',
-    featured && 'lg:min-h-[168px]',
-    to && 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-  );
-
-  if (to) {
-    return (
-      <Link to={to} className={className} style={{ ['--i' as string]: index }}>
-        {body}
-      </Link>
-    );
-  }
-
-  return (
-    <div className={className} style={{ ['--i' as string]: index }}>
-      {body}
-    </div>
   );
 }
 
@@ -183,30 +95,6 @@ function Panel({
       </div>
       {children}
     </section>
-  );
-}
-
-/* Skeleton placeholder — animated pulse bars matching card shape. */
-function MetricCardSkeleton({ index, featured }: { index: number; featured?: boolean }) {
-  return (
-    <div
-      className={cn(
-        'admin-reveal relative overflow-hidden rounded-xl border border-outline-variant/80 bg-surface-container-lowest p-md shadow-level-1 md:p-lg',
-        featured && 'lg:min-h-[168px]',
-      )}
-      style={{ ['--i' as string]: index }}
-      aria-hidden
-    >
-      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 rounded-l-xl bg-primary" />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="h-3 w-20 animate-pulse rounded bg-surface-container-high" />
-          <div className={cn('mt-3 h-6 animate-pulse rounded bg-surface-container-high', featured ? 'w-36' : 'w-24')} />
-          <div className="mt-2 h-3 w-16 animate-pulse rounded bg-surface-container-high" />
-        </div>
-        <div className="h-10 w-10 animate-pulse rounded-lg bg-surface-container-high" />
-      </div>
-    </div>
   );
 }
 
@@ -326,42 +214,42 @@ export function DashboardPage() {
       >
         {!stats ? (
           <>
-            <MetricCardSkeleton index={1} featured />
-            <MetricCardSkeleton index={2} />
-            <MetricCardSkeleton index={3} />
-            <MetricCardSkeleton index={4} />
+            <StatCardSkeleton index={1} featured />
+            <StatCardSkeleton index={2} />
+            <StatCardSkeleton index={3} />
+            <StatCardSkeleton index={4} />
           </>
         ) : (
           <>
-            <MetricCard
+            <StatCard
               index={1}
               featured
               tone="primary"
               label={t('dashboard.stats.totalRevenue')}
               value={formatPrice(stats.totalRevenue)}
-              icon={<IconRevenue className="h-5 w-5" />}
+              icon={<IconRevenue />}
             />
-            <MetricCard
+            <StatCard
               index={2}
               label={t('dashboard.stats.totalOrders')}
               value={`${formatCount(stats.totalOrders)} ${t('dashboard.ordersSuffix')}`}
               hint={pendingHint}
-              icon={<IconOrders className="h-5 w-5" />}
+              icon={<IconOrders />}
               to="/orders"
             />
-            <MetricCard
+            <StatCard
               index={3}
               tone="warning"
               label={t('dashboard.stats.lowStock')}
               value={`${formatCount(stats.lowStockCount)} ${t('dashboard.lowStockSuffix')}`}
-              icon={<IconLowStock className="h-5 w-5" />}
+              icon={<IconLowStock />}
               to="/inventory"
             />
-            <MetricCard
+            <StatCard
               index={4}
               label={t('dashboard.stats.totalUsers')}
               value={`${formatCount(stats.totalUsers)} ${t('dashboard.usersSuffix')}`}
-              icon={<IconUsers className="h-5 w-5" />}
+              icon={<IconUsers />}
               to="/users"
             />
           </>

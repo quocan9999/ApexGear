@@ -8,6 +8,7 @@ import {
   Select,
   Spinner,
   StatCard,
+  StatCardSkeleton,
   StatIcon,
   Table,
   type TableColumn,
@@ -215,29 +216,40 @@ export function OrderListPage() {
         </h2>
       </div>
 
-      {!loading && meta.total > 0 && (() => {
+      {loading ? (
+        <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
+          <StatCardSkeleton index={1} />
+          <StatCardSkeleton index={2} />
+          <StatCardSkeleton index={3} />
+          <StatCardSkeleton index={4} />
+        </div>
+      ) : meta.total > 0 ? (() => {
         const stats = orderStats(orders, meta);
         return (
           <div className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
+              index={1}
               label={t('orders.stats.total')}
               value={formatCount(stats.total)}
               tone="primary"
               icon={<StatIcon><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M8 9h8M8 13h8M8 17h5" /></StatIcon>}
             />
             <StatCard
+              index={2}
               label={t('orders.stats.pending')}
               value={formatCount(stats.pending)}
               tone="warning"
               icon={<StatIcon><circle cx="12" cy="12" r="8" /><path d="M12 8v5l3 2" /></StatIcon>}
             />
             <StatCard
+              index={3}
               label={t('orders.stats.delivered')}
               value={formatCount(stats.delivered)}
               tone="success"
               icon={<StatIcon><path d="M20 6 9 17l-5-5" /><path d="M4 20h16" /></StatIcon>}
             />
             <StatCard
+              index={4}
               label={t('orders.stats.cancelled')}
               value={formatCount(stats.cancelled)}
               tone="error"
@@ -245,7 +257,7 @@ export function OrderListPage() {
             />
           </div>
         );
-      })()}
+      })() : null}
 
       <div className="grid grid-cols-1 gap-md md:grid-cols-2 xl:grid-cols-4">
         <Input

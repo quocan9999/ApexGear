@@ -75,9 +75,13 @@ export default function TopBar({
           type="button"
           onClick={() => void handleLogout()}
           disabled={loggingOut}
-          className="inline-flex min-h-10 items-center rounded px-3 label-md text-error transition-colors hover:bg-error-container hover:text-on-error-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label={t('nav.logout')}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded px-2 label-md text-error transition-colors hover:bg-error-container hover:text-on-error-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:px-3"
         >
-          {t('nav.logout')}
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+          </svg>
+          <span className="hidden md:inline">{t('nav.logout')}</span>
         </button>
       </div>
     </header>

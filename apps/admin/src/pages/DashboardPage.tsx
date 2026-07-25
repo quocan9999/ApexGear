@@ -1,4 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+/* Hallmark · genre: modern-minimal · macrostructure: Bento Grid · design-system: DESIGN.md (Lumina Tech)
+ * tone: technical SaaS admin · mood: modern + motion + tech · enrichment: none
+ * constraints: no gradient · no pixel · CSS motion only · designed-as-app
+ * pre-emit critique: P5 H5 E5 S4 R5 V4
+ */
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Badge, Spinner } from '../components/ui';
@@ -6,6 +11,7 @@ import { dashboardService } from '../services/dashboard.service';
 import { inventoryService } from '../services/inventory.service';
 import { ordersService } from '../services/orders.service';
 import { formatDateTime, formatPrice } from '../utils/format';
+import { cn } from '../utils/cn';
 import type { DashboardStats, InventoryItem, Order, RevenuePoint } from '../types';
 import { orderStatusVariant } from './orders/OrderListPage';
 
@@ -23,28 +29,160 @@ function formatCount(value: number): string {
   return new Intl.NumberFormat('vi-VN').format(value);
 }
 
-interface StatCardProps {
-  label: string;
-  value: string;
-  iconBg: string;
-  iconColor: string;
-  icon: string;
+function IconRevenue({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 19V5m0 14h16M8 15l3-4 3 2 4-6" />
+    </svg>
+  );
 }
 
-function StatCard({ label, value, iconBg, iconColor, icon }: StatCardProps) {
+function IconOrders({ className }: { className?: string }) {
   return (
-    <div className="flex flex-col gap-sm rounded-xl bg-surface-container-lowest p-md shadow-level-1 transition-shadow">
-      <div className="flex items-start justify-between">
-        <span className="label-md text-on-surface-variant">{label}</span>
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h10M7 12h10M7 17h6" />
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+    </svg>
+  );
+}
+
+function IconUsers({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+      <circle cx="9" cy="8" r="3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 19c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 19c0-1.8-1.3-3.3-3.2-3.8" />
+    </svg>
+  );
+}
+
+function IconLowStock({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.3 4.7 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.7a2 2 0 0 0-3.4 0Z" />
+    </svg>
+  );
+}
+
+interface MetricCardProps {
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: 'default' | 'warning' | 'primary';
+  featured?: boolean;
+  icon: ReactNode;
+  index: number;
+  to?: string;
+}
+
+function MetricCard({
+  label,
+  value,
+  hint,
+  tone = 'default',
+  featured = false,
+  icon,
+  index,
+  to,
+}: MetricCardProps) {
+  const toneStyles = {
+    default: {
+      iconWrap: 'bg-surface-container text-primary',
+      bar: 'bg-primary',
+    },
+    primary: {
+      iconWrap: 'bg-primary/10 text-primary',
+      bar: 'bg-primary',
+    },
+    warning: {
+      iconWrap: 'bg-warning/15 text-warning',
+      bar: 'bg-warning',
+    },
+  }[tone];
+
+  const body = (
+    <>
+      <span
+        aria-hidden="true"
+        className={cn('absolute inset-y-0 left-0 w-1 rounded-l-xl', toneStyles.bar)}
+      />
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="label-md text-on-surface-variant">{label}</p>
+          <p
+            className={cn(
+              'mt-2 font-semibold tracking-tight text-on-surface',
+              featured ? 'text-3xl leading-9 md:text-4xl md:leading-10' : 'headline-md',
+            )}
+          >
+            {value}
+          </p>
+          {hint ? <p className="mt-1 label-sm text-on-surface-variant">{hint}</p> : null}
+        </div>
         <span
-          className={`flex h-8 w-8 items-center justify-center rounded text-[18px] leading-none ${iconBg} ${iconColor}`}
-          aria-hidden="true"
+          className={cn(
+            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+            toneStyles.iconWrap,
+          )}
         >
           {icon}
         </span>
       </div>
-      <div className="headline-md text-on-surface">{value}</div>
+    </>
+  );
+
+  const className = cn(
+    'admin-reveal admin-hover-lift admin-hover-lift-active relative overflow-hidden rounded-xl border border-outline-variant/80 bg-surface-container-lowest p-md shadow-level-1 md:p-lg',
+    featured && 'lg:min-h-[168px]',
+    to && 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className={className} style={{ ['--i' as string]: index }}>
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={className} style={{ ['--i' as string]: index }}>
+      {body}
     </div>
+  );
+}
+
+function Panel({
+  title,
+  action,
+  children,
+  index,
+  className,
+  'aria-label': ariaLabel,
+}: {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+  index: number;
+  className?: string;
+  'aria-label'?: string;
+}) {
+  return (
+    <section
+      aria-label={ariaLabel ?? title}
+      className={cn(
+        'admin-reveal admin-hover-lift flex min-w-0 flex-col gap-md rounded-xl border border-outline-variant/80 bg-surface-container-lowest p-md shadow-level-1 md:p-lg',
+        className,
+      )}
+      style={{ ['--i' as string]: index }}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="body-lg font-semibold text-on-surface">{title}</h3>
+        {action}
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -105,16 +243,29 @@ export function DashboardPage() {
     }
   };
 
+  const pendingHint =
+    stats && stats.pendingOrders > 0
+      ? `${formatCount(stats.pendingOrders)} ${t('orders.status.PENDING').toLowerCase()}`
+      : undefined;
+
   return (
     <div className="flex flex-col gap-lg">
-      <div className="flex flex-col gap-sm border-b border-outline-variant pb-md md:flex-row md:items-center md:justify-between">
-        <h2 id="dashboard-page-title" className="headline-lg text-on-surface md:text-headline-xl">
-          {t('pages.dashboard.title')}
-        </h2>
+      {/* Command strip */}
+      <div
+        className="admin-reveal flex flex-col gap-md border-b border-outline-variant pb-md md:flex-row md:items-end md:justify-between"
+        style={{ ['--i' as string]: 0 }}
+      >
+        <div className="min-w-0">
+          <h2 id="dashboard-page-title" className="headline-lg text-on-surface md:text-headline-xl">
+            {t('pages.dashboard.title')}
+          </h2>
+          <p className="mt-1 body-md text-on-surface-variant">{t('pages.dashboard.description')}</p>
+        </div>
+
         <div
-          className="inline-flex items-center gap-xs self-start rounded-lg border border-outline-variant bg-surface-container-lowest p-xs"
+          className="inline-flex items-center gap-xs self-start rounded-full border border-outline-variant bg-surface-container-lowest p-xs shadow-level-1"
           role="group"
-          aria-label={t('pages.dashboard.title')}
+          aria-label={t('dashboard.chart.title')}
         >
           {RANGE_OPTIONS.map((value) => {
             const isActive = value === days;
@@ -124,11 +275,12 @@ export function DashboardPage() {
                 type="button"
                 onClick={() => void handleRangeChange(value)}
                 aria-pressed={isActive}
-                className={
+                className={cn(
+                  'label-sm rounded-full px-md py-sm transition-[color,background-color,transform] duration-[var(--dur-short)] ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                   isActive
-                    ? 'label-sm rounded px-md py-sm bg-primary-container text-on-primary-container transition-colors'
-                    : 'label-sm rounded px-md py-sm text-on-surface-variant transition-colors hover:bg-surface-container-high'
-                }
+                    ? 'bg-primary text-on-primary'
+                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface active:scale-[0.98]',
+                )}
               >
                 {t(value === 7 ? 'dashboard.range.7days' : 'dashboard.range.30days')}
               </button>
@@ -137,60 +289,50 @@ export function DashboardPage() {
         </div>
       </div>
 
+      {/* KPI grid — 4 cols, revenue leads visually via featured prop not col-span */}
       <section
         aria-label={t('pages.dashboard.title')}
-        className="grid grid-cols-1 gap-md md:grid-cols-2 lg:grid-cols-4"
+        className="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4"
       >
-        <StatCard
+        <MetricCard
+          index={1}
+          featured
+          tone="primary"
           label={t('dashboard.stats.totalRevenue')}
           value={stats ? formatPrice(stats.totalRevenue) : '—'}
-          iconBg="bg-primary-container/20"
-          iconColor="text-primary"
-          icon="₫"
+          hint={t(days === 7 ? 'dashboard.range.7days' : 'dashboard.range.30days')}
+          icon={<IconRevenue className="h-5 w-5" />}
         />
-        <StatCard
+        <MetricCard
+          index={2}
           label={t('dashboard.stats.totalOrders')}
-          value={
-            stats
-              ? `${formatCount(stats.totalOrders)} ${t('dashboard.ordersSuffix')}`
-              : '—'
-          }
-          iconBg="bg-primary-container/20"
-          iconColor="text-primary"
-          icon="#"
+          value={stats ? `${formatCount(stats.totalOrders)} ${t('dashboard.ordersSuffix')}` : '—'}
+          hint={pendingHint}
+          icon={<IconOrders className="h-5 w-5" />}
+          to="/orders"
         />
-        <StatCard
+        <MetricCard
+          index={3}
+          tone="warning"
           label={t('dashboard.stats.lowStock')}
           value={
-            stats
-              ? `${formatCount(stats.lowStockCount)} ${t('dashboard.lowStockSuffix')}`
-              : '—'
+            stats ? `${formatCount(stats.lowStockCount)} ${t('dashboard.lowStockSuffix')}` : '—'
           }
-          iconBg="bg-warning/15"
-          iconColor="text-warning"
-          icon="!"
+          icon={<IconLowStock className="h-5 w-5" />}
+          to="/inventory"
         />
-        <StatCard
+        <MetricCard
+          index={4}
           label={t('dashboard.stats.totalUsers')}
-          value={
-            stats
-              ? `${formatCount(stats.totalUsers)} ${t('dashboard.usersSuffix')}`
-              : '—'
-          }
-          iconBg="bg-primary-container/20"
-          iconColor="text-primary"
-          icon="@"
+          value={stats ? `${formatCount(stats.totalUsers)} ${t('dashboard.usersSuffix')}` : '—'}
+          icon={<IconUsers className="h-5 w-5" />}
+          to="/users"
         />
       </section>
 
-      <section
-        className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md shadow-level-1 md:p-lg"
-        aria-label={t('dashboard.chart.title')}
-      >
-        <h3 className="body-lg font-semibold text-on-surface">
-          {t('dashboard.chart.title')}
-        </h3>
-        <div className="relative">
+      {/* Revenue chart — full bleed panel */}
+      <Panel title={t('dashboard.chart.title')} index={6} aria-label={t('dashboard.chart.title')}>
+        <div className="relative min-h-[280px] rounded-lg border border-outline-variant/60 bg-surface-container-low/40 p-sm md:p-md">
           {revenueLoading ? (
             <div
               className="flex items-center justify-center"
@@ -217,100 +359,120 @@ export function DashboardPage() {
             </Suspense>
           )}
         </div>
-      </section>
+      </Panel>
 
-      <section
-        className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md shadow-level-1 md:p-lg"
-        aria-label={t('dashboard.recentOrders.title')}
-      >
-        <div className="flex items-center justify-between">
-          <h3 className="body-lg font-semibold text-on-surface">
-            {t('dashboard.recentOrders.title')}
-          </h3>
-          <Link to="/orders" className="label-sm text-primary hover:underline">
-            {t('dashboard.recentOrders.viewAll')}
-          </Link>
-        </div>
-        {recentOrders.length === 0 ? (
-          <p className="body-md text-on-surface-variant">{t('dashboard.recentOrders.empty')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left body-sm">
-              <caption className="sr-only">{t('dashboard.recentOrders.title')}</caption>
-              <thead className="border-b border-outline-variant body-sm text-on-surface-variant">
-                <tr>
-                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.orderNumber')}</th>
-                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.customer')}</th>
-                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.total')}</th>
-                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.status')}</th>
-                  <th className="px-2 py-2 font-semibold">{t('dashboard.recentOrders.createdAt')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-outline-variant last:border-b-0">
-                    <td className="px-2 py-2">
-                      <Link
-                        to={`/orders/${order.id}`}
-                        className="label-sm text-primary hover:underline"
-                      >
-                        {order.orderNumber}
-                      </Link>
-                    </td>
-                    <td className="px-2 py-2 text-on-surface">{order.shippingName}</td>
-                    <td className="px-2 py-2 text-on-surface">{formatPrice(order.total)}</td>
-                    <td className="px-2 py-2">
-                      <Badge variant={orderStatusVariant(order.status)}>
-                        {t(`orders.status.${order.status}`)}
-                      </Badge>
-                    </td>
-                    <td className="px-2 py-2 text-on-surface-variant">
-                      {formatDateTime(order.createdAt)}
-                    </td>
+      {/* Operations split */}
+      <div className="grid grid-cols-1 gap-md xl:grid-cols-5">
+        <Panel
+          className="xl:col-span-3"
+          index={7}
+          title={t('dashboard.recentOrders.title')}
+          action={
+            <Link
+              to="/orders"
+              className="label-sm font-semibold text-primary transition-colors hover:text-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              {t('dashboard.recentOrders.viewAll')}
+            </Link>
+          }
+        >
+          {recentOrders.length === 0 ? (
+            <p className="body-md text-on-surface-variant">{t('dashboard.recentOrders.empty')}</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] text-left body-sm">
+                <caption className="sr-only">{t('dashboard.recentOrders.title')}</caption>
+                <thead className="border-b border-outline-variant body-sm text-on-surface-variant">
+                  <tr>
+                    <th className="px-2 py-2.5 font-semibold">
+                      {t('dashboard.recentOrders.orderNumber')}
+                    </th>
+                    <th className="px-2 py-2.5 font-semibold">
+                      {t('dashboard.recentOrders.customer')}
+                    </th>
+                    <th className="px-2 py-2.5 font-semibold">
+                      {t('dashboard.recentOrders.total')}
+                    </th>
+                    <th className="px-2 py-2.5 font-semibold">
+                      {t('dashboard.recentOrders.status')}
+                    </th>
+                    <th className="px-2 py-2.5 font-semibold">
+                      {t('dashboard.recentOrders.createdAt')}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                </thead>
+                <tbody>
+                  {recentOrders.map((order) => (
+                    <tr
+                      key={order.id}
+                      className="border-b border-outline-variant/70 transition-colors last:border-b-0 hover:bg-surface-container-low/80"
+                    >
+                      <td className="px-2 py-2.5">
+                        <Link
+                          to={`/orders/${order.id}`}
+                          className="label-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                        >
+                          {order.orderNumber}
+                        </Link>
+                      </td>
+                      <td className="px-2 py-2.5 text-on-surface">{order.shippingName}</td>
+                      <td className="px-2 py-2.5 font-medium text-on-surface">
+                        {formatPrice(order.total)}
+                      </td>
+                      <td className="px-2 py-2.5">
+                        <Badge variant={orderStatusVariant(order.status)}>
+                          {t(`orders.status.${order.status}`)}
+                        </Badge>
+                      </td>
+                      <td className="px-2 py-2.5 text-on-surface-variant">
+                        {formatDateTime(order.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Panel>
 
-      <section
-        className="flex flex-col gap-md rounded-xl bg-surface-container-lowest p-md shadow-level-1 md:p-lg"
-        aria-label={t('dashboard.lowStockList.title')}
-      >
-        <h3 className="body-lg font-semibold text-on-surface">
-          {t('dashboard.lowStockList.title')}
-        </h3>
-        {lowStock.length === 0 ? (
-          <p className="body-md text-on-surface-variant">{t('dashboard.lowStockList.empty')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left body-sm">
-              <caption className="sr-only">{t('dashboard.stats.lowStock')}</caption>
-              <thead className="border-b border-outline-variant body-sm text-on-surface-variant">
-                <tr>
-                  <th className="px-2 py-2 font-semibold">{t('inventory.columns.product')}</th>
-                  <th className="px-2 py-2 font-semibold">{t('inventory.columns.stockAvailable')}</th>
-                  <th className="px-2 py-2 font-semibold">{t('inventory.columns.threshold')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lowStock.map((item) => (
-                  <tr key={item.id} className="border-b border-outline-variant last:border-b-0">
-                    <td className="px-2 py-2">
-                      <span className="label-sm text-on-surface">{item.product.name}</span>
-                      <span className="body-sm text-on-surface-variant ml-xs">({item.sku})</span>
-                    </td>
-                    <td className="px-2 py-2 text-warning font-semibold">{item.stockAvailable}</td>
-                    <td className="px-2 py-2 text-on-surface-variant">{item.lowStockThreshold}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+        <Panel
+          className="xl:col-span-2"
+          index={8}
+          title={t('dashboard.lowStockList.title')}
+          action={
+            <Link
+              to="/inventory"
+              className="label-sm font-semibold text-primary transition-colors hover:text-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              {t('nav.inventory')}
+            </Link>
+          }
+        >
+          {lowStock.length === 0 ? (
+            <p className="body-md text-on-surface-variant">{t('dashboard.lowStockList.empty')}</p>
+          ) : (
+            <ul className="flex flex-col gap-sm">
+              {lowStock.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-outline-variant/70 bg-surface-container-low/50 px-3 py-2.5 transition-colors hover:border-outline hover:bg-surface-container-low"
+                >
+                  <div className="min-w-0">
+                    <p className="label-sm truncate text-on-surface">{item.product.name}</p>
+                    <p className="body-sm text-on-surface-variant">{item.sku}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="label-md font-semibold text-warning">{item.stockAvailable}</p>
+                    <p className="label-sm text-on-surface-variant">
+                      / {item.lowStockThreshold}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }

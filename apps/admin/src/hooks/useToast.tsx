@@ -78,7 +78,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     ? null
     : createPortal(
         <div
-          className="pointer-events-none fixed top-md right-md z-[60] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-sm"
+          className="pointer-events-none fixed top-16 right-md z-[60] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-sm"
           aria-label={t('toast.notifications')}
         >
           {toasts.map((toast) => (

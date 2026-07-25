@@ -10,12 +10,12 @@ describe('Badge', () => {
 
   it('applies the error variant styles', () => {
     render(<Badge variant="error">Error</Badge>);
-    expect(screen.getByText('Error').className).toContain('bg-red-50');
+    expect(screen.getByText('Error').className).toContain('bg-red-100');
   });
 
   it('applies the success variant styles', () => {
     render(<Badge variant="success">Ok</Badge>);
-    expect(screen.getByText('Ok').className).toContain('bg-green-50');
+    expect(screen.getByText('Ok').className).toContain('bg-green-100');
   });
 
   it('defaults to the default variant', () => {

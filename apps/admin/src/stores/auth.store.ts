@@ -18,8 +18,16 @@ let checkAuthInFlight: Promise<void> | null = null;
 let authEpoch = 0;
 
 function normalizeError(error: unknown): string {
-  const candidate = error as { message?: unknown; status?: unknown } | null;
-  const message = typeof candidate?.message === 'string' ? candidate.message : null;
+  const candidate = error as {
+    message?: unknown;
+    rawMessage?: unknown;
+    status?: unknown;
+  } | null;
+  const message = typeof candidate?.rawMessage === 'string'
+    ? candidate.rawMessage
+    : typeof candidate?.message === 'string'
+      ? candidate.message
+      : null;
 
   switch (message) {
     case 'Invalid credentials':

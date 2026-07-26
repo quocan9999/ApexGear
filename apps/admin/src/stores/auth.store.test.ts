@@ -106,8 +106,12 @@ describe('useAuthStore', () => {
 
   it.each([
     {
-      name: 'invalid credentials',
-      error: { message: 'Invalid credentials', status: 401 },
+      name: 'localized invalid credentials',
+      error: {
+        message: 'Email hoặc mật khẩu không chính xác.',
+        rawMessage: 'Invalid credentials',
+        status: 401,
+      },
       key: 'login.invalidCredentials',
       translation: 'Email hoặc mật khẩu không chính xác.',
     },
@@ -118,8 +122,12 @@ describe('useAuthStore', () => {
       translation: 'Tài khoản đã bị khóa. Vui lòng thử lại sau.',
     },
     {
-      name: 'deactivated account',
-      error: { message: 'Account is deactivated', status: 401 },
+      name: 'localized deactivated account',
+      error: {
+        message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+        rawMessage: 'Account is deactivated',
+        status: 401,
+      },
       key: 'login.accountDeactivated',
       translation: 'Tài khoản đã bị vô hiệu hóa.',
     },
@@ -155,7 +163,8 @@ describe('useAuthStore', () => {
       isLoading: false,
       error: translation,
     });
-    expect(useAuthStore.getState().error).not.toBe(error.message);
+    const rawMessage = 'rawMessage' in error ? error.rawMessage : error.message;
+    expect(useAuthStore.getState().error).not.toBe(rawMessage);
   });
 
   it('always clears local auth when API logout fails', async () => {

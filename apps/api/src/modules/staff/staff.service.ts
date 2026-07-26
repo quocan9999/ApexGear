@@ -100,7 +100,7 @@ export class StaffService {
     await this.prisma.$transaction(async (tx) => {
       const consumed = await tx.staffInvitationToken.updateMany({ where: { id: invitation.id, usedAt: null }, data: { usedAt: now } });
       if (consumed.count !== 1) throw new BadRequestException('Invalid or expired invitation');
-      await tx.user.update({ where: { id: invitation.userId }, data: { password, activationStatus: 'ACTIVE', isActive: true } });
+      await tx.user.update({ where: { id: invitation.userId }, data: { password, activationStatus: 'ACTIVE', isActive: true, emailVerifiedAt: invitation.user.emailVerifiedAt ?? now } });
       await tx.staffInvitationToken.updateMany({ where: { userId: invitation.userId, usedAt: null }, data: { usedAt: now } });
     });
     return { message: 'Invitation accepted' };

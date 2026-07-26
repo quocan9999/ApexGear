@@ -136,7 +136,11 @@ describe('StaffService', () => {
       userId: 's1',
       usedAt: null,
       expiresAt: new Date('2099-01-01T00:00:00.000Z'),
-      user: { activationStatus: 'PENDING_ACTIVATION', deletedAt: null },
+      user: {
+        activationStatus: 'PENDING_ACTIVATION',
+        deletedAt: null,
+        emailVerifiedAt: null,
+      },
     });
     prisma.staffInvitationToken.updateMany
       .mockResolvedValueOnce({ count: 1 })
@@ -157,6 +161,7 @@ describe('StaffService', () => {
         password: 'hashed-password',
         activationStatus: 'ACTIVE',
         isActive: true,
+        emailVerifiedAt: expect.any(Date),
       },
     });
   });

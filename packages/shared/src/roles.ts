@@ -29,7 +29,7 @@ export function canViewResource(role: Role, resource: Resource): boolean {
 }
 
 export function canAssignRole(actor: Role, targetRole: Role): boolean {
-  if (targetRole === 'SUPER_ADMIN') return false;
+  if (!ASSIGNABLE_STAFF_ROLES.includes(targetRole)) return false;
   if (targetRole === 'ADMIN') return actor === 'SUPER_ADMIN';
   return actor === 'SUPER_ADMIN' || actor === 'ADMIN';
 }
@@ -37,7 +37,13 @@ export function canAssignRole(actor: Role, targetRole: Role): boolean {
 export function canManageTarget(actor: Role, targetRole: Role, sameUser = false): boolean {
   if (sameUser || targetRole === 'SUPER_ADMIN') return false;
   if (actor === 'SUPER_ADMIN') return STAFF_ROLES.includes(targetRole);
-  if (actor === 'ADMIN') return targetRole !== 'ADMIN' && targetRole !== 'SUPER_ADMIN';
+  if (actor === 'ADMIN') {
+    return (
+      targetRole === 'CONTENT_MANAGER' ||
+      targetRole === 'INVENTORY_MANAGER' ||
+      targetRole === 'ORDER_MANAGER'
+    );
+  }
   return false;
 }
 

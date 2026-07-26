@@ -7,10 +7,10 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { LoginFailureThrottleService } from './services/login-failure-throttle.service';
+import { StaffModule } from '../staff/staff.module';
 
 @Module({
-  imports: [
-    PassportModule,
+  imports: [StaffModule, PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

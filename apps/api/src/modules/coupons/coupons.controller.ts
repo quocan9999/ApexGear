@@ -24,21 +24,21 @@ export class CouponsController {
   constructor(private couponsService: CouponsService) {}
 
   @Get()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CONTENT_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'List coupons (admin)' })
   findAll(@Query() query: PaginationQueryDto) {
     return this.couponsService.findAll(query);
   }
 
   @Post()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CONTENT_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create coupon (admin)' })
   create(@Body() dto: CreateCouponDto) {
     return this.couponsService.create(dto);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CONTENT_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update coupon (admin)' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -48,7 +48,7 @@ export class CouponsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CONTENT_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete coupon (admin)' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.couponsService.remove(id);

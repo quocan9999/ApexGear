@@ -18,14 +18,14 @@ export class SettingsController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'List all settings (admin)' })
   getAll() {
     return this.settingsService.getAll();
   }
 
   @Patch(':key')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a setting by key (admin)' })
   update(@Param('key') key: string, @Body() dto: UpdateSettingDto) {
     return this.settingsService.update(key, dto.value);

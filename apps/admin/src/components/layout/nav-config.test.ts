@@ -40,8 +40,8 @@ const expectedByRole: Record<Role, string[]> = {
     'reviews',
     'coupons',
   ],
-  INVENTORY_MANAGER: ['dashboard', 'inventory'],
-  ORDER_MANAGER: ['dashboard', 'orders', 'shipping'],
+  INVENTORY_MANAGER: ['dashboard', 'products', 'orders', 'inventory'],
+  ORDER_MANAGER: ['dashboard', 'products', 'orders', 'shipping'],
   CUSTOMER: [],
 };
 

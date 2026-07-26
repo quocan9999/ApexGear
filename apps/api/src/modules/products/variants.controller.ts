@@ -29,6 +29,7 @@ export class VariantsController {
         Role.CONTENT_MANAGER,
         Role.INVENTORY_MANAGER,
         Role.ORDER_MANAGER,
+        Role.SUPER_ADMIN,
       ] as string[]
     ).includes(user.role as string);
   }
@@ -44,7 +45,7 @@ export class VariantsController {
   }
 
   @Post()
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a variant' })
   create(
     @Param('productId', ParseUUIDPipe) productId: string,
@@ -54,7 +55,7 @@ export class VariantsController {
   }
 
   @Patch(':variantId')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a variant' })
   update(
     @Param('productId', ParseUUIDPipe) productId: string,
@@ -65,7 +66,7 @@ export class VariantsController {
   }
 
   @Delete(':variantId')
-  @Roles(Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Soft-delete a variant' })
   remove(
     @Param('productId', ParseUUIDPipe) productId: string,

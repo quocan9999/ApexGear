@@ -1,6 +1,14 @@
 import { ALL_STAFF_ROLES, CONTENT_ROLES, CUSTOMER_MANAGER_ROLES } from '@apexgear/shared';
 import type { Role } from '../../types';
 
+const PRODUCT_READ_ROLES: readonly Role[] = [
+  'SUPER_ADMIN',
+  'ADMIN',
+  'CONTENT_MANAGER',
+  'INVENTORY_MANAGER',
+  'ORDER_MANAGER',
+];
+
 export type NavKey =
   | 'dashboard'
   | 'products'
@@ -37,10 +45,10 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'dashboard', to: '/', icon: 'dashboard', roles: ALL_STAFF_ROLES },
-  { key: 'products', to: '/products', icon: 'box', roles: CONTENT_ROLES },
+  { key: 'products', to: '/products', icon: 'box', roles: PRODUCT_READ_ROLES },
   { key: 'categories', to: '/categories', icon: 'category', roles: CONTENT_ROLES },
   { key: 'brands', to: '/brands', icon: 'brand', roles: CONTENT_ROLES },
-  { key: 'orders', to: '/orders', icon: 'orders', roles: ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER'] },
+  { key: 'orders', to: '/orders', icon: 'orders', roles: ['SUPER_ADMIN', 'ADMIN', 'INVENTORY_MANAGER', 'ORDER_MANAGER'] },
   {
     key: 'inventory',
     to: '/inventory',

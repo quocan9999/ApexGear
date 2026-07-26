@@ -25,7 +25,7 @@ export class ShippingController {
     return { success: true, data: { fee } };
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.ORDER_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get all shipping rules (Admin)' })
   @Get('rules')
   async getRules() {
@@ -33,7 +33,7 @@ export class ShippingController {
     return { success: true, data: rules };
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a shipping rule (Admin)' })
   @Post('rules')
   async createRule(@Body() dto: {
@@ -48,7 +48,7 @@ export class ShippingController {
     return { success: true, data: rule };
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a shipping rule (Admin)' })
   @Put('rules/:id')
   async updateRule(
@@ -65,7 +65,7 @@ export class ShippingController {
     return { success: true, data: rule };
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete a shipping rule (Admin)' })
   @Delete('rules/:id')
   async deleteRule(@Param('id', ParseUUIDPipe) id: string) {
@@ -73,7 +73,7 @@ export class ShippingController {
     return { success: true, data: result };
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Add a region to a shipping rule (Admin)' })
   @Post('rules/:id/regions')
   async addRegion(
@@ -84,7 +84,7 @@ export class ShippingController {
     return { success: true, data: region };
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Remove a region from a shipping rule (Admin)' })
   @Delete('rules/:id/regions/:regionId')
   async removeRegion(

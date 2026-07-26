@@ -130,11 +130,8 @@ export class AuthController {
   @Post('accept-invitation')
   @Public()
   @HttpCode(HttpStatus.OK)
-  async acceptInvitation(
-    @Body('token') token: string,
-    @Body() dto: AcceptInvitationDto,
-  ) {
-    return this.staffService.acceptInvitation(token, dto);
+  async acceptInvitation(@Body() dto: AcceptInvitationDto) {
+    return this.staffService.acceptInvitation(dto.token, dto);
   }
 
   @Post('forgot-password')

@@ -50,7 +50,7 @@ export class StaffService {
 
   async create(dto: CreateStaffDto, actorRole: Role) {
     assertCanAssignRole(actorRole, dto.role as Role);
-    const existing = await this.prisma.user.findFirst({ where: { email: dto.email, deletedAt: null }, select: { id: true } });
+    const existing = await this.prisma.user.findUnique({ where: { email: dto.email }, select: { id: true } });
     if (existing) throw new ConflictException('Email already registered');
     const user = await this.prisma.user.create({ data: { email: dto.email, name: dto.name, role: dto.role, password: null, activationStatus: 'PENDING_ACTIVATION', isActive: false }, select: staffSelect });
     await this.sendInvitation(user.id, user.email, user.name);
@@ -73,10 +73,11 @@ export class StaffService {
   }
 
   async restore(id: string, actorRole: Role) {
-    const target = await this.prisma.user.findFirst({ where: { id, role: { in: staffRoles }, deletedAt: { not: null } }, select: { id: true, role: true } });
+    const target = await this.prisma.user.findFirst({ where: { id, role: { in: staffRoles }, deletedAt: { not: null } }, select: { id: true, role: true, activationStatus: true } });
     if (!target) throw new NotFoundException('Deleted staff not found');
     assertCanRestoreStaff(actorRole, target.role as Role);
-    return this.prisma.user.update({ where: { id }, data: { deletedAt: null, isActive: true, tokenVersion: { increment: 1 } }, select: staffSelect });
+    const isPending = target.activationStatus === 'PENDING_ACTIVATION';
+    return this.prisma.user.update({ where: { id }, data: { deletedAt: null, activationStatus: target.activationStatus, isActive: !isPending, tokenVersion: { increment: 1 } }, select: staffSelect });
   }
 
   async resendInvite(id: string, actorId: string, actorRole: Role) {

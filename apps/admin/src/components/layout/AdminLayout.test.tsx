@@ -159,10 +159,12 @@ describe('AdminLayout', () => {
     renderLayout('ORDER_MANAGER');
 
     const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
-    expect(within(navigation).getAllByRole('link')).toHaveLength(3);
+    expect(within(navigation).getAllByRole('link')).toHaveLength(4);
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.dashboard') })).toBeInTheDocument();
+    expect(within(navigation).getByRole('link', { name: i18n.t('nav.products') })).toBeInTheDocument();
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toBeInTheDocument();
-    expect(within(navigation).queryByRole('link', { name: i18n.t('nav.products') })).not.toBeInTheDocument();
+    expect(within(navigation).getByRole('link', { name: i18n.t('nav.shipping') })).toBeInTheDocument();
+    expect(within(navigation).queryByRole('link', { name: i18n.t('nav.customers') })).not.toBeInTheDocument();
   });
 
   it('opens the language menu by click and switches languages through i18n', async () => {

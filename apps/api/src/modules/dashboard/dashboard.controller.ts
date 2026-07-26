@@ -20,14 +20,14 @@ export class DashboardController {
   constructor(private dashboardService: DashboardService) {}
 
   @Get('stats')
-  @Roles(Role.ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.ADMIN, Role.ORDER_MANAGER, Role.INVENTORY_MANAGER, Role.CONTENT_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin dashboard stats' })
   getStats() {
     return this.dashboardService.getStats();
   }
 
   @Get('revenue')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Revenue by day (7 or 30 days)' })
   getRevenue(@Query() query: RevenueQueryDto) {
     return this.dashboardService.getRevenue(query.days ?? 7);

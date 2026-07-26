@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import i18n from '../../i18n';
+import { resetAuthStore, useAuthStore } from '../../stores/auth.store';
 import type { Order } from '../../types';
 import { OrderDetailPage } from './OrderDetailPage';
 
@@ -71,6 +72,23 @@ function renderPage(path = '/orders/o1') {
 
 describe('OrderDetailPage', () => {
   beforeEach(() => {
+    resetAuthStore();
+    useAuthStore.setState({
+      user: {
+        id: 'admin-1',
+        email: 'admin@apexgear.vn',
+        name: 'Admin',
+        phone: null,
+        avatar: null,
+        role: 'ADMIN',
+        provider: 'LOCAL',
+        isActive: true,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      },
+      isAuthenticated: true,
+      isLoading: false,
+    });
     vi.mocked(ordersService.getById).mockReset().mockResolvedValue(order);
     vi.mocked(ordersService.updateStatus).mockReset().mockResolvedValue({
       ...order,
@@ -101,6 +119,20 @@ describe('OrderDetailPage', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: i18n.t('orders.actions.DELIVERED') }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides status transitions from inventory managers', async () => {
+    useAuthStore.setState((state) => ({
+      ...state,
+      user: state.user ? { ...state.user, role: 'INVENTORY_MANAGER' } : null,
+    }));
+    renderPage();
+
+    await screen.findByText('Sony WH-1000XM5');
+
+    expect(
+      screen.queryByRole('region', { name: i18n.t('orders.transitions') }),
     ).not.toBeInTheDocument();
   });
 

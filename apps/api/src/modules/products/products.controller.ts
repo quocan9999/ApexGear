@@ -31,6 +31,7 @@ export class ProductsController {
         Role.CONTENT_MANAGER,
         Role.INVENTORY_MANAGER,
         Role.ORDER_MANAGER,
+        Role.SUPER_ADMIN,
       ] as string[]
     ).includes(user.role as string);
   }
@@ -50,14 +51,14 @@ export class ProductsController {
   }
 
   @Post()
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a product (auto-creates default variant)' })
   create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto);
   }
 
   @Patch(':id')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a product' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -67,7 +68,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Soft-delete a product' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);

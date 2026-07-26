@@ -51,14 +51,14 @@ export class CategoriesController {
   }
 
   @Post()
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a category' })
   create(@Body() dto: CreateCategoryDto) {
     return this.categoriesService.create(dto);
   }
 
   @Patch(':id')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a category' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -68,7 +68,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Soft-delete a category' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoriesService.remove(id);

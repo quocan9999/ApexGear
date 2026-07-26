@@ -57,6 +57,10 @@ vi.mock('../services/notifications.service', () => ({
 vi.mock('../services/customers.service', () => ({
   customersService: {
     list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    get: vi.fn(),
+    update: vi.fn(),
+    updateAddress: vi.fn(),
+    unlock: vi.fn(),
   },
 }));
 
@@ -64,6 +68,69 @@ vi.mock('../services/staff.service', () => ({
   staffService: {
     list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
   },
+}));
+
+vi.mock('../services/inventory.service', () => ({
+  inventoryService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    lowStock: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    outOfStock: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    adjust: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock('../services/orders.service', () => ({
+  ordersService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    getById: vi.fn(),
+    updateStatus: vi.fn(),
+  },
+}));
+
+vi.mock('../services/reviews.service', () => ({
+  reviewsService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    updateStatus: vi.fn(),
+  },
+}));
+
+vi.mock('../services/coupons.service', () => ({
+  couponsService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+  },
+}));
+
+vi.mock('../services/shipping.service', () => ({
+  shippingService: {
+    getRules: vi.fn().mockResolvedValue([]),
+    createRule: vi.fn(),
+    updateRule: vi.fn(),
+    deleteRule: vi.fn(),
+    addRegion: vi.fn(),
+    removeRegion: vi.fn(),
+  },
+}));
+
+vi.mock('../services/settings.service', () => ({
+  settingsService: {
+    list: vi.fn().mockResolvedValue([]),
+    update: vi.fn(),
+  },
+}));
+
+vi.mock('../hooks/useProvinces', () => ({
+  useProvinces: () => ({
+    provinces: [],
+    wards: [],
+    selectedProvince: null,
+    selectedWard: null,
+    selectProvince: vi.fn(),
+    selectWard: vi.fn(),
+    loading: false,
+  }),
 }));
 
 const baseUser: User = {
@@ -83,8 +150,8 @@ const allowedRoutes: Record<Exclude<Role, 'CUSTOMER'>, string[]> = {
   SUPER_ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/customers', '/staff', '/coupons', '/shipping', '/settings'],
   ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/customers', '/staff', '/coupons', '/shipping', '/settings'],
   CONTENT_MANAGER: ['/', '/products', '/categories', '/brands', '/inventory', '/reviews', '/coupons'],
-  INVENTORY_MANAGER: ['/', '/inventory'],
-  ORDER_MANAGER: ['/', '/orders', '/shipping'],
+  INVENTORY_MANAGER: ['/', '/products', '/orders', '/inventory'],
+  ORDER_MANAGER: ['/', '/products', '/orders', '/shipping'],
 };
 
 const pageKeyByPath: Record<string, string> = {

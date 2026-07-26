@@ -608,7 +608,7 @@
   },
 
   "invitation": {
-    "title": "Kích hoạt tài khoản nhân viên",
+    "title": "KÍCH HOẠT TÀI KHOẢN",
     "description": "Đặt mật khẩu để hoàn tất lời mời tham gia đội ngũ ApexGear.",
     "password": "Mật khẩu mới",
     "confirmPassword": "Xác nhận mật khẩu",

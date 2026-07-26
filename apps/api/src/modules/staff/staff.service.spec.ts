@@ -10,7 +10,11 @@ describe('StaffService', () => {
   it('creates a pending staff account without a password and sends an invite', async () => {
     const prisma = createPrismaMock();
     const emailService = { sendStaffInvitationEmail: jest.fn().mockResolvedValue(undefined) };
-    const config = { get: jest.fn().mockReturnValue('http://localhost:5173') };
+    const config = {
+      get: jest.fn((key: string) =>
+        key === 'ADMIN_URL' ? 'http://localhost:5174' : 'http://localhost:5173',
+      ),
+    };
     const service = new StaffService(prisma as never, emailService as never, config as never);
     prisma.user.findFirst.mockResolvedValue(null);
     prisma.user.create.mockResolvedValue({ id: 's1', email: 'staff@example.com', name: 'Staff', role: Role.CONTENT_MANAGER });
@@ -18,7 +22,11 @@ describe('StaffService', () => {
     await service.create({ email: 'staff@example.com', name: 'Staff', role: Role.CONTENT_MANAGER }, Role.ADMIN);
 
     expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ password: null, activationStatus: 'PENDING_ACTIVATION', isActive: false }) }));
-    expect(emailService.sendStaffInvitationEmail).toHaveBeenCalled();
+    expect(emailService.sendStaffInvitationEmail).toHaveBeenCalledWith(
+      'staff@example.com',
+      'Staff',
+      expect.stringMatching(/^http:\/\/localhost:5174\/staff\/activate\?token=/),
+    );
   });
 
   it('rejects ADMIN assigning ADMIN', async () => {
@@ -176,7 +184,11 @@ describe('StaffService', () => {
   it('invalidates an older pending invitation before creating a replacement', async () => {
     const prisma = createPrismaMock();
     const emailService = { sendStaffInvitationEmail: jest.fn().mockResolvedValue(undefined) };
-    const config = { get: jest.fn().mockReturnValue('http://localhost:5173') };
+    const config = {
+      get: jest.fn((key: string) =>
+        key === 'ADMIN_URL' ? 'http://localhost:5174' : 'http://localhost:5173',
+      ),
+    };
     const service = new StaffService(prisma as never, emailService as never, config as never);
     prisma.user.findFirst.mockResolvedValue({
       id: 's1',

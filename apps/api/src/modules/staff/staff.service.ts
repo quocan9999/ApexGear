@@ -110,8 +110,8 @@ export class StaffService {
     await this.prisma.staffInvitationToken.updateMany({ where: { userId, usedAt: null }, data: { usedAt: new Date() } });
     const rawToken = randomBytes(32).toString('hex');
     await this.prisma.staffInvitationToken.create({ data: { tokenHash: this.hashToken(rawToken), userId, expiresAt: new Date(Date.now() + INVITATION_TTL_MS) } });
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:5173');
-    await this.emailService.sendStaffInvitationEmail(email, name, `${frontendUrl}/staff/activate?token=${rawToken}`);
+    const adminUrl = this.configService.get<string>('ADMIN_URL', 'http://localhost:5174');
+    await this.emailService.sendStaffInvitationEmail(email, name, `${adminUrl}/staff/activate?token=${rawToken}`);
   }
 
   private hashToken(token: string) {

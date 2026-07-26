@@ -15,5 +15,21 @@ export type {
   ReviewStatus,
   Role,
 } from './enums';
-export { ALL_STAFF_ROLES, CONTENT_ROLES, STAFF_ROLES, isStaffRole } from './roles';
+export {
+  ALL_STAFF_ROLES,
+  ASSIGNABLE_STAFF_ROLES,
+  CONTENT_ROLES,
+  CUSTOMER_MANAGER_ROLES,
+  STAFF_MANAGER_ROLES,
+  STAFF_ROLES,
+  SUPER_ADMIN_ROLES,
+  canAssignRole,
+  canManageTarget,
+  canMutateCustomer,
+  canRestoreStaff,
+  canViewResource,
+  isCustomerRole,
+  isStaffRole,
+} from './roles';
+export type { PolicyAction, Resource } from './roles';
 export { ALLOWED_TRANSITIONS, getAllowedTransitions, requiresCancelReason } from './order-transitions';

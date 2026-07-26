@@ -28,6 +28,7 @@ export const ROLE_VALUES = [
   'INVENTORY_MANAGER',
   'ORDER_MANAGER',
   'ADMIN',
+  'SUPER_ADMIN',
 ] as const;
 
 export type Role = (typeof ROLE_VALUES)[number];

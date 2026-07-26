@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AdminLayout } from '../components/layout';
 import LoginPage from '../pages/LoginPage';
+import AcceptInvitationPage from '../pages/AcceptInvitationPage';
 import RoleRoute from './RoleRoute';
 import { CUSTOMER_MANAGER_ROLES, STAFF_ROLES } from '@apexgear/shared';
 import type { Role } from '../types';
@@ -21,9 +22,26 @@ const CouponsPage = lazy(() => import('../pages/CouponsPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const ShippingRulesPage = lazy(() => import('../pages/ShippingRulesPage'));
 
+const PRODUCT_READ_ROLES: readonly Role[] = [
+  'SUPER_ADMIN',
+  'ADMIN',
+  'CONTENT_MANAGER',
+  'INVENTORY_MANAGER',
+  'ORDER_MANAGER',
+];
 const CONTENT_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER'];
-const INVENTORY_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER'];
-const ORDER_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER'];
+const INVENTORY_ROLES: readonly Role[] = [
+  'SUPER_ADMIN',
+  'ADMIN',
+  'CONTENT_MANAGER',
+  'INVENTORY_MANAGER',
+];
+const ORDER_ROLES: readonly Role[] = [
+  'SUPER_ADMIN',
+  'ADMIN',
+  'INVENTORY_MANAGER',
+  'ORDER_MANAGER',
+];
 const COUPON_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER'];
 const SHIPPING_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER'];
 const CUSTOMER_MANAGER: readonly Role[] = CUSTOMER_MANAGER_ROLES;
@@ -34,13 +52,17 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/staff/activate" element={<AcceptInvitationPage />} />
 
       <Route element={<RoleRoute />}>
         <Route element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
 
-          <Route element={<RoleRoute allow={CONTENT_ROLES} />}>
+          <Route element={<RoleRoute allow={PRODUCT_READ_ROLES} />}>
             <Route path="products" element={<ProductsPage />} />
+          </Route>
+
+          <Route element={<RoleRoute allow={CONTENT_ROLES} />}>
             <Route path="products/new" element={<ProductFormPage />} />
             <Route path="products/:slug/edit" element={<ProductFormPage />} />
             <Route path="categories" element={<CategoriesPage />} />

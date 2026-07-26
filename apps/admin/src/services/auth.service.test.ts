@@ -51,4 +51,16 @@ describe('authService', () => {
     await expect(authService.getMe()).resolves.toBe(user);
     expect(mockedApi.get).toHaveBeenCalledWith('/auth/me');
   });
+
+  it('accepts a staff invitation with the token and password', async () => {
+    vi.mocked(mockedApi.post).mockResolvedValueOnce({ data: { message: 'Invitation accepted' } });
+
+    await expect(authService.acceptInvitation('raw-token', 'Admin123')).resolves.toEqual({
+      message: 'Invitation accepted',
+    });
+    expect(mockedApi.post).toHaveBeenCalledWith('/auth/accept-invitation', {
+      token: 'raw-token',
+      password: 'Admin123',
+    });
+  });
 });

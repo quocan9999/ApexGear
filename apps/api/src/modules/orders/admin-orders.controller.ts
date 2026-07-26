@@ -16,23 +16,25 @@ import { Role } from '../../common/enums';
 
 @ApiTags('Admin Orders')
 @Controller('admin/orders')
-@Roles(Role.ADMIN, Role.ORDER_MANAGER)
 export class AdminOrdersController {
   constructor(private ordersService: OrdersService) {}
 
   @Get()
+  @Roles(Role.ADMIN, Role.ORDER_MANAGER, Role.INVENTORY_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'List all orders (admin)' })
   findAll(@Query() query: QueryOrderDto) {
     return this.ordersService.findAllOrders(query);
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN, Role.ORDER_MANAGER, Role.INVENTORY_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get order detail (admin)' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.ordersService.findAdminOrder(id);
   }
 
   @Patch(':id/status')
+  @Roles(Role.ADMIN, Role.ORDER_MANAGER, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update order status (admin)' })
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,

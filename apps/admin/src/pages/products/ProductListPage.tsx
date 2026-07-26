@@ -55,7 +55,9 @@ function flattenCategories(tree: Category[]): Category[] {
 export function ProductListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+  const canEdit = isAdmin || user?.role === 'CONTENT_MANAGER';
+  const canCreate = canEdit;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [meta, setMeta] = useState<PageMeta>(DEFAULT_META);
@@ -219,15 +221,17 @@ export function ProductListPage() {
         cellClassName: 'whitespace-nowrap',
         render: (row) => (
           <div className="flex flex-wrap items-center gap-sm">
-            <Link
-              to={`/products/${row.slug}/edit`}
-              className="label-sm inline-flex items-center gap-1 text-primary hover:underline"
-            >
+            {canEdit ? (
+              <Link
+                to={`/products/${row.slug}/edit`}
+                className="label-sm inline-flex items-center gap-1 text-primary hover:underline"
+              >
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
               </svg>
-              {t('common.edit')}
-            </Link>
+                {t('common.edit')}
+              </Link>
+            ) : null}
             {isAdmin && (
               <button
                 type="button"
@@ -257,12 +261,14 @@ export function ProductListPage() {
         <h2 id="products-page-title" className="headline-lg text-on-surface">
           {t('pages.products.title')}
         </h2>
-        <Link
-          to="/products/new"
-          className="inline-flex h-12 self-start items-center justify-center rounded bg-primary px-6 font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-        >
-          {t('products.create')}
-        </Link>
+        {canCreate && (
+          <Link
+            to="/products/new"
+            className="inline-flex h-12 self-start items-center justify-center rounded bg-primary px-6 font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          >
+            {t('products.create')}
+          </Link>
+        )}
       </div>
 
       {loading ? (

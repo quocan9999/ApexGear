@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import {
   ALL_STAFF_ROLES,
+  canAssignRole,
   CONTENT_ROLES,
   COUPON_TYPE_VALUES,
   ORDER_STATUS_VALUES,
@@ -41,6 +42,7 @@ describe('commerce enum values', () => {
       'INVENTORY_MANAGER',
       'ORDER_MANAGER',
       'ADMIN',
+      'SUPER_ADMIN',
     ]);
   });
 
@@ -56,9 +58,9 @@ describe('commerce enum values', () => {
 
 describe('role helpers', () => {
   it('exports the admin role groups used by routes and navigation', () => {
-    expect(STAFF_ROLES).toEqual(['ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER', 'ORDER_MANAGER']);
+    expect(STAFF_ROLES).toEqual(['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER', 'ORDER_MANAGER']);
     expect(ALL_STAFF_ROLES).toEqual(STAFF_ROLES);
-    expect(CONTENT_ROLES).toEqual(['ADMIN', 'CONTENT_MANAGER']);
+    expect(CONTENT_ROLES).toEqual(['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER']);
   });
 
   it('identifies staff roles and rejects customers', () => {
@@ -67,6 +69,12 @@ describe('role helpers', () => {
     expect(isStaffRole('INVENTORY_MANAGER')).toBe(true);
     expect(isStaffRole('ORDER_MANAGER')).toBe(true);
     expect(isStaffRole('CUSTOMER')).toBe(false);
+  });
+
+  it('never permits customer or super admin assignment through staff management', () => {
+    expect(canAssignRole('SUPER_ADMIN', 'CUSTOMER')).toBe(false);
+    expect(canAssignRole('ADMIN', 'CUSTOMER')).toBe(false);
+    expect(canAssignRole('SUPER_ADMIN', 'SUPER_ADMIN')).toBe(false);
   });
 });
 

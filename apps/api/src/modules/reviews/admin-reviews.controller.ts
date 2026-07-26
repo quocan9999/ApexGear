@@ -37,7 +37,7 @@ class AdminReviewQueryDto extends PaginationQueryDto {
 
 @ApiTags('Admin Reviews')
 @Controller('admin/reviews')
-@Roles(Role.ADMIN, Role.CONTENT_MANAGER)
+@Roles(Role.ADMIN, Role.CONTENT_MANAGER, Role.SUPER_ADMIN)
 export class AdminReviewsController {
   constructor(private reviewsService: ReviewsService) {}
 

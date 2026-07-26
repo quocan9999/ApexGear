@@ -37,7 +37,7 @@ const DEFAULT_META: PageMeta = { page: 1, limit: 20, total: 0, totalPages: 0 };
 export function BrandsPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const [brands, setBrands] = useState<Brand[]>([]);
   const [meta, setMeta] = useState<PageMeta>(DEFAULT_META);

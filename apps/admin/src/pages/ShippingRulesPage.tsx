@@ -33,7 +33,7 @@ const EMPTY_FORM: FormState = {
 export function ShippingRulesPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const [rules, setRules] = useState<ShippingRule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -301,11 +301,11 @@ export function ShippingRulesPage() {
     <div className="flex flex-col gap-lg">
       <div className="flex flex-col gap-sm border-b border-outline-variant pb-md md:flex-row md:items-center md:justify-between">
         <h2 id="shipping-rules-page-title" className="headline-lg text-on-surface">
-          Quy tắc vận chuyển
+          {t('pages.shipping.title')}
         </h2>
         {isAdmin && (
           <Button type="button" onClick={openCreate}>
-            Tạo mới
+            {t('common.create')}
           </Button>
         )}
       </div>

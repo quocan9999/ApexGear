@@ -15,12 +15,15 @@ api.interceptors.response.use(
       response?: { status?: number; data?: { message?: string, error?: { message?: string } } };
     };
     
-    let message =
-      candidate.response?.data?.error?.message || candidate.response?.data?.message || candidate.message || i18n.t('common.genericError');
+    const rawMessage =
+      candidate.response?.data?.error?.message || candidate.response?.data?.message || candidate.message;
+    let message = rawMessage || i18n.t('common.genericError');
     const status = candidate.response?.status;
 
     // Map technical or backend errors to user-friendly messages
-    if (!status || status >= 500 || message.includes('Request failed with status code') || message.includes('Network Error')) {
+    if (status && status >= 500) {
+      message = i18n.t('errors.server');
+    } else if (!status || message.includes('Request failed with status code') || message.includes('Network Error')) {
       message = i18n.t('errors.network');
     } else if (status === 401 && (message.toLowerCase().includes('credential') || message.toLowerCase().includes('password'))) {
       message = i18n.t('errors.invalidCredentials');
@@ -32,7 +35,7 @@ api.interceptors.response.use(
       message = i18n.t('errors.tooManyRequests');
     }
 
-    return Promise.reject({ message, status });
+    return Promise.reject({ message, rawMessage, status });
   },
 );
 

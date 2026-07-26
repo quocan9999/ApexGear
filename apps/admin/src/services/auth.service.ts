@@ -14,4 +14,9 @@ export const authService = {
 
   getMe: () =>
     api.get<ApiResponse<User>>('/auth/me').then((response) => response.data.data),
+
+  acceptInvitation: (token: string, password: string) =>
+    api
+      .post<{ message: string }>('/auth/accept-invitation', { token, password })
+      .then((response) => response.data),
 };

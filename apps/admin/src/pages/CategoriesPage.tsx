@@ -56,7 +56,7 @@ function topLevelParents(tree: Category[], excludeId?: string): Category[] {
 export function CategoriesPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const [tree, setTree] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

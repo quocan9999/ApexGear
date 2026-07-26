@@ -2,12 +2,12 @@
   "name": "@apexgear/shared",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/index.js"
   },
-  "types": "./src/index.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "build": "tsc --project tsconfig.build.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

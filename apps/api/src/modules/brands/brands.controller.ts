@@ -37,14 +37,14 @@ export class BrandsController {
   }
 
   @Post()
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a brand' })
   create(@Body() dto: CreateBrandDto) {
     return this.brandsService.create(dto);
   }
 
   @Patch(':id')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a brand' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -54,7 +54,7 @@ export class BrandsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Soft-delete a brand' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.brandsService.remove(id);

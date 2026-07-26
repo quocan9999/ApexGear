@@ -51,12 +51,19 @@ describe('ReviewsPage', () => {
     });
   });
 
-  it('renders review list with products and users', async () => {
+  it('renders review list with products and users and opens review comments in detail', async () => {
+    const user = userEvent.setup();
     renderPage();
     expect(await screen.findByText('Sony WH-1000XM5')).toBeInTheDocument();
     expect(screen.getByText('MacBook Pro')).toBeInTheDocument();
     expect(screen.getAllByText('Test User')).toHaveLength(2);
-    expect(screen.getByText('Great laptop!')).toBeInTheDocument();
+
+    const detailButtons = screen.getAllByRole('button', {
+      name: i18n.t('pages.reviews.viewDetail'),
+    });
+    await user.click(detailButtons[1]);
+
+    expect(await screen.findByText('Great laptop!')).toBeInTheDocument();
   });
 
   it('pending review has approve/reject buttons', async () => {

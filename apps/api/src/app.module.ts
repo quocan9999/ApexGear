@@ -11,7 +11,8 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { BrandsModule } from './modules/brands/brands.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { ProductsModule } from './modules/products/products.module';
-import { UsersModule } from './modules/users/users.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { StaffModule } from './modules/staff/staff.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { AddressesModule } from './modules/addresses/addresses.module';
 import { CartModule } from './modules/cart/cart.module';
@@ -39,7 +40,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     BrandsModule,
     UploadsModule,
     ProductsModule,
-    UsersModule,
+    CustomersModule,
+    StaffModule,
     InventoryModule,
     AddressesModule,
     CartModule,

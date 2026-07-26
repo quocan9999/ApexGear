@@ -18,9 +18,11 @@ import {
   requiresCancelReason,
 } from '../../utils/order-transitions';
 import { orderStatusVariant, paymentStatusVariant } from './OrderListPage';
+import { useAuth } from '../../hooks/useAuth';
 
 export function OrderDetailPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -62,8 +64,8 @@ export function OrderDetailPage() {
   }, [loadOrder]);
 
   const transitions = useMemo(
-    () => (order ? getAllowedTransitions(order.status) : []),
-    [order],
+    () => (user?.role === 'INVENTORY_MANAGER' || !order ? [] : getAllowedTransitions(order.status)),
+    [order, user?.role],
   );
 
   const applyStatus = async (status: OrderStatus, reason?: string) => {

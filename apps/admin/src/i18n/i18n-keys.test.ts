@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import en from './en.json';
 import vi from './vi.json';
 
 const SRC_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -33,7 +34,10 @@ function hasTranslation(resource: unknown, key: string): boolean {
 }
 
 describe('admin i18n keys', () => {
-  it('defines every static translation key used by the admin app', () => {
+  it.each([
+    ['English', en],
+    ['Vietnamese', vi],
+  ])('defines every static translation key used by the admin app in %s', (_language, resource) => {
     const missingKeys = collectSourceFiles(SRC_DIR).flatMap((filePath) => {
       const source = fs.readFileSync(filePath, 'utf8');
       const relativePath = path.relative(SRC_DIR, filePath).replace(/\\/g, '/');
@@ -42,7 +46,7 @@ describe('admin i18n keys', () => {
 
       while ((match = STATIC_TRANSLATION_CALL.exec(source))) {
         const key = match[2];
-        if (!hasTranslation(vi, key)) {
+        if (!hasTranslation(resource, key)) {
           missing.push(`${relativePath}: ${key}`);
         }
       }

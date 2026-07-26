@@ -30,8 +30,9 @@ async function main() {
       email: 'admin@apexgear.vn',
       password: adminPassword,
       name: 'ApexGear Admin',
-      role: Role.ADMIN,
+      role: Role.SUPER_ADMIN,
       emailVerifiedAt: new Date(),
+      activationStatus: 'ACTIVE',
       isActive: true,
     },
   });

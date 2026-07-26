@@ -21,7 +21,7 @@ export class UploadsController {
   constructor(private uploadsService: UploadsService) {}
 
   @Post('images')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Upload an image to Cloudinary' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -61,7 +61,7 @@ export class UploadsController {
   }
 
   @Delete('images/:publicId(*)')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete an image from Cloudinary by publicId' })
   async deleteImage(@Param('publicId') publicId: string) {
     await this.uploadsService.deleteImage(publicId);

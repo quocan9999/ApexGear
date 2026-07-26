@@ -1,5 +1,13 @@
-import { ALL_STAFF_ROLES, CONTENT_ROLES } from '@apexgear/shared';
+import { ALL_STAFF_ROLES, CONTENT_ROLES, CUSTOMER_MANAGER_ROLES } from '@apexgear/shared';
 import type { Role } from '../../types';
+
+const PRODUCT_READ_ROLES: readonly Role[] = [
+  'SUPER_ADMIN',
+  'ADMIN',
+  'CONTENT_MANAGER',
+  'INVENTORY_MANAGER',
+  'ORDER_MANAGER',
+];
 
 export type NavKey =
   | 'dashboard'
@@ -9,7 +17,8 @@ export type NavKey =
   | 'orders'
   | 'inventory'
   | 'reviews'
-  | 'users'
+  | 'customers'
+  | 'staff'
   | 'coupons'
   | 'shipping'
   | 'settings';
@@ -36,21 +45,22 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'dashboard', to: '/', icon: 'dashboard', roles: ALL_STAFF_ROLES },
-  { key: 'products', to: '/products', icon: 'box', roles: CONTENT_ROLES },
+  { key: 'products', to: '/products', icon: 'box', roles: PRODUCT_READ_ROLES },
   { key: 'categories', to: '/categories', icon: 'category', roles: CONTENT_ROLES },
   { key: 'brands', to: '/brands', icon: 'brand', roles: CONTENT_ROLES },
-  { key: 'orders', to: '/orders', icon: 'orders', roles: ['ADMIN', 'ORDER_MANAGER'] },
+  { key: 'orders', to: '/orders', icon: 'orders', roles: ['SUPER_ADMIN', 'ADMIN', 'INVENTORY_MANAGER', 'ORDER_MANAGER'] },
   {
     key: 'inventory',
     to: '/inventory',
     icon: 'inventory',
-    roles: ['ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER'],
+    roles: ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER'],
   },
   { key: 'reviews', to: '/reviews', icon: 'reviews', roles: CONTENT_ROLES },
-  { key: 'users', to: '/users', icon: 'users', roles: ['ADMIN'] },
-  { key: 'coupons', to: '/coupons', icon: 'coupon', roles: ['ADMIN'] },
-  { key: 'shipping', to: '/shipping', icon: 'shipping', roles: ['ADMIN'] },
-  { key: 'settings', to: '/settings', icon: 'settings', roles: ['ADMIN'] },
+  { key: 'customers', to: '/customers', icon: 'users', roles: CUSTOMER_MANAGER_ROLES },
+  { key: 'staff', to: '/staff', icon: 'users', roles: CUSTOMER_MANAGER_ROLES },
+  { key: 'coupons', to: '/coupons', icon: 'coupon', roles: ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER'] },
+  { key: 'shipping', to: '/shipping', icon: 'shipping', roles: ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER'] },
+  { key: 'settings', to: '/settings', icon: 'settings', roles: ['SUPER_ADMIN', 'ADMIN'] },
 ];
 
 export function visibleNav(role: Role): NavItem[] {

@@ -54,6 +54,18 @@ export class AddressesService {
   }
 
   async update(userId: string, id: string, dto: UpdateAddressDto) {
+    return this.updateOwnedAddress(userId, id, dto);
+  }
+
+  async updateForAdmin(userId: string, id: string, dto: UpdateAddressDto) {
+    return this.updateOwnedAddress(userId, id, dto);
+  }
+
+  private async updateOwnedAddress(
+    userId: string,
+    id: string,
+    dto: UpdateAddressDto,
+  ) {
     await this.ensureOwned(userId, id);
 
     if (dto.isDefault === true) {
@@ -68,6 +80,7 @@ export class AddressesService {
       data: dto,
     });
   }
+
 
   async remove(userId: string, id: string) {
     const address = await this.ensureOwned(userId, id);

@@ -6,6 +6,7 @@ export enum Role {
   INVENTORY_MANAGER = 'INVENTORY_MANAGER',
   ORDER_MANAGER = 'ORDER_MANAGER',
   ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN',
 }
 
 export enum AuthProvider {

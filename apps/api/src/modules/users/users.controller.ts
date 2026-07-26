@@ -19,7 +19,7 @@ import { UserEntity } from '../auth/entities/user.entity';
 
 @ApiTags('Users')
 @Controller('users')
-@Roles(Role.ADMIN)
+@Roles(Role.ADMIN, Role.SUPER_ADMIN)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 

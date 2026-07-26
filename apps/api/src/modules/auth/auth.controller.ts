@@ -23,13 +23,18 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { Public, CurrentUser } from '../../common/decorators';
+import { StaffService } from '../staff/staff.service';
 import { UserEntity } from './entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private staffService: StaffService,
+  ) {}
 
   @Post('register')
   @Public()
@@ -120,6 +125,13 @@ export class AuthController {
   ) {
     await this.authService.changePassword(user.id, dto);
     return { message: 'Password changed successfully' };
+  }
+
+  @Post('accept-invitation')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  async acceptInvitation(@Body() dto: AcceptInvitationDto) {
+    return this.staffService.acceptInvitation(dto.token, dto);
   }
 
   @Post('forgot-password')

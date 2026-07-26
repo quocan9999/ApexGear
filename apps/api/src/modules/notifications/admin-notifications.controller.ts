@@ -9,7 +9,7 @@ import { QueryNotificationsDto } from './dto/query-notifications.dto';
 
 @ApiTags('Admin Notifications')
 @Controller('admin/notifications')
-@Roles(Role.ADMIN, Role.ORDER_MANAGER, Role.INVENTORY_MANAGER, Role.CONTENT_MANAGER)
+@Roles(Role.ADMIN, Role.ORDER_MANAGER, Role.INVENTORY_MANAGER, Role.CONTENT_MANAGER, Role.SUPER_ADMIN)
 export class AdminNotificationsController {
   constructor(
     private notificationsService: NotificationsService,

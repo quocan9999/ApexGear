@@ -32,7 +32,7 @@ export class ProductImagesController {
   }
 
   @Post()
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Upload a product image' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -88,7 +88,7 @@ export class ProductImagesController {
 
   // Static path BEFORE parameterized routes
   @Patch('reorder')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Reorder product images' })
   reorder(
     @Param('productId', ParseUUIDPipe) productId: string,
@@ -101,7 +101,7 @@ export class ProductImagesController {
   }
 
   @Patch(':imageId/primary')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Set image as primary' })
   setPrimary(
     @Param('productId', ParseUUIDPipe) productId: string,
@@ -111,7 +111,7 @@ export class ProductImagesController {
   }
 
   @Delete(':imageId')
-  @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
+  @Roles(Role.CONTENT_MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete a product image' })
   remove(
     @Param('productId', ParseUUIDPipe) productId: string,

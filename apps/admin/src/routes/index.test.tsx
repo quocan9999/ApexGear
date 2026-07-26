@@ -5,6 +5,7 @@ import i18n from '../i18n';
 import { resetAuthStore, useAuthStore } from '../stores/auth.store';
 import type { Role, User } from '../types';
 import AppRoutes from './index';
+import { ToastProvider } from '../hooks/useToast';
 
 vi.mock('../services/dashboard.service', () => ({
   dashboardService: {
@@ -45,6 +46,93 @@ vi.mock('../services/brands.service', () => ({
   },
 }));
 
+vi.mock('../services/notifications.service', () => ({
+  notificationsService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    unreadCount: vi.fn().mockResolvedValue(0),
+    markAllRead: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock('../services/customers.service', () => ({
+  customersService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    get: vi.fn(),
+    update: vi.fn(),
+    updateAddress: vi.fn(),
+    unlock: vi.fn(),
+  },
+}));
+
+vi.mock('../services/staff.service', () => ({
+  staffService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+  },
+}));
+
+vi.mock('../services/inventory.service', () => ({
+  inventoryService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    lowStock: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    outOfStock: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    adjust: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock('../services/orders.service', () => ({
+  ordersService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    getById: vi.fn(),
+    updateStatus: vi.fn(),
+  },
+}));
+
+vi.mock('../services/reviews.service', () => ({
+  reviewsService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    updateStatus: vi.fn(),
+  },
+}));
+
+vi.mock('../services/coupons.service', () => ({
+  couponsService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+  },
+}));
+
+vi.mock('../services/shipping.service', () => ({
+  shippingService: {
+    getRules: vi.fn().mockResolvedValue([]),
+    createRule: vi.fn(),
+    updateRule: vi.fn(),
+    deleteRule: vi.fn(),
+    addRegion: vi.fn(),
+    removeRegion: vi.fn(),
+  },
+}));
+
+vi.mock('../services/settings.service', () => ({
+  settingsService: {
+    list: vi.fn().mockResolvedValue([]),
+    update: vi.fn(),
+  },
+}));
+
+vi.mock('../hooks/useProvinces', () => ({
+  useProvinces: () => ({
+    provinces: [],
+    wards: [],
+    selectedProvince: null,
+    selectedWard: null,
+    selectProvince: vi.fn(),
+    selectWard: vi.fn(),
+    loading: false,
+  }),
+}));
+
 const baseUser: User = {
   id: 'staff-1',
   email: 'staff@apexgear.vn',
@@ -59,10 +147,11 @@ const baseUser: User = {
 };
 
 const allowedRoutes: Record<Exclude<Role, 'CUSTOMER'>, string[]> = {
-  ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/users', '/coupons', '/settings'],
-  CONTENT_MANAGER: ['/', '/products', '/categories', '/brands', '/inventory', '/reviews'],
-  INVENTORY_MANAGER: ['/', '/inventory'],
-  ORDER_MANAGER: ['/', '/orders'],
+  SUPER_ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/customers', '/staff', '/coupons', '/shipping', '/settings'],
+  ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/customers', '/staff', '/coupons', '/shipping', '/settings'],
+  CONTENT_MANAGER: ['/', '/products', '/categories', '/brands', '/inventory', '/reviews', '/coupons'],
+  INVENTORY_MANAGER: ['/', '/products', '/orders', '/inventory'],
+  ORDER_MANAGER: ['/', '/products', '/orders', '/shipping'],
 };
 
 const pageKeyByPath: Record<string, string> = {
@@ -73,8 +162,10 @@ const pageKeyByPath: Record<string, string> = {
   '/orders': 'orders',
   '/inventory': 'inventory',
   '/reviews': 'reviews',
-  '/users': 'users',
+  '/customers': 'customers',
+  '/staff': 'staff',
   '/coupons': 'coupons',
+  '/shipping': 'shipping',
   '/settings': 'settings',
 };
 
@@ -99,10 +190,12 @@ function renderRoutes(path: string, role?: Role) {
   });
 
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <AppRoutes />
-      <RouteLocation />
-    </MemoryRouter>,
+    <ToastProvider>
+      <MemoryRouter initialEntries={[path]}>
+        <AppRoutes />
+        <RouteLocation />
+      </MemoryRouter>
+    </ToastProvider>,
   );
 }
 

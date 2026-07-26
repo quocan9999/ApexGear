@@ -59,6 +59,8 @@
     "inventory": "Inventory",
     "reviews": "Reviews",
     "users": "Customers",
+    "customers": "Customers",
+    "staff": "Staff",
     "coupons": "Promotions",
     "shipping": "Shipping",
     "settings": "Settings",
@@ -75,6 +77,7 @@
     "closeMenuBackdrop": "Close menu backdrop"
   },
   "roles": {
+    "SUPER_ADMIN": "Super administrator",
     "ADMIN": "Administrator",
     "CONTENT_MANAGER": "Content manager",
     "INVENTORY_MANAGER": "Inventory manager",
@@ -131,6 +134,81 @@
       "detailTitle": "Review details",
       "approve": "Approve",
       "reject": "Reject"
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "Manage customer contact information, status, and order history.",
+      "columns": {
+        "name": "Customer",
+        "phone": "Phone number",
+        "createdAt": "Created at"
+      },
+      "filters": {
+        "isActive": "Active",
+        "allStatus": "All",
+        "isLocked": "Login locked",
+        "allLocked": "All"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "locked": "Locked",
+        "notLocked": "Not locked"
+      },
+      "actions": {
+        "view": "View details",
+        "unlock": "Unlock"
+      },
+      "form": {
+        "name": "Full name",
+        "phone": "Phone number",
+        "internalNote": "Internal note",
+        "isActive": "Account is active"
+      },
+      "addressesTitle": "Shipping addresses",
+      "addressForm": {
+        "name": "Recipient",
+        "phone": "Phone number",
+        "provinceName": "Province/City",
+        "wardName": "Ward/Commune",
+        "detail": "Detailed address",
+        "isDefault": "Default address",
+        "save": "Save address"
+      },
+      "ordersTitle": "Order history"
+    },
+    "staff": {
+      "title": "Staff",
+      "description": "Manage staff accounts and activation invitations.",
+      "create": "Invite staff member",
+      "columns": {
+        "name": "Staff member",
+        "role": "Role",
+        "createdAt": "Created at"
+      },
+      "filters": {
+        "includeDeleted": "Show soft-deleted staff"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "pending": "Pending activation",
+        "deleted": "Deleted"
+      },
+      "actions": {
+        "resendInvite": "Resend invitation",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "restore": "Restore",
+        "delete": "Soft delete"
+      },
+      "form": {
+        "title": "Invite staff member",
+        "name": "Full name",
+        "email": "Work email",
+        "role": "Role",
+        "inviteHint": "The staff member will receive a link valid for 24 hours to set their password."
+      }
     },
     "users": {
       "title": "Users",
@@ -225,6 +303,10 @@
       "deleteTitle": "Delete coupon",
       "deleteDescription": "Are you sure you want to delete code '{{code}}'? This action cannot be undone."
     },
+    "shipping": {
+      "title": "Shipping rules",
+      "description": "Manage shipping fee and free-shipping rules."
+    },
     "settings": {
       "title": "Settings",
       "description": "Configure system settings.",
@@ -265,6 +347,7 @@
     },
     "chart": {
       "title": "Revenue chart",
+      "rangeLabel": "Chart date range",
       "loading": "Loading chart data...",
       "empty": "No data yet",
       "compactBillion": "{{value}}B",
@@ -273,7 +356,8 @@
     },
     "lowStockList": {
       "title": "Low-stock products",
-      "empty": "No products are running low on stock!"
+      "empty": "No products are running low on stock!",
+      "viewMore": "View {{count}} more products"
     },
     "lowStockSuffix": "items",
     "usersSuffix": "users",
@@ -522,6 +606,18 @@
       "refundTitle": "Refund order",
       "reason": "Reason"
     }
+  },
+  "invitation": {
+    "title": "ACTIVATE ACCOUNT",
+    "description": "Set a password to complete your invitation to join the ApexGear team.",
+    "password": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Activate account",
+    "success": "Your account has been activated. You can sign in now.",
+    "goToLogin": "Go to sign in",
+    "invalidToken": "The invitation link is invalid or has expired.",
+    "passwordMismatch": "Passwords do not match.",
+    "genericError": "Unable to activate the account. Please check the link and try again."
   },
   "login": {
     "title": "Admin sign in",

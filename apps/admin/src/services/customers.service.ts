@@ -58,4 +58,9 @@ export const customersService = {
 
   unlock: (id: string) =>
     api.post<ApiResponse<User>>(`/customers/${id}/unlock`).then((response) => response.data.data),
+
+  updateAddress: (customerId: string, addressId: string, dto: Partial<CustomerAddress>) =>
+    api
+      .patch<ApiResponse<CustomerAddress>>(`/customers/${customerId}/addresses/${addressId}`, dto)
+      .then((response) => response.data.data),
 };

@@ -5,6 +5,7 @@ import { Role } from '../../common/enums';
 import { CustomersService } from './customers.service';
 import { QueryCustomerDto } from './dto/query-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { UpdateAddressDto } from '../addresses/dto/update-address.dto';
 
 @ApiTags('Customers')
 @Controller('customers')
@@ -30,5 +31,15 @@ export class CustomersController {
   @Post(':id/unlock')
   unlock(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() actor: { role: Role }) {
     return this.customersService.unlock(id, actor.role);
+  }
+
+  @Patch(':id/addresses/:addressId')
+  updateAddress(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('addressId', ParseUUIDPipe) addressId: string,
+    @Body() dto: UpdateAddressDto,
+    @CurrentUser() actor: { role: Role },
+  ) {
+    return this.customersService.updateAddress(id, addressId, dto, actor.role);
   }
 }

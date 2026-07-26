@@ -5,6 +5,8 @@ import { Role } from '../../common/enums';
 import { assertCanMutateCustomer, assertCustomerResourceAccess } from '../../common/policies/user.policy';
 import { QueryCustomerDto } from './dto/query-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { UpdateAddressDto } from '../addresses/dto/update-address.dto';
+import { AddressesService } from '../addresses/addresses.service';
 
 const customerSelect = {
   id: true,
@@ -22,9 +24,19 @@ const customerSelect = {
   deletedAt: true,
 } satisfies Prisma.UserSelect;
 
+const customerDetailSelect = {
+  ...customerSelect,
+  internalNote: true,
+  addresses: true,
+  orders: { include: { items: true }, orderBy: { createdAt: 'desc' } },
+} satisfies Prisma.UserSelect;
+
 @Injectable()
 export class CustomersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private addressesService: AddressesService,
+  ) {}
 
   async findAll(query: QueryCustomerDto, actorRole: Role) {
     assertCustomerResourceAccess(actorRole);
@@ -45,7 +57,7 @@ export class CustomersService {
     assertCustomerResourceAccess(actorRole);
     const customer = await this.prisma.user.findFirst({
       where: { id, role: Role.CUSTOMER, deletedAt: null },
-      select: { ...customerSelect, addresses: true, orders: { include: { items: true }, orderBy: { createdAt: 'desc' } } },
+      select: customerDetailSelect,
     });
     if (!customer) throw new NotFoundException('Customer not found');
     return customer;
@@ -63,5 +75,20 @@ export class CustomersService {
     const customer = await this.prisma.user.findFirst({ where: { id, role: Role.CUSTOMER, deletedAt: null }, select: { id: true } });
     if (!customer) throw new NotFoundException('Customer not found');
     return this.prisma.user.update({ where: { id }, data: { failedLoginAttempts: 0, lockedUntil: null }, select: customerSelect });
+  }
+
+  async updateAddress(
+    customerId: string,
+    addressId: string,
+    dto: UpdateAddressDto,
+    actorRole: Role,
+  ) {
+    assertCanMutateCustomer(actorRole);
+    const customer = await this.prisma.user.findFirst({
+      where: { id: customerId, role: Role.CUSTOMER, deletedAt: null },
+      select: { id: true },
+    });
+    if (!customer) throw new NotFoundException('Customer not found');
+    return this.addressesService.updateForAdmin(customer.id, addressId, dto);
   }
 }

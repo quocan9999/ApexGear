@@ -5,6 +5,7 @@ import i18n from '../i18n';
 import { resetAuthStore, useAuthStore } from '../stores/auth.store';
 import type { Role, User } from '../types';
 import AppRoutes from './index';
+import { ToastProvider } from '../hooks/useToast';
 
 vi.mock('../services/dashboard.service', () => ({
   dashboardService: {
@@ -45,6 +46,26 @@ vi.mock('../services/brands.service', () => ({
   },
 }));
 
+vi.mock('../services/notifications.service', () => ({
+  notificationsService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    unreadCount: vi.fn().mockResolvedValue(0),
+    markAllRead: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock('../services/customers.service', () => ({
+  customersService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+  },
+}));
+
+vi.mock('../services/staff.service', () => ({
+  staffService: {
+    list: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+  },
+}));
+
 const baseUser: User = {
   id: 'staff-1',
   email: 'staff@apexgear.vn',
@@ -59,10 +80,11 @@ const baseUser: User = {
 };
 
 const allowedRoutes: Record<Exclude<Role, 'CUSTOMER'>, string[]> = {
-  ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/users', '/coupons', '/settings'],
-  CONTENT_MANAGER: ['/', '/products', '/categories', '/brands', '/inventory', '/reviews'],
+  SUPER_ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/customers', '/staff', '/coupons', '/shipping', '/settings'],
+  ADMIN: ['/', '/products', '/categories', '/brands', '/orders', '/inventory', '/reviews', '/customers', '/staff', '/coupons', '/shipping', '/settings'],
+  CONTENT_MANAGER: ['/', '/products', '/categories', '/brands', '/inventory', '/reviews', '/coupons'],
   INVENTORY_MANAGER: ['/', '/inventory'],
-  ORDER_MANAGER: ['/', '/orders'],
+  ORDER_MANAGER: ['/', '/orders', '/shipping'],
 };
 
 const pageKeyByPath: Record<string, string> = {
@@ -73,8 +95,10 @@ const pageKeyByPath: Record<string, string> = {
   '/orders': 'orders',
   '/inventory': 'inventory',
   '/reviews': 'reviews',
-  '/users': 'users',
+  '/customers': 'customers',
+  '/staff': 'staff',
   '/coupons': 'coupons',
+  '/shipping': 'shipping',
   '/settings': 'settings',
 };
 
@@ -99,10 +123,12 @@ function renderRoutes(path: string, role?: Role) {
   });
 
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <AppRoutes />
-      <RouteLocation />
-    </MemoryRouter>,
+    <ToastProvider>
+      <MemoryRouter initialEntries={[path]}>
+        <AppRoutes />
+        <RouteLocation />
+      </MemoryRouter>
+    </ToastProvider>,
   );
 }
 

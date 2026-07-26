@@ -55,7 +55,7 @@ function flattenCategories(tree: Category[]): Category[] {
 export function ProductListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const [products, setProducts] = useState<Product[]>([]);
   const [meta, setMeta] = useState<PageMeta>(DEFAULT_META);

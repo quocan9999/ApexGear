@@ -26,9 +26,11 @@ IF (SELECT COUNT(*) FROM [User] WHERE [role] = 'SUPER_ADMIN' AND [email] <> 'adm
 IF (SELECT COUNT(*) FROM [User] WHERE [role] = 'SUPER_ADMIN') > 1
   THROW 51001, 'RBAC migration blocked: multiple SUPER_ADMIN rows already exist. Resolve the conflict and rerun.', 1;
 
-UPDATE [User]
-SET [role] = 'SUPER_ADMIN', [isActive] = 1, [deletedAt] = NULL, [activationStatus] = 'ACTIVE'
-WHERE [email] = 'admin@apexgear.vn';
+-- Execute after the ALTER TABLE statement has completed. SQL Server otherwise
+-- validates activationStatus before it exists within this migration batch.
+EXEC(N'UPDATE [User]
+SET [role] = ''SUPER_ADMIN'', [isActive] = 1, [deletedAt] = NULL, [activationStatus] = ''ACTIVE''
+WHERE [email] = ''admin@apexgear.vn'';');
 
 IF NOT EXISTS (SELECT 1 FROM [User] WHERE [email] = 'admin@apexgear.vn')
   THROW 51002, 'RBAC migration blocked: bootstrap account admin@apexgear.vn does not exist.', 1;

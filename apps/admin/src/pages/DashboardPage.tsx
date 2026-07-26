@@ -250,7 +250,7 @@ export function DashboardPage() {
               label={t('dashboard.stats.totalUsers')}
               value={`${formatCount(stats.totalUsers)} ${t('dashboard.usersSuffix')}`}
               icon={<IconUsers />}
-              to="/users"
+              to="/customers"
             />
           </>
         )}

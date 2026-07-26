@@ -51,6 +51,23 @@ export function getEmailVerificationTemplate(
   `;
 }
 
+export function getStaffInvitationTemplate(
+  name: string,
+  invitationUrl: string,
+): string {
+  return `
+    <div style="${baseStyle}">
+      <h2>Xin chào ${name},</h2>
+      <p>Bạn được mời tham gia đội ngũ quản trị ApexGear.</p>
+      <p>Nhấn vào nút bên dưới để đặt mật khẩu và kích hoạt tài khoản (liên kết có hiệu lực trong 24 giờ):</p>
+      <p style="text-align:center; margin: 30px 0;">
+        <a href="${invitationUrl}" style="${buttonStyle}">Kích hoạt tài khoản</a>
+      </p>
+      <p>Nếu bạn không mong đợi email này, hãy bỏ qua.</p>
+    </div>
+  `;
+}
+
 export function getOrderConfirmationTemplate(
   name: string,
   order: { orderNumber: string; total: number; paymentMethod: string },

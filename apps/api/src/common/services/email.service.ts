@@ -4,6 +4,7 @@ import * as nodemailer from 'nodemailer';
 import {
   getResetPasswordTemplate,
   getEmailVerificationTemplate,
+  getStaffInvitationTemplate,
   getOrderConfirmationTemplate,
   getDeliveryConfirmationTemplate,
 } from './email.templates';
@@ -72,6 +73,29 @@ export class EmailService {
       throw new MailDeliveryError(
         'Không thể gửi email xác thực. Vui lòng thử lại sau.',
         'email-verification',
+        email,
+      );
+    }
+  }
+
+  async sendStaffInvitationEmail(
+    email: string,
+    name: string,
+    invitationUrl: string,
+  ): Promise<void> {
+    try {
+      await this.transporter.sendMail({
+        from: this.from,
+        to: email,
+        subject: 'ApexGear - Lời mời tham gia đội ngũ',
+        html: getStaffInvitationTemplate(name, invitationUrl),
+      });
+      this.logger.log(`Staff invitation email sent to ${email}`);
+    } catch (error) {
+      this.logger.error(`Failed to send staff invitation email to ${email}`, error);
+      throw new MailDeliveryError(
+        'Không thể gửi email mời nhân viên. Vui lòng thử lại sau.',
+        'staff-invitation',
         email,
       );
     }

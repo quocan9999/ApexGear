@@ -25,6 +25,7 @@ export function createPrismaMock() {
     user: modelMock(),
     passwordResetToken: modelMock(),
     emailVerificationToken: modelMock(),
+    staffInvitationToken: modelMock(),
     adminNotification: modelMock(),
     lowStockAlertState: modelMock(),
     category: modelMock(),
@@ -65,6 +66,7 @@ export function createPrismaMock() {
     user: ReturnType<typeof modelMock>;
     passwordResetToken: ReturnType<typeof modelMock>;
     emailVerificationToken: ReturnType<typeof modelMock>;
+    staffInvitationToken: ReturnType<typeof modelMock>;
     adminNotification: ReturnType<typeof modelMock>;
     lowStockAlertState: ReturnType<typeof modelMock>;
     category: ReturnType<typeof modelMock>;

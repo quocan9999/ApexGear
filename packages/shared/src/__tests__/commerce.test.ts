@@ -41,6 +41,7 @@ describe('commerce enum values', () => {
       'INVENTORY_MANAGER',
       'ORDER_MANAGER',
       'ADMIN',
+      'SUPER_ADMIN',
     ]);
   });
 
@@ -56,9 +57,9 @@ describe('commerce enum values', () => {
 
 describe('role helpers', () => {
   it('exports the admin role groups used by routes and navigation', () => {
-    expect(STAFF_ROLES).toEqual(['ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER', 'ORDER_MANAGER']);
+    expect(STAFF_ROLES).toEqual(['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER', 'ORDER_MANAGER']);
     expect(ALL_STAFF_ROLES).toEqual(STAFF_ROLES);
-    expect(CONTENT_ROLES).toEqual(['ADMIN', 'CONTENT_MANAGER']);
+    expect(CONTENT_ROLES).toEqual(['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER']);
   });
 
   it('identifies staff roles and rejects customers', () => {

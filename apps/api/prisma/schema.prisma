@@ -31,6 +31,8 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   deletedAt           DateTime?
+  activationStatus    String    @default("ACTIVE") @db.VarChar(24)
+  internalNote        String?   @db.NVarChar(Max)
 
   addresses          Address[]
   orders             Order[]
@@ -38,6 +40,7 @@ model User {
   reviews            Review[]
   resetTokens        PasswordResetToken[]
   verificationTokens EmailVerificationToken[]
+  staffInvitations   StaffInvitationToken[]
 
   @@index([email, deletedAt])
   @@index([role])
@@ -61,6 +64,18 @@ model EmailVerificationToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+
+  @@index([userId, usedAt])
+}
+
+model StaffInvitationToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique @db.VarChar(128)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
 
   @@index([userId, usedAt])
 }

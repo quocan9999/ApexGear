@@ -164,6 +164,16 @@
         "internalNote": "Ghi chú nội bộ",
         "isActive": "Tài khoản đang hoạt động"
       },
+      "addressesTitle": "Địa chỉ giao hàng",
+      "addressForm": {
+        "name": "Người nhận",
+        "phone": "Số điện thoại",
+        "provinceName": "Tỉnh/Thành phố",
+        "wardName": "Phường/Xã",
+        "detail": "Địa chỉ chi tiết",
+        "isDefault": "Địa chỉ mặc định",
+        "save": "Lưu địa chỉ"
+      },
       "ordersTitle": "Lịch sử đơn hàng"
     },
     "staff": {
@@ -597,6 +607,18 @@
     }
   },
 
+  "invitation": {
+    "title": "Kích hoạt tài khoản nhân viên",
+    "description": "Đặt mật khẩu để hoàn tất lời mời tham gia đội ngũ ApexGear.",
+    "password": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "submit": "Kích hoạt tài khoản",
+    "success": "Tài khoản đã được kích hoạt. Bạn có thể đăng nhập ngay.",
+    "goToLogin": "Đi đến đăng nhập",
+    "invalidToken": "Liên kết lời mời không hợp lệ hoặc đã hết hạn.",
+    "passwordMismatch": "Hai mật khẩu không khớp.",
+    "genericError": "Không thể kích hoạt tài khoản. Vui lòng kiểm tra liên kết và thử lại."
+  },
   "login": {
     "title": "Đăng nhập quản trị",
     "description": "Khu vực quản trị dành cho nhân viên hệ thống. Vui lòng đăng nhập để tiếp tục.",

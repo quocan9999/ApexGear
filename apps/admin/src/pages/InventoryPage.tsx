@@ -49,7 +49,7 @@ function stockLabel(t: ReturnType<typeof useTranslation>['t'], item: InventoryIt
 export function InventoryPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const canAdjust = user?.role === 'ADMIN' || user?.role === 'INVENTORY_MANAGER';
+  const canAdjust = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN' || user?.role === 'INVENTORY_MANAGER';
 
   const [tab, setTab] = useState<Tab>('all');
   const [items, setItems] = useState<InventoryItem[]>([]);

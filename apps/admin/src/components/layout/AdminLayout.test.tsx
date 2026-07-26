@@ -142,7 +142,7 @@ describe('AdminLayout', () => {
     expect(within(sidebar).getByText('ApexGear')).toBeInTheDocument();
     expect(within(sidebar).getByText('Admin Dashboard')).toBeInTheDocument();
     const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
-    expect(within(navigation).getAllByRole('link')).toHaveLength(11);
+    expect(within(navigation).getAllByRole('link')).toHaveLength(12);
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toHaveAttribute(
       'aria-current',
       'page',
@@ -159,7 +159,7 @@ describe('AdminLayout', () => {
     renderLayout('ORDER_MANAGER');
 
     const navigation = screen.getByRole('navigation', { name: i18n.t('layout.primaryNavigation') });
-    expect(within(navigation).getAllByRole('link')).toHaveLength(2);
+    expect(within(navigation).getAllByRole('link')).toHaveLength(3);
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.dashboard') })).toBeInTheDocument();
     expect(within(navigation).getByRole('link', { name: i18n.t('nav.orders') })).toBeInTheDocument();
     expect(within(navigation).queryByRole('link', { name: i18n.t('nav.products') })).not.toBeInTheDocument();

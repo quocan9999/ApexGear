@@ -47,6 +47,8 @@ export interface User {
   avatar: string | null;
   role: Role;
   provider: string;
+  activationStatus?: 'PENDING_ACTIVATION' | 'ACTIVE';
+  internalNote?: string | null;
   isActive: boolean;
   lockedUntil?: string | null;
   deletedAt?: string | null;

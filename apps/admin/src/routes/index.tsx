@@ -3,6 +3,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AdminLayout } from '../components/layout';
 import LoginPage from '../pages/LoginPage';
 import RoleRoute from './RoleRoute';
+import { CUSTOMER_MANAGER_ROLES, STAFF_ROLES } from '@apexgear/shared';
+import type { Role } from '../types';
 
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const ProductsPage = lazy(() => import('../pages/ProductsPage'));
@@ -13,15 +15,20 @@ const OrdersPage = lazy(() => import('../pages/OrdersPage'));
 const OrderDetailPage = lazy(() => import('../pages/orders/OrderDetailPage'));
 const InventoryPage = lazy(() => import('../pages/InventoryPage'));
 const ReviewsPage = lazy(() => import('../pages/ReviewsPage'));
-const UsersPage = lazy(() => import('../pages/UsersPage'));
+const CustomersPage = lazy(() => import('../pages/CustomersPage'));
+const StaffPage = lazy(() => import('../pages/StaffPage'));
 const CouponsPage = lazy(() => import('../pages/CouponsPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const ShippingRulesPage = lazy(() => import('../pages/ShippingRulesPage'));
 
-const CONTENT_ROLES = ['ADMIN', 'CONTENT_MANAGER'] as const;
-const INVENTORY_ROLES = ['ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER'] as const;
-const ORDER_ROLES = ['ADMIN', 'ORDER_MANAGER'] as const;
-const ADMIN_ONLY = ['ADMIN'] as const;
+const CONTENT_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER'];
+const INVENTORY_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER', 'INVENTORY_MANAGER'];
+const ORDER_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER'];
+const COUPON_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER'];
+const SHIPPING_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'ORDER_MANAGER'];
+const CUSTOMER_MANAGER: readonly Role[] = CUSTOMER_MANAGER_ROLES;
+const STAFF_MANAGER: readonly Role[] = STAFF_ROLES.filter((role) => role === 'SUPER_ADMIN' || role === 'ADMIN');
+const ADMIN_ONLY: readonly Role[] = ['SUPER_ADMIN', 'ADMIN'];
 
 export default function AppRoutes() {
   return (
@@ -50,10 +57,22 @@ export default function AppRoutes() {
             <Route path="orders/:id" element={<OrderDetailPage />} />
           </Route>
 
-          <Route element={<RoleRoute allow={ADMIN_ONLY} />}>
-            <Route path="users" element={<UsersPage />} />
+          <Route element={<RoleRoute allow={CUSTOMER_MANAGER} />}>
+            <Route path="customers" element={<CustomersPage />} />
+            <Route element={<RoleRoute allow={STAFF_MANAGER} />}>
+              <Route path="staff" element={<StaffPage />} />
+            </Route>
+          </Route>
+
+          <Route element={<RoleRoute allow={COUPON_ROLES} />}>
             <Route path="coupons" element={<CouponsPage />} />
+          </Route>
+
+          <Route element={<RoleRoute allow={SHIPPING_ROLES} />}>
             <Route path="shipping" element={<ShippingRulesPage />} />
+          </Route>
+
+          <Route element={<RoleRoute allow={ADMIN_ONLY} />}>
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>

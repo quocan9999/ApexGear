@@ -2,6 +2,10 @@
   "admin": {
     "title": "ApexGear Admin"
   },
+  "language": {
+    "open": "Mở trình chọn ngôn ngữ",
+    "menu": "Trình chọn ngôn ngữ"
+  },
   "common": {
     "save": "Lưu",
     "cancel": "Hủy",
@@ -54,7 +58,8 @@
     "orders": "Đơn hàng",
     "inventory": "Kho hàng",
     "reviews": "Đánh giá",
-    "users": "Khách hàng",
+    "customers": "Khách hàng",
+    "staff": "Nhân viên",
     "coupons": "Khuyến mãi",
     "shipping": "Vận chuyển",
     "settings": "Cài đặt",
@@ -71,6 +76,7 @@
     "closeMenuBackdrop": "Đóng lớp phủ trình đơn"
   },
   "roles": {
+    "SUPER_ADMIN": "Quản trị cấp cao",
     "ADMIN": "Quản trị viên",
     "CONTENT_MANAGER": "Quản lý nội dung",
     "INVENTORY_MANAGER": "Quản lý kho",
@@ -127,6 +133,71 @@
       "detailTitle": "Chi tiết đánh giá",
       "approve": "Duyệt",
       "reject": "Từ chối"
+    },
+    "customers": {
+      "title": "Khách hàng",
+      "description": "Quản lý thông tin liên hệ, trạng thái và lịch sử đơn hàng của khách hàng.",
+      "columns": {
+        "name": "Khách hàng",
+        "phone": "Số điện thoại",
+        "createdAt": "Ngày tạo"
+      },
+      "filters": {
+        "isActive": "Kích hoạt",
+        "allStatus": "Tất cả",
+        "isLocked": "Khóa đăng nhập",
+        "allLocked": "Tất cả"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Vô hiệu",
+        "locked": "Đã khóa",
+        "notLocked": "Không khóa"
+      },
+      "actions": {
+        "view": "Xem chi tiết",
+        "unlock": "Mở khóa"
+      },
+      "form": {
+        "name": "Họ và tên",
+        "phone": "Số điện thoại",
+        "internalNote": "Ghi chú nội bộ",
+        "isActive": "Tài khoản đang hoạt động"
+      },
+      "ordersTitle": "Lịch sử đơn hàng"
+    },
+    "staff": {
+      "title": "Nhân viên",
+      "description": "Quản lý tài khoản nhân viên và lời mời kích hoạt.",
+      "create": "Mời nhân viên",
+      "columns": {
+        "name": "Nhân viên",
+        "role": "Vai trò",
+        "createdAt": "Ngày tạo"
+      },
+      "filters": {
+        "includeDeleted": "Hiện nhân viên đã xóa mềm"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Vô hiệu",
+        "pending": "Chờ kích hoạt",
+        "deleted": "Đã xóa"
+      },
+      "actions": {
+        "resendInvite": "Gửi lại lời mời",
+        "deactivate": "Vô hiệu hóa",
+        "activate": "Kích hoạt",
+        "restore": "Khôi phục",
+        "delete": "Xóa mềm"
+      },
+      "form": {
+        "title": "Mời nhân viên",
+        "name": "Họ và tên",
+        "email": "Email công việc",
+        "role": "Vai trò",
+        "inviteHint": "Nhân viên sẽ nhận liên kết có hiệu lực trong 24 giờ để tự đặt mật khẩu."
+      }
     },
     "users": {
       "title": "Người dùng",
@@ -220,6 +291,10 @@
       },
       "deleteTitle": "Xóa mã giảm giá",
       "deleteDescription": "Bạn có chắc muốn xóa mã \"{{code}}\"? Hành động này không thể hoàn tác."
+    },
+    "shipping": {
+      "title": "Quy tắc vận chuyển",
+      "description": "Quản lý quy tắc phí và miễn phí vận chuyển."
     },
     "settings": {
       "title": "Cài đặt",

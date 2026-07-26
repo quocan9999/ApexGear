@@ -3,9 +3,9 @@
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "postinstall": "prisma generate --schema=apps/api/prisma/schema.prisma",
-    "dev:api": "npm run dev -w apps/api",
-    "build:api": "npm run build -w apps/api",
+    "postinstall": "npm run build -w @apexgear/shared && prisma generate --schema=apps/api/prisma/schema.prisma",
+    "dev:api": "npm run build -w @apexgear/shared && npm run dev -w apps/api",
+    "build:api": "npm run build -w @apexgear/shared && npm run build -w apps/api",
     "lint:api": "npm run lint -w apps/api",
     "dev:web": "npm run dev -w apps/web",
     "test:web": "npm run test -w apps/web",

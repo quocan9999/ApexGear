@@ -1,4 +1,4 @@
-import type { Role } from './enums';
+import type { Role } from './enums.js';
 
 export const STAFF_ROLES: readonly Role[] = [
   'SUPER_ADMIN',

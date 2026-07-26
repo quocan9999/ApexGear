@@ -200,4 +200,3 @@ describe('StaffService', () => {
     expect(prisma.staffInvitationToken.create).toHaveBeenCalled();
   });
 });
-});

@@ -1,4 +1,4 @@
-export { formatDate, formatDateTime, formatPrice } from './format.js';
+export { formatDate, formatDateTime, formatPrice } from './format';
 export {
   COUPON_TYPE_VALUES,
   ORDER_STATUS_VALUES,
@@ -6,7 +6,7 @@ export {
   PAYMENT_STATUS_VALUES,
   REVIEW_STATUS_VALUES,
   ROLE_VALUES,
-} from './enums.js';
+} from './enums';
 export type {
   CouponType,
   OrderStatus,
@@ -14,7 +14,7 @@ export type {
   PaymentStatus,
   ReviewStatus,
   Role,
-} from './enums.js';
+} from './enums';
 export {
   ALL_STAFF_ROLES,
   ASSIGNABLE_STAFF_ROLES,
@@ -30,6 +30,6 @@ export {
   canViewResource,
   isCustomerRole,
   isStaffRole,
-} from './roles.js';
-export type { PolicyAction, Resource } from './roles.js';
-export { ALLOWED_TRANSITIONS, getAllowedTransitions, requiresCancelReason } from './order-transitions.js';
+} from './roles';
+export type { PolicyAction, Resource } from './roles';
+export { ALLOWED_TRANSITIONS, getAllowedTransitions, requiresCancelReason } from './order-transitions';

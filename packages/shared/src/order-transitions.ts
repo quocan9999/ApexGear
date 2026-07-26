@@ -1,4 +1,4 @@
-import type { OrderStatus } from './enums.js';
+import type { OrderStatus } from './enums';
 
 /** Mirrors API ALLOWED_TRANSITIONS in orders.service.ts */
 export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {

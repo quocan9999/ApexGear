@@ -9,3 +9,5 @@ apps/api/uploads/
 .claude/
 .hallmark/
 .github/
+apps/api/export_data.ts
+apps/api/exported_data/

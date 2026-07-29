@@ -4,40 +4,94 @@
 
 ---
 
-## Hướng dẫn chạy nhanh với Docker (Khuyên dùng)
+## Hướng dẫn chạy Docker
 
-### 1. Yêu cầu hệ thống
+Toàn bộ setup chia làm hai phần độc lập:
 
-* Cài đặt sẵn [Docker Desktop](https://www.docker.com/products/docker-desktop/) (đảm bảo Docker đang chạy).
+* **Phần A — Docker:** chỉ chạy SQL Server và nạp dữ liệu demo (migrate + seed + snapshot). Chạy một lần, xong là DB sẵn sàng.
+* **Phần B — Local dev:** Chạy 3 dev server trên máy
 
-### 2. Khởi chạy dự án
+Docker Desktop là yêu cầu duy nhất cho Phần A; Phần B cần Node.js ≥ 20.x.
 
-Mở terminal/Command Prompt tại thư mục gốc của dự án và chạy lệnh sau:
+### Phần A — Khởi tạo Database (Docker)
+
+#### Bước 1 — Cài yêu cầu
+
+* Tải và cài [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+#### Bước 2 — Khởi chạy SQL Server và nạp dữ liệu demo
+
+Mở terminal tại **thư mục gốc** của dự án (chứa file `docker-compose.yml`) rồi chạy:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-Lệnh này sẽ tự động tải SQL Server, cài đặt dependencies, chạy migrations, seed dữ liệu mẫu và khởi chạy đồng thời Backend API, Storefront Web, Admin Dashboard.
+Compose tự động theo các bước (mất ~5–10 phút ở lần đầu, ~30 giây cho các lần sau).
 
-*(Lần chạy đầu tiên có thể mất vài phút).*
+#### Bước 3 — Kiểm tra nhanh
 
-### 3. Link truy cập (sau khi Docker chạy thành công)
+Mở một terminal **khác** tại thư mục gốc và chạy:
 
-* **Customer Storefront:** [http://localhost:5173/](http://localhost:5173/)
-* **Admin Dashboard:** [http://localhost:5174/](http://localhost:5174/)
-* **API Backend:** [http://localhost:3001/api/docs](http://localhost:3001/api/docs)
+```bash
+docker compose ps
+```
 
-### 4. Danh sách tài khoản Test (Seed Data)
+Kết quả mong đợi:
 
-| Tài khoản (Email)        | Mật khẩu      | Mô tả                                                        |
-|:------------------------ |:------------- |:------------------------------------------------------------ |
-| `customer@apexgear.vn`   | `Test@123456` | Khách Hàng Test - Tài khoản mua hàng cơ bản                  |
-| `content@apexgear.vn`    | `Test@123456` | Quản Lý Nội Dung - Viết bài, thông tin trang tĩnh            |
-| `inventory@apexgear.vn`  | `Test@123456` | Quản Lý Kho Hàng - Nhập/xuất kho, cấu hình sản phẩm          |
-| `order@apexgear.vn`      | `Test@123456` | Quản Lý Đơn Hàng - Theo dõi trạng thái giao hàng, vận chuyển |
-| `admin@apexgear.vn`      | `Test@123456` | Quản Trị Viên - Quản lý chung hệ thống eCommerce             |
-| `superadmin@apexgear.vn` | `Test@123456` | Quản Trị Viên Cấp Cao - Toàn quyền kiểm soát hệ thống        |
+| Service                   | State     | STATUS           |
+|:------------------------- |:--------- |:---------------- |
+| `apexgear-mssql-1`        | đang chạy | **Up (healthy)** |
+| `apexgear-db-bootstrap-1` | đã thoát  | **Exited (0)**   |
+
+Quay lại terminal đang chạy `docker compose up --build`, cuộn xuống cuối log và xác nhận có dòng:
+
+```
+db-bootstrap-1 exited with code 0
+```
+
+### Phần B — Chạy frontend, backend local
+
+> Phần B yêu cầu Node.js ≥ 20.x. Tải tại [nodejs.org](https://nodejs.org/) nếu chưa có.
+
+#### Bước 1 — Cài dependencies
+
+Mở terminal tại **thư mục gốc** và chạy một lần duy nhất:
+
+```bash
+npm install
+```
+
+Sau đó copy file env cho API:
+
+```powershell
+copy apps\api\.env.example apps\api\.env
+```
+
+> File `apps/api/.env.example` đã được pin sẵn `DATABASE_URL` trỏ về `localhost:1433` với password `ApexGearPassword123!` — khớp với Docker compose, không cần sửa gì thêm.
+
+#### Bước 2 — Mở 3 terminal song song
+
+| Terminal             | Lệnh                           | Cổng | URL mở browser                 |
+|:-------------------- |:------------------------------ |:---- |:------------------------------ |
+| **#1 — Backend API** | `cd apps\api && npm run dev`   | 3001 | http://localhost:3001/api/docs |
+| **#2 — Storefront**  | `cd apps\web && npm run dev`   | 5173 | http://localhost:5173/         |
+| **#3 — Admin**       | `cd apps\admin && npm run dev` | 5174 | http://localhost:5174/         |
+
+
+
+### Đăng nhập bằng tài khoản demo
+
+Tất cả sáu tài khoản dùng chung mật khẩu: **`Test@123456`**
+
+| Email                    | Vai trò           | Test thử                                            |
+|:------------------------ |:----------------- |:--------------------------------------------------- |
+| `customer@apexgear.vn`   | CUSTOMER          | Browse + đặt hàng ở Storefront (5173)               |
+| `content@apexgear.vn`    | CONTENT_MANAGER   | CRUD sản phẩm / brand / category trong Admin (5174) |
+| `inventory@apexgear.vn`  | INVENTORY_MANAGER | Quản lý tồn kho và biến thể sản phẩm                |
+| `order@apexgear.vn`      | ORDER_MANAGER     | Xử lý đơn hàng, cập nhật trạng thái giao hàng       |
+| `admin@apexgear.vn`      | ADMIN             | Toàn quyền admin (trừ quản lý role)                 |
+| `superadmin@apexgear.vn` | SUPER_ADMIN       | Full access, bao gồm phân quyền RBAC                |
 
 ### Giao diện thực tế của dự án
 

@@ -78,6 +78,11 @@ async function main() {
     console.log(`✅ User (${user.role}): ${seededUser.email}`);
   }
 
+  if (process.env.DEMO_SNAPSHOT === '1') {
+    console.log('✅ Demo snapshot bootstrap complete.');
+    return;
+  }
+
   // 2. Categories (4 main categories from Image 6)
   const categories = [
     {

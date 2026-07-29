@@ -24,6 +24,8 @@
     "crawl:raw:test": "cross-env-shell CRAWL_TEST=true ts-node scripts/crawler/crawl-raw.ts",
     "crawl:raw": "ts-node scripts/crawler/crawl-raw.ts",
     "raw:transform": "ts-node scripts/crawler/raw-to-apex.ts",
+    "snapshot:export": "ts-node scripts/export-demo-snapshot.ts",
+    "seed:snapshot": "ts-node scripts/seed-demo-snapshot.ts",
     "test:crawler": "jest --config jest.crawler.config.js --passWithNoTests"
   },
   "dependencies": {

@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/coverage
+.git
+.github
+.claude
+.worktrees
+**/.env
+**/.env.*
+!**/.env.example
+*.log
+.DS_Store
+Thumbs.db
+.vscode
+.idea

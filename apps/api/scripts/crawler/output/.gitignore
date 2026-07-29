@@ -1,3 +1,4 @@
 # Generated crawl artifacts — do not commit scraped data.
 *
 !.gitignore
+!demo-data.json

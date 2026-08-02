@@ -62,7 +62,7 @@ describe('ProductsService', () => {
       expect(result.data[0].variants[0]).toHaveProperty('stockAvailable', 3);
     });
 
-    it('uses FREETEXT $queryRaw for ids+count and filters Prisma findMany by FTS ids in FTS order', async () => {
+    it('uses PostgreSQL full-text search $queryRaw for ids+count and filters Prisma findMany by FTS ids in FTS order', async () => {
       // FTS id query first, COUNT query second.
       prisma.$queryRaw
         .mockResolvedValueOnce([{ id: 'p2' }, { id: 'p1' }])
@@ -74,7 +74,7 @@ describe('ProductsService', () => {
 
       const result = await service.findAll({ search: 'tai nghe' } as never, false);
 
-      // 1. raw FREETEXT was called twice (ids + count), and Prisma's count
+      // 1. raw PostgreSQL FTS was called twice (ids + count), and Prisma's count
       //    helper is NOT used in the FTS path (we use a raw COUNT).
       expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
       expect(prisma.product.count).not.toHaveBeenCalled();

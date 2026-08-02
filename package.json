@@ -8,6 +8,7 @@
     "build:api": "npm run build -w @apexgear/shared && npm run build -w apps/api",
     "lint:api": "npm run lint -w apps/api",
     "dev:web": "npm run dev -w apps/web",
+    "build:web": "npm run build -w @apexgear/shared && npm run build -w web",
     "test:web": "npm run test -w apps/web",
     "dev:admin": "npm run dev --workspace=admin",
     "build:admin": "npm run build --workspace=admin",

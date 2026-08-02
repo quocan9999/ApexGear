@@ -49,30 +49,48 @@ export function parseVariantAttributes(
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Lấy danh sách sản phẩm phân trang theo bộ lọc hoặc từ khóa tìm kiếm.
+   *
+   * Khi có `query.search`, áp dụng chiến lược 2 bước (two-phase query):
+   * 1. Bước 1 ($queryRaw): Tìm ID và tính điểm xếp hạng (rank) qua PostgreSQL FTS
+   *    kết hợp `public.immutable_unaccent` và GIN index để tối ưu tốc độ.
+   * 2. Bước 2 (Prisma findMany): Hydrate toàn bộ relation graph (brand, category,
+   *    variants, images) dựa trên danh sách ID đã lọc và sắp xếp lại theo thứ tự FTS.
+   *
+   * Lý do chọn chiến lược 2 bước:
+   * - Prisma chưa hỗ trợ native các toán tử FTS phức tạp (`@@`, `ts_rank_cd`, `websearch_to_tsquery`)
+   *   kèm custom dictionary (`simple` + `unaccent`).
+   * - Tách raw query để lấy ID giúp tận dụng tối đa GIN index, trong khi vẫn giữ nguyên tính
+   *   an toàn kiểu dữ liệu (type safety) và cấu trúc include của Prisma khi trả dữ liệu về frontend.
+   *
+   * @param query - Bộ lọc phân trang, sắp xếp, khoảng giá, danh mục, thương hiệu, từ khóa
+   * @param isStaff - Cờ xác thực quyền nhân viên (nếu true: xem được cả sản phẩm ẩn và số lượng tồn kho chi tiết)
+   * @returns Danh sách sản phẩm kèm metadata phân trang (page, limit, total, totalPages)
+   */
   async findAll(query: QueryProductDto, isStaff = false) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
     if (query.search) {
-      // ----- FTS path: pre-filter ids via FREETEXT, then hydrate via Prisma -----
-      // FREETEXT treats the term as a phrase; strip single quotes and percent
-      // chars that don't belong in a free-text query.
+      // Loại bỏ ký tự đặc biệt có thể phá vỡ cú pháp tìm kiếm trước khi đưa vào unaccent/tsquery
       const term = query.search.replace(/['%]/g, ' ').trim();
       if (!term) {
-        // Search string was only punctuation — fall back to the non-search path.
+        // Nếu chuỗi tìm kiếm chỉ toàn dấu phân cách/ký tự đặc biệt rỗng -> chuyển về luồng tìm kiếm thông thường
         return this.findAllNoSearch({ ...query, search: undefined }, isStaff);
       }
 
       const where = this.buildFtsWhereClauses(query, isStaff, term);
       const orderBy = this.buildFtsOrderBy(query.sortBy, query.sortOrder, term);
 
+      // Bước 1: Truy vấn danh sách ID theo thứ tự ưu tiên FTS (exact match > ts_rank_cd > custom sort)
       const ftsRows = await this.prisma.$queryRaw<{ id: string }[]>(
-        Prisma.sql`SELECT p.[id] FROM [dbo].[Product] p ${where} ${orderBy} OFFSET ${skip} ROWS FETCH NEXT ${limit} ROWS ONLY`,
+        Prisma.sql`SELECT p.id FROM "Product" p ${where} ${orderBy} LIMIT ${limit} OFFSET ${skip}`,
       );
 
-      const totalRow = await this.prisma.$queryRaw<{ count: number }[]>(
-        Prisma.sql`SELECT COUNT(*) AS [count] FROM [dbo].[Product] p ${where}`,
+      const totalRow = await this.prisma.$queryRaw<{ count: number | bigint | string }[]>(
+        Prisma.sql`SELECT COUNT(*) AS count FROM "Product" p ${where}`,
       );
       const total = Number(totalRow[0]?.count ?? 0);
 
@@ -199,9 +217,10 @@ export class ProductsService {
   }
 
   /**
-   * Build the Prisma WHERE input shared by `findAllNoSearch` and the FTS hydrate
-   * step. Mirrors the filters that `buildFtsWhereClauses` applies in raw SQL so
-   * both paths return the same candidate set.
+   * Tạo điều kiện lọc WHERE cho Prisma query (dùng cho luồng không tìm kiếm và bước hydrate).
+   *
+   * Đảm bảo tính nhất quán: bộ lọc này đồng nhất hoàn toàn với điều kiện trong `buildFtsWhereClauses`,
+   * giúp tập ứng viên dữ liệu trả về giữa 2 luồng luôn khớp nhau.
    */
   private buildProductWhere(
     query: QueryProductDto,
@@ -223,49 +242,94 @@ export class ProductsService {
   }
 
   /**
-   * Build the shared WHERE clause for the FTS id query and the FTS count query.
-   * Always mirrors the Prisma filters (`deletedAt`, `isActive`, category, brand,
-   * isFeatured, basePrice) so the FTS candidate set matches what `findAllNoSearch`
-   * would return. All user inputs are bound via `${...}` placeholders in
-   * `Prisma.sql` — no string concatenation.
+   * Tạo mệnh đề WHERE cho câu truy vấn raw SQL Full-Text Search.
+   *
+   * Quyết định kỹ thuật:
+   * - Sử dụng `public.immutable_unaccent` thay vì hàm gốc `unaccent()` vì `unaccent()` mặc định
+   *   trong PostgreSQL được định nghĩa là STABLE, không thể tạo GIN functional index.
+   *   Hàm immutable wrapper cho phép PostgreSQL sử dụng index `Product_name_description_fts_idx`.
+   * - Dùng `websearch_to_tsquery('simple', ...)` để phân tích cú pháp tìm kiếm tự nhiên
+   *   (hỗ trợ cụm từ trong ngoặc kép, dấu trừ loại trừ từ khóa) mà không bị crash khi có ký tự đặc biệt.
+   * - Toàn bộ tham số người dùng được bind qua `${...}` trong `Prisma.sql` để chống SQL Injection 100%.
    */
   private buildFtsWhereClauses(
     query: QueryProductDto,
     isStaff: boolean,
     term: string,
   ): Prisma.Sql {
+    const vector = Prisma.sql`
+      to_tsvector(
+        'simple',
+        public.immutable_unaccent(
+          coalesce(p."name", '') || ' ' || coalesce(p."description", '')
+        )
+      )
+    `;
+
     return Prisma.sql`
-      WHERE FREETEXT(p.[name], ${term}, LANGUAGE 'Vietnamese')
-        AND p.[deletedAt] IS NULL
-        ${!isStaff ? Prisma.sql`AND p.[isActive] = 1` : Prisma.empty}
-        ${query.categoryId ? Prisma.sql`AND p.[categoryId] = ${query.categoryId}` : Prisma.empty}
-        ${query.brandId ? Prisma.sql`AND p.[brandId] = ${query.brandId}` : Prisma.empty}
-        ${query.isFeatured !== undefined ? Prisma.sql`AND p.[isFeatured] = ${query.isFeatured ? 1 : 0}` : Prisma.empty}
-        ${query.minPrice !== undefined ? Prisma.sql`AND p.[basePrice] >= ${query.minPrice}` : Prisma.empty}
-        ${query.maxPrice !== undefined ? Prisma.sql`AND p.[basePrice] <= ${query.maxPrice}` : Prisma.empty}
+      WHERE ${vector} @@ websearch_to_tsquery(
+        'simple',
+        public.immutable_unaccent(${term})
+      )
+        AND p."deletedAt" IS NULL
+        ${!isStaff ? Prisma.sql`AND p."isActive" = true` : Prisma.empty}
+        ${query.categoryId ? Prisma.sql`AND p."categoryId" = ${query.categoryId}` : Prisma.empty}
+        ${query.brandId ? Prisma.sql`AND p."brandId" = ${query.brandId}` : Prisma.empty}
+        ${query.isFeatured !== undefined ? Prisma.sql`AND p."isFeatured" = ${query.isFeatured}` : Prisma.empty}
+        ${query.minPrice !== undefined ? Prisma.sql`AND p."basePrice" >= ${query.minPrice}` : Prisma.empty}
+        ${query.maxPrice !== undefined ? Prisma.sql`AND p."basePrice" <= ${query.maxPrice}` : Prisma.empty}
     `;
   }
 
   /**
-   * Build the ORDER BY for the FTS id query from a whitelist. The class-validator
-   * `IsIn(['price', 'name', 'createdAt'])` and `IsIn(['asc', 'desc'])` decorators
-   * on QueryProductDto already constrain inputs, but we re-whitelist here so the
-   * raw SQL surface stays narrow even if validation changes.
+   * Tạo mệnh đề ORDER BY cho truy vấn FTS.
+   *
+   * Thứ tự ưu tiên sắp xếp:
+   * 1. Khớp chính xác tên sản phẩm sau chuẩn hóa không dấu & chữ thường
+   *    (`lower(public.immutable_unaccent(p."name")) = lower(public.immutable_unaccent(term))`) -> ưu tiên lên đầu tiên (rank 0).
+   *    Lý do: Đảm bảo người dùng tìm từ khóa không dấu (ví dụ "ban phim akko") hoặc khác hoa/thường vẫn được
+   *    ưu tiên tuyệt đối lên đầu danh sách nếu trùng khớp hoàn toàn tên sản phẩm.
+   * 2. Điểm tương đồng FTS (`ts_rank_cd(vector, query) DESC`) -> kết quả liên quan nhất hiển thị trước.
+   * 3. Tiêu chí sắp xếp người dùng chọn (giá / tên / ngày tạo) -> áp dụng theo DTO.
+   * 4. `p.id ASC` -> đảm bảo tính tất định (deterministic pagination) khi có các bản ghi cùng điểm rank.
+   *
+   * Lưu ý an toàn: Cột sắp xếp và chiều sắp xếp được kiểm tra whitelist nghiêm ngặt trước khi chèn qua `Prisma.raw`.
    */
   private buildFtsOrderBy(
     sortBy: 'price' | 'name' | 'createdAt' | undefined,
     sortOrder: 'asc' | 'desc' | undefined,
     term: string,
   ): Prisma.Sql {
-    const column =
+    const sortColumn =
       sortBy === 'price'
-        ? Prisma.raw('[basePrice]')
+        ? 'p."basePrice"'
         : sortBy === 'name'
-        ? Prisma.raw('[name]')
-        : Prisma.raw('[createdAt]');
-    const direction =
-      sortOrder === 'asc' ? Prisma.raw('ASC') : Prisma.raw('DESC');
-    return Prisma.sql`ORDER BY CASE WHEN p.[name] = ${term} THEN 0 ELSE 1 END, p.${column} ${direction}`;
+        ? 'p."name"'
+        : 'p."createdAt"';
+    const direction = sortOrder === 'asc' ? 'ASC' : 'DESC';
+    const vector = Prisma.sql`
+      to_tsvector(
+        'simple',
+        public.immutable_unaccent(
+          coalesce(p."name", '') || ' ' || coalesce(p."description", '')
+        )
+      )
+    `;
+    const searchQuery = Prisma.sql`
+      websearch_to_tsquery('simple', public.immutable_unaccent(${term}))
+    `;
+
+    return Prisma.sql`
+      ORDER BY
+        CASE
+          WHEN lower(public.immutable_unaccent(p."name")) = lower(public.immutable_unaccent(${term}))
+          THEN 0
+          ELSE 1
+        END,
+        ts_rank_cd(${vector}, ${searchQuery}) DESC,
+        ${Prisma.raw(sortColumn)} ${Prisma.raw(direction)},
+        p.id ASC
+    `;
   }
 
   async findBySlug(slug: string, isStaff = false) {

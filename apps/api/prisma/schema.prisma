@@ -1,13 +1,11 @@
-// ApexGear E-commerce — Prisma Schema (SQL Server)
-// Note: SQL Server connector does not support Prisma enums or Json.
-// Enums are stored as VarChar; JSON fields as NVarChar(Max).
+// ApexGear E-commerce — Prisma Schema (PostgreSQL)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlserver"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -18,12 +16,12 @@ model User {
   email               String    @unique(map: "unique_active_email")
   emailVerifiedAt     DateTime?
   password            String?
-  name                String    @db.NVarChar(100)
-  phone               String?   @db.VarChar(15)
-  avatar              String?   @db.VarChar(500)
-  role                String    @default("CUSTOMER") @db.VarChar(30)
-  provider            String    @default("LOCAL") @db.VarChar(20)
-  googleId            String?   @db.VarChar(255)
+  name                String
+  phone               String?
+  avatar              String?
+  role                String    @default("CUSTOMER")
+  provider            String    @default("LOCAL")
+  googleId            String?
   isActive            Boolean   @default(true)
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
@@ -31,8 +29,8 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   deletedAt           DateTime?
-  activationStatus    String    @default("ACTIVE") @db.VarChar(24)
-  internalNote        String?   @db.NVarChar(Max)
+  activationStatus    String    @default("ACTIVE")
+  internalNote        String?
 
   addresses          Address[]
   orders             Order[]
@@ -70,7 +68,7 @@ model EmailVerificationToken {
 
 model StaffInvitationToken {
   id        String   @id @default(uuid())
-  tokenHash String   @unique @db.VarChar(128)
+  tokenHash String   @unique
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   expiresAt DateTime
@@ -84,10 +82,10 @@ model StaffInvitationToken {
 
 model Category {
   id          String     @id @default(uuid())
-  name        String     @db.NVarChar(255)
+  name        String
   slug        String     @unique(map: "unique_active_category_slug")
-  description String?    @db.NVarChar(Max)
-  image       String?    @db.VarChar(500)
+  description String?
+  image       String?
   parentId    String?
   parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children    Category[] @relation("CategoryTree")
@@ -107,11 +105,11 @@ model Category {
 
 model Brand {
   id          String    @id @default(uuid())
-  name        String    @unique(map: "unique_active_brand_name") @db.NVarChar(255)
+  name        String    @unique(map: "unique_active_brand_name")
   slug        String    @unique(map: "unique_active_brand_slug")
-  description String?   @db.NVarChar(Max)
-  logo        String?   @db.VarChar(500)
-  website     String?   @db.VarChar(500)
+  description String?
+  logo        String?
+  website     String?
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -126,19 +124,19 @@ model Brand {
 // ==================== PRODUCTS ====================
 
 model Product {
-  id               String    @id @default(uuid()) @db.UniqueIdentifier
-  name             String    @db.NVarChar(500)
+  id               String    @id @default(uuid())
+  name             String
   slug             String    @unique(map: "unique_active_product_slug")
-  description      String?   @db.NVarChar(Max)
-  specifications   String?   @db.NVarChar(Max) // JSON string
+  description      String?
+  specifications   String?
   basePrice        Decimal   @db.Decimal(18, 2)
   salePrice        Decimal?  @db.Decimal(18, 2)
   categoryId       String
   category         Category  @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   brandId          String
   brand            Brand     @relation(fields: [brandId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  metaTitle        String?   @db.NVarChar(255)
-  metaDescription  String?   @db.NVarChar(500)
+  metaTitle        String?
+  metaDescription  String?
   isFeatured       Boolean   @default(false)
   isActive         Boolean   @default(true)
   createdAt        DateTime  @default(now())
@@ -159,11 +157,11 @@ model Product {
 
 model ProductImage {
   id        String   @id @default(uuid())
-  productId String   @db.UniqueIdentifier
+  productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  url       String   @db.VarChar(500)
-  publicId  String   @db.VarChar(255)
-  alt       String?  @db.NVarChar(500)
+  url       String
+  publicId  String
+  alt       String?
   isPrimary Boolean  @default(false)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
@@ -175,11 +173,11 @@ model ProductImage {
 
 model ProductSpec {
   id        String  @id @default(uuid())
-  productId String  @db.UniqueIdentifier
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  group     String? @db.NVarChar(255)
-  name      String  @db.NVarChar(255)
-  value     String  @db.NVarChar(500)
+  group     String?
+  name      String
+  value     String
   sortOrder Int     @default(0)
 
   @@index([productId])
@@ -189,9 +187,9 @@ model ProductSpec {
 
 model ProductOptionType {
   id        String  @id @default(uuid())
-  productId String  @db.UniqueIdentifier
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  name      String  @db.NVarChar(100)
+  name      String
   sortOrder Int     @default(0)
 
   values ProductOptionValue[]
@@ -203,7 +201,7 @@ model ProductOptionValue {
   id           String            @id @default(uuid())
   optionTypeId String
   optionType   ProductOptionType @relation(fields: [optionTypeId], references: [id], onDelete: Cascade)
-  value        String            @db.NVarChar(100)
+  value        String
   sortOrder    Int               @default(0)
 
   variantOptions VariantOption[]
@@ -213,15 +211,15 @@ model ProductOptionValue {
 
 model ProductVariant {
   id                String    @id @default(uuid())
-  productId         String    @db.UniqueIdentifier
+  productId         String
   product           Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku               String    @unique(map: "unique_active_sku")
-  name              String    @db.NVarChar(255)
+  name              String
   price             Decimal?  @db.Decimal(18, 2)
   stockTotal        Int       @default(0)
   stockAvailable    Int       @default(0)
   lowStockThreshold Int       @default(5)
-  attributes        String?   @db.NVarChar(Max) // JSON string
+  attributes        String?
   isDefault         Boolean   @default(false)
   isActive          Boolean   @default(true)
   displayOrder      Int       @default(0)
@@ -252,13 +250,13 @@ model VariantOption {
 
 model Review {
   id        String   @id @default(uuid())
-  productId String   @db.UniqueIdentifier
+  productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   rating    Int
-  comment   String?  @db.NVarChar(Max)
-  status    String   @default("PENDING") @db.VarChar(20)
+  comment   String?
+  status    String   @default("PENDING")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -298,27 +296,25 @@ model Order {
   orderNumber   String @unique
   userId        String
   user          User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  status        String @default("PENDING") @db.VarChar(20)
-  paymentMethod String @db.VarChar(20)
-  paymentStatus String @default("UNPAID") @db.VarChar(20)
+  status        String @default("PENDING")
+  paymentMethod String
+  paymentStatus String @default("UNPAID")
 
   subtotal    Decimal @db.Decimal(18, 2)
   shippingFee Decimal @db.Decimal(18, 2)
   discount    Decimal @default(0) @db.Decimal(18, 2)
   total       Decimal @db.Decimal(18, 2)
 
-  shippingName     String @db.NVarChar(100)
-  shippingPhone    String @db.VarChar(15)
-  shippingAddress  String @db.NVarChar(500)
-  shippingWard     String @db.NVarChar(100)
-  shippingProvince String @db.NVarChar(100)
+  shippingName     String
+  shippingPhone    String
+  shippingAddress  String
+  shippingWard     String
+  shippingProvince String
 
   couponId String?
   coupon   Coupon? @relation(fields: [couponId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   sepayRef String?
-  // sepayRef có unique index filtered (chỉ enforce khi NOT NULL)
-  // Prisma không hỗ trợ WHERE clause, xem migration SQL
-  note     String? @db.NVarChar(500)
+  note     String?
 
   paidAt       DateTime?
   confirmedAt  DateTime?
@@ -326,7 +322,7 @@ model Order {
   deliveredAt  DateTime?
   completedAt  DateTime?
   cancelledAt  DateTime?
-  cancelReason String?   @db.NVarChar(500)
+  cancelReason String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -346,8 +342,8 @@ model OrderItem {
   variantId String
   variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  productName String  @db.NVarChar(500)
-  variantInfo String? @db.NVarChar(255)
+  productName String
+  variantInfo String?
   price       Decimal @db.Decimal(18, 2)
   quantity    Int
 
@@ -362,13 +358,13 @@ model Address {
   id           String   @id @default(uuid())
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  name         String   @db.NVarChar(100)
-  phone        String   @db.VarChar(15)
-  provinceCode String   @db.VarChar(10)
-  provinceName String   @db.NVarChar(100)
-  wardCode     String   @db.VarChar(10)
-  wardName     String   @db.NVarChar(100)
-  detail       String   @db.NVarChar(500)
+  name         String
+  phone        String
+  provinceCode String
+  provinceName String
+  wardCode     String
+  wardName     String
+  detail       String
   isDefault    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -380,9 +376,9 @@ model Address {
 
 model Coupon {
   id            String    @id @default(uuid())
-  code          String    @unique @db.VarChar(50)
-  type          String    @db.VarChar(20)
-  description   String?   @db.NVarChar(500)
+  code          String    @unique
+  type          String
+  description   String?
   value         Decimal   @db.Decimal(18, 2)
   minOrderValue Decimal?  @db.Decimal(18, 2)
   maxDiscount   Decimal?  @db.Decimal(18, 2)
@@ -404,18 +400,18 @@ model Coupon {
 
 model Setting {
   id    String @id @default(uuid())
-  key   String @unique @db.VarChar(100)
-  value String @db.NVarChar(Max)
+  key   String @unique
+  value String
 }
 
 // ==================== ADMIN NOTIFICATIONS ====================
 
 model AdminNotification {
   id        String    @id @default(uuid())
-  dedupeKey String    @unique @db.VarChar(191)
-  type      String    @db.VarChar(30)
-  title     String    @db.NVarChar(255)
-  body      String?   @db.NVarChar(500)
+  dedupeKey String    @unique
+  type      String
+  title     String
+  body      String?
   orderId   String?
   variantId String?
   isRead    Boolean   @default(false)
@@ -442,7 +438,7 @@ model LowStockAlertState {
 
 model ShippingRule {
   id                    String           @id @default(uuid())
-  name                  String           @db.NVarChar(255)
+  name                  String
   fee                   Decimal          @db.Decimal(18, 2)
   freeShippingThreshold Decimal?         @db.Decimal(18, 2)
   isDefault             Boolean          @default(false)
@@ -457,10 +453,10 @@ model ShippingRegion {
   id             String       @id @default(uuid())
   ruleId         String
   rule           ShippingRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
-  provinceCode   String       @db.VarChar(10)
-  provinceName   String       @db.NVarChar(100)
-  wardCode       String?      @db.VarChar(10)
-  wardName       String?      @db.NVarChar(100)
-  
+  provinceCode   String
+  provinceName   String
+  wardCode       String?
+  wardName       String?
+
   @@unique([provinceCode, wardCode])
 }

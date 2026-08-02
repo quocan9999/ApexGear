@@ -5,15 +5,15 @@ uploads images to Cloudinary, and seeds the ApexGear DB. Local/demo use only —
 low volume, sequential, polite delays.
 
 ## Prerequisites (apps/api/.env)
-- `DATABASE_URL` (reachable SQL Server)
+- `DATABASE_URL` (reachable PostgreSQL database)
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 - Chromium: `npx playwright install chromium`
 
 ## Usage (cwd = apps/api)
 1. `npm run crawl:inspect -- "<brandCollectionUrl>"` — confirm links/`?hang=` values/JSON shape.
 2. `npm run crawl:test` — TEST crawl (1 brand × 2 products) proving extraction + upload.
-3. `npm run crawl` — full demo crawl → `scripts/crawler/output/*.json`.
-4. `npm run seed:crawled` — idempotent upsert into the DB.
+3. `npm run crawl` — full crawl → `scripts/crawler/output/*.json`.
+4. `npm run seed:crawled` — manually upsert the existing `all-products.json` into PostgreSQL.
 5. `npm run test:crawler` — crawler unit tests.
 
 ## Knobs (env)

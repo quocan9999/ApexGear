@@ -1,6 +1,6 @@
 # ApexGear
 
-> Nền tảng thương mại điện tử B2C chuyên cung cấp thiết bị công nghệ & gaming gear (bàn phím, chuột, tai nghe, màn hình) cho game thủ Việt, tích hợp thanh toán tự động qua SePay webhook, phân quyền RBAC chặt chẽ và tìm kiếm bằng SQL Server Full-Text Search.
+> Nền tảng thương mại điện tử B2C chuyên cung cấp thiết bị công nghệ & gaming gear (bàn phím, chuột, tai nghe, màn hình) cho game thủ Việt, tích hợp thanh toán tự động qua SePay webhook, phân quyền RBAC chặt chẽ và tìm kiếm bằng PostgreSQL Full-Text Search.
 
 ---
 
@@ -8,8 +8,8 @@
 
 Toàn bộ setup chia làm hai phần độc lập:
 
-* **Phần A — Docker:** chỉ chạy SQL Server và nạp dữ liệu demo (migrate + seed + snapshot). Chạy một lần, xong là DB sẵn sàng.
-* **Phần B — Local dev:** Chạy 3 dev server trên máy
+* **Phần A — Docker:** chỉ chạy SQL Server và nạp dữ liệu demo (migrate + seed + snapshot). Chạy một lần, xong là DB sẵn sàng. *(Lưu ý: Docker container hiện vẫn cấu hình SQL Server cũ, việc chuyển đổi Docker image sang PostgreSQL được lên kế hoạch trong task tiếp theo).*
+* **Phần B — Local dev:** Chạy 3 dev server trên máy (kết nối trực tiếp tới PostgreSQL local).
 
 Docker Desktop là yêu cầu duy nhất cho Phần A; Phần B cần Node.js ≥ 20.x.
 
@@ -118,7 +118,7 @@ Tất cả sáu tài khoản dùng chung mật khẩu: **`Test@123456`**
 * **Kiến trúc Monorepo đồng bộ:** Xây dựng hệ thống monorepo tích hợp Storefront, Admin Dashboard và API Backend, giao tiếp mượt mà qua proxy và JWT cookie-based auth.
 * **Tự động hóa thanh toán ngân hàng:** Tích hợp cổng SePay QR + webhook tự động xác thực chữ ký HMAC SHA-256, chuyển trạng thái đơn hàng ngay lập tức khi nhận tiền chuyển khoản.
 * **Hệ thống phân quyền (RBAC) chi tiết:** Chia nhỏ quyền hạn với 5 roles (`CUSTOMER`, `ADMIN`, `CONTENT_MANAGER`, `INVENTORY_MANAGER`, `ORDER_MANAGER`) giúp quản trị viên vận hành hệ thống chuyên nghiệp và an toàn.
-* **Tối ưu tìm kiếm:** Triển khai SQL Server Full-Text Search (raw queries) xử lý tiếng Việt có dấu, tìm kiếm sản phẩm tối ưu.
+* **Tối ưu tìm kiếm:** Triển khai PostgreSQL Full-Text Search (raw queries + unaccent + GIN index) xử lý tiếng Việt có dấu, tìm kiếm sản phẩm tối ưu.
 * **Đồng bộ đa ngôn ngữ:** Hỗ trợ đa ngôn ngữ hoàn chỉnh (`vi` / `en`) bằng `react-i18next` cho cả Storefront và Admin.
 
 ---
@@ -129,7 +129,7 @@ Tất cả sáu tài khoản dùng chung mật khẩu: **`Test@123456`**
 |:---------------------- |:------------------------------------------- |:----------------------------------------------------------------------------------------------------------------------------------------- |
 | **Frontend**           | React 19 + Vite + Tailwind CSS v4 + Zustand | React 19 tối ưu render, Tailwind v4 hiện đại hóa CSS, Zustand quản lý state đơn giản, trực quan thay vì Redux cồng kềnh.                  |
 | **Backend**            | NestJS + TypeScript                         | NestJS cung cấp cấu trúc code modular chuẩn mực, TypeScript tăng tính an toàn và minh bạch cho mã nguồn.                                  |
-| **Database**           | SQL Server + Prisma ORM                     | SQL Server mạnh mẽ về giao dịch, hỗ trợ Full-Text Search tốt; Prisma ORM tăng tốc phát triển và bảo đảm an toàn kiểu dữ liệu (type-safe). |
+| **Database**           | PostgreSQL + Prisma ORM                     | PostgreSQL mạnh mẽ về giao dịch, hỗ trợ Full-Text Search tốt; Prisma ORM tăng tốc phát triển và bảo đảm an toàn kiểu dữ liệu (type-safe). |
 | **Thanh toán & Media** | SePay API + Cloudinary                      | SePay tự động hóa webhook ngân hàng; Cloudinary quản lý và tối ưu hóa hình ảnh sản phẩm phân phát qua CDN.                                |
 | **Hosting**            | *Chưa cấu hình (Chạy local)*                | *Note: Dự án hiện tại đang chạy ở môi trường phát triển local, chưa được deploy lên các nền tảng online như Vercel/Render.*               |
 
@@ -161,7 +161,7 @@ Kiến trúc luồng dữ liệu của hệ thống:
      (Prisma ORM)
           │
           ▼
-    [SQL Server Database]
+    [PostgreSQL Database]
 ```
 
 *Note: Sơ đồ database chi tiết có thể được tham khảo trong file [schema.prisma](file:///E:/SourceCode/ApexGear/apps/api/prisma/schema.prisma). Cơ sở dữ liệu bao gồm các bảng được chuẩn hóa: User, Product, Category, Brand, Order, OrderItem, Cart, CartItem, Inventory, Coupon, Notification.*
@@ -175,7 +175,7 @@ Làm theo các bước sau để chạy dự án trên máy tính của bạn:
 ### 1. Yêu cầu hệ thống
 
 * Node.js phiên bản `>= 20.x`
-* Cài đặt sẵn Microsoft SQL Server (hoặc chạy qua Docker)
+* Cài đặt sẵn PostgreSQL (hoặc chạy qua Docker — cấu hình Docker PostgreSQL là follow-up)
 
 ### 2. Cài đặt các thư viện bổ sung
 
@@ -192,7 +192,7 @@ Tạo file `.env` tại thư mục `apps/api/` dựa trên template `.env.exampl
 copy apps\api\.env.example apps\api\.env
 ```
 
-Điền các giá trị thích hợp, đặc biệt là `DATABASE_URL` kết nối tới SQL Server của bạn, `JWT_SECRET`, và các khóa API (SePay, Cloudinary, v.v. nếu cần test tính năng thực tế).
+Điền các giá trị thích hợp, đặc biệt là `DATABASE_URL` kết nối tới PostgreSQL của bạn, `JWT_SECRET`, và các khóa API (SePay, Cloudinary, v.v. nếu cần test tính năng thực tế).
 
 ### 4. Khởi chạy cơ sở dữ liệu
 
@@ -237,7 +237,7 @@ npm run dev
   * Audit log thật ghi nhận chi tiết thao tác Admin/Staff (chỉ mới bảo toàn dữ liệu bằng soft-delete + isActive).
   * Danh sách yêu thích (Wishlist) & So sánh sản phẩm.
   * Đánh giá sản phẩm kèm hình ảnh.
-  * Tìm kiếm nâng cao bằng Elasticsearch / MeiliSearch (hiện đang dùng SQL Server FTS).
+  * Tìm kiếm nâng cao bằng Elasticsearch / MeiliSearch (hiện đang dùng PostgreSQL FTS).
   * Cơ chế Token revocation dùng `tokenVersion`.
   * Live chat support & Analytics dashboard nâng cao cho Admin.
   * Hỗ trợ Progressive Web App (PWA).

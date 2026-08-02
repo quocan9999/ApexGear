@@ -87,7 +87,14 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.ts$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "allowJs": true
+          }
+        }
+      ]
     },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\](?!htmlparser2|dom-serializer|domhandler|domutils|domelementtype|entities|sanitize-html)"

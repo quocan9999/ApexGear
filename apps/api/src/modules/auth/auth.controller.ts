@@ -36,6 +36,20 @@ export class AuthController {
     private staffService: StaffService,
   ) {}
 
+  private getCookieOptions() {
+    const isProd = process.env.NODE_ENV === 'production';
+    const sameSite: 'lax' | 'strict' | 'none' =
+      (process.env.COOKIE_SAME_SITE as any) ||
+      (process.env.COOKIE_DOMAIN ? 'lax' : isProd ? 'none' : 'lax');
+    return {
+      httpOnly: true,
+      secure: isProd,
+      sameSite,
+      domain: process.env.COOKIE_DOMAIN || undefined,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+  }
+
   @Post('register')
   @Public()
   @ApiOperation({ summary: 'Register a new customer account' })
@@ -80,13 +94,7 @@ export class AuthController {
   ) {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const { user, token } = await this.authService.login(dto, ip);
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
-      domain: process.env.COOKIE_DOMAIN || undefined,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    res.cookie('jwt', token, this.getCookieOptions());
     return user;
   }
 
@@ -94,11 +102,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout and clear JWT cookie' })
   async logout(@Res({ passthrough: true }) res: Response) {
+    const opts = this.getCookieOptions();
     res.clearCookie('jwt', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
-      domain: process.env.COOKIE_DOMAIN || undefined,
+      httpOnly: opts.httpOnly,
+      secure: opts.secure,
+      sameSite: opts.sameSite,
+      domain: opts.domain,
     });
     return { message: 'Logged out successfully' };
   }
@@ -168,13 +177,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleCallback(@CurrentUser() googleUser: any, @Res() res: Response) {
     const { token } = await this.authService.googleLogin(googleUser);
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
-      domain: process.env.COOKIE_DOMAIN || undefined,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('jwt', token, this.getCookieOptions());
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     res.redirect(`${frontendUrl}/auth/callback`);
   }

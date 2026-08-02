@@ -13,14 +13,31 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api');
 
-  // CORS
+  // Dynamic CORS origin handler to support Vercel, custom domains, and localhost
+  const configuredOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.ADMIN_URL,
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://apexgear.local:5173',
+    'http://admin.apexgear.local:5174',
+  ]
+    .filter(Boolean)
+    .map((url) => (url as string).replace(/\/$/, ''));
+
   app.enableCors({
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:5173',
-      process.env.ADMIN_URL || 'http://localhost:5174',
-      'http://apexgear.local:5173',
-      'http://admin.apexgear.local:5174',
-    ],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, '');
+      if (
+        configuredOrigins.includes(cleanOrigin) ||
+        /\.vercel\.app$/.test(cleanOrigin) ||
+        /\.cloud-ip\.cc$/.test(cleanOrigin)
+      ) {
+        return callback(null, true);
+      }
+      callback(null, false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });

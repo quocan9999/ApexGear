@@ -124,11 +124,23 @@ function restoreValue(model: string, row: unknown): Record<string, unknown> {
 }
 
 async function upsertRows(tx: any, model: string, rows: unknown[]): Promise<void> {
-  for (const row of rows) {
-    const data = restoreValue(model, row);
+  if (!rows.length) return;
+  const parsedRows = rows.map((row) => restoreValue(model, row));
+  for (const data of parsedRows) {
     if (typeof data.id !== 'string') throw new Error(`Invalid ${model}.id in demo snapshot`);
+  }
 
-    const existing = await tx[model].findUnique({ where: { id: data.id } });
+  const ids = parsedRows.map((r) => r.id as string);
+  const existingList: Array<Record<string, unknown>> = await tx[model].findMany({
+    where: { id: { in: ids } },
+  });
+  const existingMap = new Map(existingList.map((item) => [item.id as string, item]));
+
+  for (const data of parsedRows) {
+    let existing = existingMap.get(data.id as string);
+    if (!existing && typeof tx[model].findUnique === 'function') {
+      existing = await tx[model].findUnique({ where: { id: data.id } });
+    }
     if (existing) {
       const snapshotValue = JSON.stringify(data);
       const existingValue = JSON.stringify(Object.fromEntries(
@@ -206,5 +218,5 @@ export async function restoreDemoSnapshot(prisma: PrismaClient, snapshot: DemoSn
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Demo snapshot restore failed; excluded relations may still reference selected records: ${message}`);
     }
-  }, { timeout: 60_000 });
+  }, { maxWait: 30_000, timeout: 300_000 });
 }

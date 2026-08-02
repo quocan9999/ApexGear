@@ -1,6 +1,18 @@
 # ApexGear
 
-> Nền tảng thương mại điện tử B2C chuyên cung cấp thiết bị công nghệ & gaming gear (bàn phím, chuột, tai nghe, màn hình) cho game thủ Việt, tích hợp thanh toán tự động qua SePay webhook, phân quyền RBAC chặt chẽ và tìm kiếm bằng PostgreSQL Full-Text Search.
+> **Project cá nhân ApexGear** — Nền tảng thương mại điện tử B2C chuyên cung cấp thiết bị công nghệ & gaming gear (bàn phím, chuột, tai nghe, màn hình) cho game thủ Việt, tích hợp thanh toán tự động qua SePay webhook, phân quyền RBAC chặt chẽ và tìm kiếm bằng PostgreSQL Full-Text Search.
+
+---
+
+## Demo Trực Tuyến
+
+Bạn có thể trải nghiệm trực tiếp hệ thống đã được triển khai (đừng quên chờ 30-50s nếu API trên Render bị sleep):
+
+* **Web (Storefront):** [https://apexgear-web.vercel.app](https://apexgear-web.vercel.app)
+* **Admin Dashboard:** [https://apexgear-admin.vercel.app](https://apexgear-admin.vercel.app)
+* **API Swagger Docs:** [https://apexgear-api.onrender.com/api/docs](https://apexgear-api.onrender.com/api/docs)
+
+> 💡 **Xem [Tài khoản Demo](#đăng-nhập-bằng-tài-khoản-demo)** ở bên dưới để lấy thông tin đăng nhập test các tính năng phân quyền.
 
 ---
 
@@ -77,8 +89,6 @@ copy apps\api\.env.example apps\api\.env
 | **#1 — Backend API** | `cd apps\api && npm run dev`   | 3001 | http://localhost:3001/api/docs |
 | **#2 — Storefront**  | `cd apps\web && npm run dev`   | 5173 | http://localhost:5173/         |
 | **#3 — Admin**       | `cd apps\admin && npm run dev` | 5174 | http://localhost:5174/         |
-
-
 
 ### Đăng nhập bằng tài khoản demo
 

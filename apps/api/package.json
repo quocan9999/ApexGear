@@ -87,7 +87,7 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": "ts-jest"
     },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\](?!htmlparser2|dom-serializer|domhandler|domutils|domelementtype|entities|sanitize-html)"

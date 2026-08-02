@@ -285,7 +285,10 @@ export class ProductsService {
    * Tạo mệnh đề ORDER BY cho truy vấn FTS.
    *
    * Thứ tự ưu tiên sắp xếp:
-   * 1. Khớp chính xác tên sản phẩm (`p."name" = term`) -> ưu tiên lên đầu tiên (rank 0).
+   * 1. Khớp chính xác tên sản phẩm sau chuẩn hóa không dấu & chữ thường
+   *    (`lower(public.immutable_unaccent(p."name")) = lower(public.immutable_unaccent(term))`) -> ưu tiên lên đầu tiên (rank 0).
+   *    Lý do: Đảm bảo người dùng tìm từ khóa không dấu (ví dụ "ban phim akko") hoặc khác hoa/thường vẫn được
+   *    ưu tiên tuyệt đối lên đầu danh sách nếu trùng khớp hoàn toàn tên sản phẩm.
    * 2. Điểm tương đồng FTS (`ts_rank_cd(vector, query) DESC`) -> kết quả liên quan nhất hiển thị trước.
    * 3. Tiêu chí sắp xếp người dùng chọn (giá / tên / ngày tạo) -> áp dụng theo DTO.
    * 4. `p.id ASC` -> đảm bảo tính tất định (deterministic pagination) khi có các bản ghi cùng điểm rank.
@@ -318,7 +321,11 @@ export class ProductsService {
 
     return Prisma.sql`
       ORDER BY
-        CASE WHEN p."name" = ${term} THEN 0 ELSE 1 END,
+        CASE
+          WHEN lower(public.immutable_unaccent(p."name")) = lower(public.immutable_unaccent(${term}))
+          THEN 0
+          ELSE 1
+        END,
         ts_rank_cd(${vector}, ${searchQuery}) DESC,
         ${Prisma.raw(sortColumn)} ${Prisma.raw(direction)},
         p.id ASC

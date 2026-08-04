@@ -56,6 +56,8 @@ services:
     env_file:
       - path: ./apps/web/.env
         required: false
+    environment:
+      VITE_API_PROXY_TARGET: http://api:3001
     develop:
       watch:
         - action: sync
@@ -81,6 +83,8 @@ services:
     env_file:
       - path: ./apps/admin/.env
         required: false
+    environment:
+      VITE_API_PROXY_TARGET: http://api:3001
     develop:
       watch:
         - action: sync

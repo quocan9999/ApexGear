@@ -174,9 +174,10 @@ async function upsertRows(tx: any, model: string, rows: unknown[]): Promise<void
 }
 
 async function upsertUsers(tx: any, rows: Record<string, unknown>[]): Promise<void> {
-  for (const { id: _id, ...data } of rows) {
+  for (const data of rows) {
     if (typeof data.email !== 'string') throw new Error('Invalid users.email in demo snapshot');
-    await tx.user.upsert({ where: { email: data.email }, create: data, update: data });
+    const { id, ...updateData } = data;
+    await tx.user.upsert({ where: { email: data.email }, create: data, update: updateData });
   }
 }
 

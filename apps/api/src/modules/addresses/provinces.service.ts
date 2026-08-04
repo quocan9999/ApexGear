@@ -13,29 +13,61 @@ export class ProvincesService {
   private readonly logger = new Logger(ProvincesService.name);
   private cache = new Map<string, CacheEntry<unknown>>();
 
+  private sortByName<T extends { name: string }>(items: T[]): T[] {
+    const stripPrefix = (name: string) => {
+      return name
+        .replace(/^(Tỉnh|Thành phố|Phường|Xã|Thị trấn)\s+/i, '')
+        .trim();
+    };
+
+    return items.sort((a, b) => {
+      const nameA = stripPrefix(a.name);
+      const nameB = stripPrefix(b.name);
+      return nameA.localeCompare(nameB, 'vi');
+    });
+  }
+
   async fetchProvinces() {
     return this.cached('provinces', async () => {
-      const res = await fetch(`${API_BASE}/p/`);
-      if (!res.ok) {
-        throw new Error(`Provinces API error: ${res.status}`);
+      try {
+        const res = await fetch(`${API_BASE}/p/`);
+        if (!res.ok) {
+          throw new Error(`Provinces API error: ${res.status}`);
+        }
+        const data = await res.json();
+        return this.sortByName(data);
+      } catch (error) {
+        this.logger.warn(`Provinces API failed, using fallback: ${(error as Error).message}`);
+        const { provincesData } = require('./data/provinces.data');
+        const mapped = provincesData.map((p: any) => ({ ...p, wards: [] }));
+        return this.sortByName(mapped);
       }
-      return res.json();
     });
   }
 
   async fetchWards(provinceCode: string) {
     return this.cached(`wards:${provinceCode}`, async () => {
-      const res = await fetch(`${API_BASE}/p/${provinceCode}?depth=2`);
-      if (!res.ok) {
-        if (res.status === 404) {
+      try {
+        const res = await fetch(`${API_BASE}/p/${provinceCode}?depth=2`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            throw new NotFoundException('Province not found');
+          }
+          throw new Error(`Provinces API error: ${res.status}`);
+        }
+        const data = (await res.json()) as { wards?: any[] };
+        return this.sortByName(data.wards ?? []);
+      } catch (error) {
+        if (error instanceof NotFoundException) throw error;
+        
+        this.logger.warn(`Wards API failed for ${provinceCode}, using fallback: ${(error as Error).message}`);
+        const { provincesData } = require('./data/provinces.data');
+        const province = provincesData.find((p: any) => p.code.toString() === provinceCode.toString());
+        if (!province) {
           throw new NotFoundException('Province not found');
         }
-        throw new Error(`Provinces API error: ${res.status}`);
+        return this.sortByName(province.wards ?? []);
       }
-      const data = (await res.json()) as { wards?: unknown[] };
-      // Always return an array — never the raw province object, or the
-      // frontend's wards.map() gets a non-iterable and the select breaks.
-      return data.wards ?? [];
     });
   }
 

@@ -23,7 +23,9 @@ services:
     command: sh -c "cd apps/api && npx prisma generate && npx prisma db push && npm run seed:snapshot && cd ../.. && npm run dev:api"
     ports:
       - "3001:3001"
-    env_file: ./apps/api/.env
+    env_file:
+      - path: ./apps/api/.env
+        required: false
     environment:
       DATABASE_URL: postgresql://postgres:postgrespassword@postgres-db:5432/apexgear
     depends_on:
@@ -51,6 +53,9 @@ services:
     command: npm run dev:web
     ports:
       - "3000:3000"
+    env_file:
+      - path: ./apps/web/.env
+        required: false
     develop:
       watch:
         - action: sync
@@ -73,6 +78,9 @@ services:
     command: npm run dev:admin
     ports:
       - "5174:5174"
+    env_file:
+      - path: ./apps/admin/.env
+        required: false
     develop:
       watch:
         - action: sync

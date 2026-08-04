@@ -1,37 +1,104 @@
 services:
-  mssql:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: mssql
-    image: apexgear-mssql:local
+  postgres-db:
+    image: postgres:15-alpine
     environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "ApexGearPassword123!"
-      MSSQL_PID: "Developer"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: apexgear
     ports:
-      - "1433:1433"
+      - "5433:5432"
     volumes:
-      - mssql-data:/var/opt/mssql
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'ApexGearPassword123!' -Q 'SELECT 1' -No"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d apexgear"]
+      interval: 5s
       timeout: 5s
-      retries: 20
-      start_period: 30s
+      retries: 5
     restart: unless-stopped
 
-  db-bootstrap:
+  api:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: bootstrap
+      dockerfile: Dockerfile.dev
+    command: sh -c "cd apps/api && npx prisma generate && npx prisma db push && npm run seed:snapshot && cd ../.. && npm run dev:api"
+    ports:
+      - "3001:3001"
+    env_file:
+      - path: ./apps/api/.env
+        required: false
     environment:
-      DATABASE_URL: "sqlserver://mssql:1433;database=apexgear;user=sa;password=ApexGearPassword123!;encrypt=true;trustServerCertificate=true"
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres-db:5432/apexgear
     depends_on:
-      mssql:
+      postgres-db:
         condition: service_healthy
-    restart: "no"
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/api
+          target: /app/apps/api
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./packages/shared
+          target: /app/packages/shared
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npm run dev:web
+    ports:
+      - "5173:5173"
+    env_file:
+      - path: ./apps/web/.env
+        required: false
+    environment:
+      VITE_API_PROXY_TARGET: http://api:3001
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/web
+          target: /app/apps/web
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./packages/shared
+          target: /app/packages/shared
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npm run dev:admin
+    ports:
+      - "5174:5174"
+    env_file:
+      - path: ./apps/admin/.env
+        required: false
+    environment:
+      VITE_API_PROXY_TARGET: http://api:3001
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/admin
+          target: /app/apps/admin
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./packages/shared
+          target: /app/packages/shared
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
 
 volumes:
-  mssql-data:
+  postgres-data:

@@ -1,0 +1,15 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Install openssl for Prisma on Alpine
+RUN apk add --no-cache openssl
+
+# Copy root package files
+COPY package*.json ./
+
+# Copy everything first for a robust monorepo install
+COPY . .
+
+# Install dependencies
+RUN npm install

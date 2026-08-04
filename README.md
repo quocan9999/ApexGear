@@ -18,77 +18,35 @@ Bạn có thể trải nghiệm trực tiếp hệ thống đã được triển
 
 ## Hướng dẫn chạy Docker
 
-Toàn bộ setup chia làm hai phần độc lập:
+### Bước 1 — Tải Docker Desktop
 
-* **Phần A — Docker:** chỉ chạy SQL Server và nạp dữ liệu demo (migrate + seed + snapshot). Chạy một lần, xong là DB sẵn sàng. *(Lưu ý: Docker container hiện vẫn cấu hình SQL Server cũ, việc chuyển đổi Docker image sang PostgreSQL được lên kế hoạch trong task tiếp theo).*
-* **Phần B — Local dev:** Chạy 3 dev server trên máy (kết nối trực tiếp tới PostgreSQL local).
+* Tải và cài [Docker Desktop bản mới nhất](https://www.docker.com/products/docker-desktop/)
 
-Docker Desktop là yêu cầu duy nhất cho Phần A; Phần B cần Node.js ≥ 20.x.
+### Bước 2 — Khởi chạy Docker
 
-### Phần A — Khởi tạo Database (Docker)
-
-#### Bước 1 — Cài yêu cầu
-
-* Tải và cài [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-
-#### Bước 2 — Khởi chạy SQL Server và nạp dữ liệu demo
-
-Mở terminal tại **thư mục gốc** của dự án (chứa file `docker-compose.yml`) rồi chạy:
+Mở terminal tại **thư mục gốc** của dự án:
 
 ```bash
-docker compose up --build
+docker compose watch
+# mất khoảng ~5 phút ở lần đầu, ~30 giây cho các lần sau
 ```
 
-Compose tự động theo các bước (mất ~5–10 phút ở lần đầu, ~30 giây cho các lần sau).
-
-#### Bước 3 — Kiểm tra nhanh
+### Bước 3 — Kiểm tra nhanh
 
 Mở một terminal **khác** tại thư mục gốc và chạy:
 
 ```bash
-docker compose ps
+docker ps
 ```
 
-Kết quả mong đợi:
+Kết quả mong đợi (hiển thị các IMAGE sau):
 
-| Service                   | State     | STATUS           |
-|:------------------------- |:--------- |:---------------- |
-| `apexgear-mssql-1`        | đang chạy | **Up (healthy)** |
-| `apexgear-db-bootstrap-1` | đã thoát  | **Exited (0)**   |
-
-Quay lại terminal đang chạy `docker compose up --build`, cuộn xuống cuối log và xác nhận có dòng:
-
-```
-db-bootstrap-1 exited with code 0
-```
-
-### Phần B — Chạy frontend, backend local
-
-> Phần B yêu cầu Node.js ≥ 20.x. Tải tại [nodejs.org](https://nodejs.org/) nếu chưa có.
-
-#### Bước 1 — Cài dependencies
-
-Mở terminal tại **thư mục gốc** và chạy một lần duy nhất:
-
-```bash
-npm install
-```
-
-Sau đó copy file env cho API:
-
-```powershell
-copy apps\api\.env.example apps\api\.env
-```
-
-> File `apps/api/.env.example` đã được pin sẵn `DATABASE_URL` trỏ về `localhost:1433` với password `ApexGearPassword123!` — khớp với Docker compose, không cần sửa gì thêm.
-
-#### Bước 2 — Mở 3 terminal song song
-
-| Terminal             | Lệnh                           | Cổng | URL mở browser                 |
-|:-------------------- |:------------------------------ |:---- |:------------------------------ |
-| **#1 — Backend API** | `cd apps\api && npm run dev`   | 3001 | http://localhost:3001/api/docs |
-| **#2 — Storefront**  | `cd apps\web && npm run dev`   | 5173 | http://localhost:5173/         |
-| **#3 — Admin**       | `cd apps\admin && npm run dev` | 5174 | http://localhost:5174/         |
+| IMAGE                | STATE         | STATUS           | PORT |
+|:-------------------- |:------------- |:---------------- |:---- |
+| `apexgear-api`       | Đang hiển thị | **Up**           | 3001 |
+| `postgres:15-alpine` | Đang hiển thị | **Up (healthy)** | 5433 |
+| `apexgear-admin`     | Đang hiển thị | **Up**           | 5174 |
+| `apexgear-web`       | Đang hiển thị | **Up**           | 5173 |
 
 ### Đăng nhập bằng tài khoản demo
 
@@ -103,7 +61,7 @@ Tất cả sáu tài khoản dùng chung mật khẩu: **`Test@123456`**
 | `admin@apexgear.vn`      | ADMIN             | Toàn quyền admin (trừ quản lý role)                 |
 | `superadmin@apexgear.vn` | SUPER_ADMIN       | Full access, bao gồm phân quyền RBAC                |
 
-### Giao diện thực tế của dự án
+## Giao diện thực tế của dự án
 
 #### 1. Trang chủ cửa hàng (Storefront)
 
@@ -141,7 +99,6 @@ Tất cả sáu tài khoản dùng chung mật khẩu: **`Test@123456`**
 | **Backend**            | NestJS + TypeScript                         | NestJS cung cấp cấu trúc code modular chuẩn mực, TypeScript tăng tính an toàn và minh bạch cho mã nguồn.                                  |
 | **Database**           | PostgreSQL + Prisma ORM                     | PostgreSQL mạnh mẽ về giao dịch, hỗ trợ Full-Text Search tốt; Prisma ORM tăng tốc phát triển và bảo đảm an toàn kiểu dữ liệu (type-safe). |
 | **Thanh toán & Media** | SePay API + Cloudinary                      | SePay tự động hóa webhook ngân hàng; Cloudinary quản lý và tối ưu hóa hình ảnh sản phẩm phân phát qua CDN.                                |
-| **Hosting**            | *Chưa cấu hình (Chạy local)*                | *Note: Dự án hiện tại đang chạy ở môi trường phát triển local, chưa được deploy lên các nền tảng online như Vercel/Render.*               |
 
 ---
 
@@ -211,8 +168,8 @@ Chạy các lệnh sau tại thư mục API để khởi tạo cơ sở dữ li�
 ```bash
 cd apps/api
 npx prisma generate
-npx prisma migrate dev
-npx prisma db seed
+npx prisma db push
+npm run seed:snapshot
 cd ../..
 ```
 

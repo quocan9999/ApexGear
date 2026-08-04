@@ -125,6 +125,27 @@
       "deletedAt": null,
       "activationStatus": "ACTIVE",
       "internalNote": null
+    },
+    {
+      "id": "51e64b4e-c014-4cb6-9fea-c17fdb961de2",
+      "email": "testsnapshot@apexgear.vn",
+      "emailVerifiedAt": null,
+      "password": "$2b$10$CCO4xG3lBs//uPkMOTUA6.HEN/nztogA0xxRwVdo6U3eHLGseQ7xW",
+      "name": "Test Snapshot",
+      "phone": null,
+      "avatar": null,
+      "role": "CUSTOMER",
+      "provider": "LOCAL",
+      "googleId": null,
+      "isActive": true,
+      "failedLoginAttempts": 0,
+      "lockedUntil": null,
+      "tokenVersion": 0,
+      "createdAt": "2026-08-05T00:37:13.914Z",
+      "updatedAt": "2026-08-05T00:37:13.914Z",
+      "deletedAt": null,
+      "activationStatus": "ACTIVE",
+      "internalNote": null
     }
   ],
   "brands": [
@@ -27600,6 +27621,72 @@
       "id": "ea814aee-c2b9-4c50-b4a2-701e27b3aa14",
       "variantId": "3bcad8b5-9f2b-470d-bf78-eb3b7b3aa67b",
       "optionValueId": "43f1a6fd-4c22-4e6a-8e9e-a0fe2ac292c1"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "bce96ab8-954f-4048-adac-7a54a41467cf",
+      "productId": "cd89b9ef-7b88-4fb2-bfb1-fb74cc0dc09e",
+      "userId": "7a65f580-cccd-45dd-ad6e-cce8adcd8928",
+      "rating": 5,
+      "comment": "tạm được",
+      "status": "APPROVED",
+      "createdAt": "2026-07-15T23:23:25.466Z",
+      "updatedAt": "2026-07-15T23:23:29.086Z"
+    },
+    {
+      "id": "bd0ed5e7-17b9-4a71-9434-f959f49e9834",
+      "productId": "3e7668b4-5ef6-41dc-bcb6-bfcf90b70219",
+      "userId": "7a65f580-cccd-45dd-ad6e-cce8adcd8928",
+      "rating": 5,
+      "comment": "ok",
+      "status": "REJECTED",
+      "createdAt": "2026-07-15T23:22:45.605Z",
+      "updatedAt": "2026-07-15T23:22:55.671Z"
+    }
+  ],
+  "addresses": [
+    {
+      "id": "2eb26ce8-6850-467c-a14a-e2a2f2e6783b",
+      "userId": "c1614e61-8945-4e82-8eea-2bb580cf58a4",
+      "name": "Test User",
+      "phone": "0901234567",
+      "provinceCode": "01",
+      "provinceName": "H� N?i",
+      "wardCode": "00001",
+      "wardName": "Ph�c X�",
+      "detail": "1 Test St",
+      "isDefault": true,
+      "createdAt": "2026-07-14T12:16:21.196Z",
+      "updatedAt": "2026-07-14T12:16:21.196Z"
+    },
+    {
+      "id": "8679d404-15f1-4c3b-a906-70ddc7f5325a",
+      "userId": "7a65f580-cccd-45dd-ad6e-cce8adcd8928",
+      "name": "Trình Quốc An",
+      "phone": "0867944070",
+      "provinceCode": "79",
+      "provinceName": "Thành phố Hồ Chí Minh",
+      "wardCode": "27439",
+      "wardName": "Phường Bình Hưng Hòa",
+      "detail": "638/26/17 Lê Trọng Tấn",
+      "isDefault": false,
+      "createdAt": "2026-07-17T16:05:27.907Z",
+      "updatedAt": "2026-07-17T16:05:27.907Z"
+    },
+    {
+      "id": "d1df1a7a-2dde-40bc-9783-9e4ef59eb7e2",
+      "userId": "7a65f580-cccd-45dd-ad6e-cce8adcd8928",
+      "name": "Trình Quốc An",
+      "phone": "0867944070",
+      "provinceCode": "80",
+      "provinceName": "Tỉnh Tây Ninh",
+      "wardCode": "27964",
+      "wardName": "Xã Đức Lập",
+      "detail": "238 Đ. Lục Viên, Ấp Đức Hạnh 2",
+      "isDefault": true,
+      "createdAt": "2026-07-15T20:38:23.299Z",
+      "updatedAt": "2026-07-15T20:38:23.299Z"
     }
   ]
 }

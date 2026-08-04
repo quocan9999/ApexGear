@@ -7,6 +7,7 @@ export const DEMO_SNAPSHOT_USER_EMAILS = [
   'order@apexgear.vn',
   'admin@apexgear.vn',
   'superadmin@apexgear.vn',
+  'testsnapshot@apexgear.vn',
 ] as const;
 
 export interface DemoSnapshot {
@@ -24,6 +25,8 @@ export interface DemoSnapshot {
   productOptionValues: unknown[];
   productVariants: unknown[];
   variantOptions: unknown[];
+  addresses: unknown[];
+  reviews: unknown[];
 }
 
 export async function collectDemoSnapshot(prisma: PrismaClient): Promise<DemoSnapshot> {
@@ -42,6 +45,8 @@ export async function collectDemoSnapshot(prisma: PrismaClient): Promise<DemoSna
     productOptionValues,
     productVariants,
     variantOptions,
+    reviews,
+    addresses,
   ] = await Promise.all([
     prisma.user.findMany({
       where: { email: { in: [...DEMO_SNAPSHOT_USER_EMAILS] } },
@@ -60,6 +65,14 @@ export async function collectDemoSnapshot(prisma: PrismaClient): Promise<DemoSna
     prisma.productOptionValue.findMany({ orderBy: { id: 'asc' } }),
     prisma.productVariant.findMany({ orderBy: { id: 'asc' } }),
     prisma.variantOption.findMany({ orderBy: { id: 'asc' } }),
+    prisma.review.findMany({
+      where: { user: { email: { in: [...DEMO_SNAPSHOT_USER_EMAILS] } } },
+      orderBy: { id: 'asc' },
+    }),
+    prisma.address.findMany({
+      where: { user: { email: { in: [...DEMO_SNAPSHOT_USER_EMAILS] } } },
+      orderBy: { id: 'asc' },
+    }),
   ]);
 
   return {
@@ -77,6 +90,8 @@ export async function collectDemoSnapshot(prisma: PrismaClient): Promise<DemoSna
     productOptionValues,
     productVariants,
     variantOptions,
+    reviews,
+    addresses,
   };
 }
 
@@ -84,7 +99,7 @@ export async function collectDemoSnapshot(prisma: PrismaClient): Promise<DemoSna
 const RESTORE_UPSERT_ORDER = [
   'users', 'categories', 'brands', 'coupons', 'shippingRules', 'shippingRegions',
   'products', 'productImages', 'productSpecs', 'productOptionTypes',
-  'productOptionValues', 'productVariants', 'variantOptions',
+  'productOptionValues', 'productVariants', 'variantOptions', 'addresses', 'reviews',
 ] as const;
 
 const DECIMAL_FIELDS: Record<string, readonly string[]> = {
@@ -103,6 +118,8 @@ const DATE_FIELDS: Record<string, readonly string[]> = {
   products: ['createdAt', 'updatedAt', 'deletedAt'],
   productImages: ['createdAt', 'updatedAt'],
   productVariants: ['createdAt', 'updatedAt', 'deletedAt'],
+  addresses: ['createdAt', 'updatedAt'],
+  reviews: ['createdAt', 'updatedAt'],
 };
 
 function restoreValue(model: string, row: unknown): Record<string, unknown> {
@@ -202,6 +219,7 @@ export async function restoreDemoSnapshot(prisma: PrismaClient, snapshot: DemoSn
       for (const model of RESTORE_UPSERT_ORDER) {
         const rows = model === 'users' ? snapshotUsers : snapshot[model];
         if (model === 'users') await upsertUsers(tx, rows as Record<string, unknown>[]);
+        else if (model === 'addresses') await upsertRows(tx, 'address', rows);
         else await upsertRows(tx, model === 'categories' ? 'category' : model.replace(/s$/, ''), rows);
       }
       for (const setting of snapshot.settings) {

@@ -4,7 +4,7 @@ import type { AdminNotification } from '../types';
 import { useToast } from './useToast';
 
 const DEFAULT_LIMIT = 20;
-const STREAM_URL = '/api/admin/notifications/stream';
+const STREAM_URL = `${import.meta.env.VITE_API_URL || '/api'}/admin/notifications/stream`;
 
 function toastVariantFor(notification: AdminNotification) {
   return notification.type === 'LOW_STOCK' ? 'warning' : 'info';
@@ -43,7 +43,7 @@ export function useAdminNotifications() {
   useEffect(() => {
     if (typeof window === 'undefined' || typeof EventSource === 'undefined') return;
 
-    const eventSource = new EventSource(STREAM_URL);
+    const eventSource = new EventSource(STREAM_URL, { withCredentials: true });
     eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {

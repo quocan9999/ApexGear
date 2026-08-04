@@ -21,10 +21,11 @@ export class EmailService {
       'SMTP_FROM',
       'ApexGear <noreply@apexgear.vn>',
     );
+    const port = this.config.get<number>('SMTP_PORT', 587);
     this.transporter = nodemailer.createTransport({
       host: this.config.get<string>('SMTP_HOST', 'smtp.gmail.com'),
-      port: this.config.get<number>('SMTP_PORT', 587),
-      secure: false,
+      port,
+      secure: port === 465, // Use true for 465 (SSL), false for other ports (STARTTLS)
       auth: {
         user: this.config.get<string>('SMTP_USER'),
         pass: this.config.get<string>('SMTP_PASS'),

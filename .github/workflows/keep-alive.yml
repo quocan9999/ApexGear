@@ -1,0 +1,20 @@
+name: Keep Render Backend Alive
+
+on:
+  schedule:
+    # Chạy mỗi 10 phút một lần
+    - cron: '*/10 * * * *'
+  # Cho phép bấm nút "Run workflow" thủ công trên GitHub Actions
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Health Endpoint
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://apexgear-api.onrender.com/api/health)
+          echo "Health check status code: $response"
+          if [ "$response" -ne 200 ]; then
+            echo "Warning: Server returned status $response"
+          fi

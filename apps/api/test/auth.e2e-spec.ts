@@ -28,19 +28,24 @@ describe('Auth (e2e)', () => {
       .send({ email: 'bad', password: 'short', name: 'A' })
       .expect(400);
 
-    expect(res.body.message).toBe('Validation failed');
-    expect(res.body.errors).toEqual(expect.any(Array));
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('POST /api/auth/register creates user (no password in response)', async () => {
+  it('POST /api/auth/register creates user and sends verification email', async () => {
     ctx.prisma.user.findFirst.mockResolvedValue(null);
-    ctx.prisma.user.create.mockImplementation(async ({ data }: { data: Record<string, unknown> }) =>
+    ctx.prisma.user.create.mockResolvedValue(
       baseUser({
-        email: data.email,
-        name: data.name,
-        password: data.password,
+        email: 'new@example.com',
+        name: 'New User',
       }),
     );
+    ctx.prisma.emailVerificationToken.create.mockResolvedValue({
+      id: 'token-id',
+      token: 'mock-verification-token',
+      userId: '11111111-1111-1111-1111-111111111111',
+      expiresAt: new Date(Date.now() + 86400000),
+    });
 
     const res = await request(ctx.app.getHttpServer())
       .post('/api/auth/register')
@@ -51,9 +56,9 @@ describe('Auth (e2e)', () => {
       })
       .expect(201);
 
-    expect(res.body.data.email).toBe('new@example.com');
-    expect(res.body.data.password).toBeUndefined();
+    expect(res.body.data.message).toMatch(/xác minh/i);
     expect(ctx.prisma.user.create).toHaveBeenCalled();
+    expect(ctx.email.sendEmailVerificationEmail).toHaveBeenCalled();
   });
 
   it('POST /api/auth/login sets httpOnly jwt cookie and returns user', async () => {

@@ -98,6 +98,77 @@ describe('PaymentsService', () => {
       ).rejects.toThrow(/Invalid signature/);
     });
 
+    it('accepts signature with sha256= prefix and timestamp', async () => {
+      const body = { content: 'AGREF', transferAmount: 100000 };
+      const rawBody = JSON.stringify(body);
+      const timestamp = '1786122906';
+      const sigHex = createHmac('sha256', secret)
+        .update(`${timestamp}.${rawBody}`)
+        .digest('hex');
+      const sigWithPrefix = `sha256=${sigHex}`;
+
+      prisma.order.findFirst.mockResolvedValue({
+        id: 'o1',
+        total: 100000,
+        orderNumber: 'AG-1',
+        status: OrderStatus.PENDING,
+        paymentMethod: PaymentMethod.SEPAY,
+      });
+      prisma.order.update.mockResolvedValue({});
+
+      const result = await service.handleWebhook(body, {
+        signature: sigWithPrefix,
+        timestamp,
+        rawBody,
+      });
+      expect(result).toEqual({ success: true, orderNumber: 'AG-1' });
+    });
+
+    it('accepts authorization header with Apikey', async () => {
+      const body = { content: 'AGREF', transferAmount: 100000 };
+      prisma.order.findFirst.mockResolvedValue({
+        id: 'o1',
+        total: 100000,
+        orderNumber: 'AG-1',
+        status: OrderStatus.PENDING,
+        paymentMethod: PaymentMethod.SEPAY,
+      });
+      prisma.order.update.mockResolvedValue({});
+
+      const result = await service.handleWebhook(body, {
+        authHeader: `Apikey ${secret}`,
+      });
+      expect(result).toEqual({ success: true, orderNumber: 'AG-1' });
+    });
+
+    it('extracts AG reference from full transfer description or code', async () => {
+      const body = {
+        code: 'AGF024ED533748',
+        content: 'MBVCB 123456 AGF024ED533748 CHUYEN KHOAN',
+        transferAmount: 6090000,
+      };
+      prisma.order.findFirst.mockResolvedValue({
+        id: 'o1',
+        total: 6090000,
+        orderNumber: 'AG-1',
+        status: OrderStatus.PENDING,
+        paymentMethod: PaymentMethod.SEPAY,
+      });
+      prisma.order.update.mockResolvedValue({});
+
+      const result = await service.handleWebhook(body, {
+        authHeader: `Apikey ${secret}`,
+      });
+      expect(result).toEqual({ success: true, orderNumber: 'AG-1' });
+      expect(prisma.order.findFirst).toHaveBeenCalledWith({
+        where: {
+          sepayRef: 'AGF024ED533748',
+          status: OrderStatus.PENDING,
+          paymentMethod: PaymentMethod.SEPAY,
+        },
+      });
+    });
+
     it('returns success:false when no matching order', async () => {
       const body = { content: 'AGREF', transferAmount: 100000 };
       prisma.order.findFirst.mockResolvedValue(null);

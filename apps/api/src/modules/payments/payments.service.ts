@@ -10,6 +10,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { OrderStatus, PaymentMethod, PaymentStatus } from '../../common/enums';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+export interface WebhookVerificationOptions {
+  signature?: string;
+  timestamp?: string;
+  rawBody?: Buffer | string;
+  authHeader?: string;
+}
+
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
@@ -61,35 +68,127 @@ export class PaymentsService {
     };
   }
 
-  async handleWebhook(body: Record<string, unknown>, signature?: string) {
+  async handleWebhook(
+    body: Record<string, unknown>,
+    options?: WebhookVerificationOptions | string,
+  ) {
+    const verificationOpts: WebhookVerificationOptions =
+      typeof options === 'string' ? { signature: options } : options || {};
+
+    const { signature, timestamp, rawBody, authHeader } = verificationOpts;
+
+    // Verify authentication if SEPAY_WEBHOOK_SECRET is configured
     if (this.webhookSecret) {
-      if (!signature) {
-        throw new BadRequestException('Missing signature');
+      let isVerified = false;
+
+      // 1. Check API Key header (Authorization: Apikey <KEY> or Bearer <KEY>)
+      if (authHeader) {
+        const token = authHeader.replace(/^(Apikey|ApiKey|Bearer)\s+/i, '').trim();
+        if (token === this.webhookSecret) {
+          isVerified = true;
+        }
       }
-      const expectedSig = createHmac('sha256', this.webhookSecret)
-        .update(JSON.stringify(body))
-        .digest('hex');
-      const a = Buffer.from(expectedSig);
-      const b = Buffer.from(signature);
-      if (a.length !== b.length || !timingSafeEqual(a, b)) {
-        this.logger.warn('Invalid webhook signature');
+
+      // 2. Check HMAC signature if not yet verified
+      if (!isVerified && signature && this.webhookSecret) {
+        // Strip "sha256=" or "sha256:" prefix if present
+        const cleanSig = signature.replace(/^sha256[=:\s]/i, '').trim().toLowerCase();
+        const rawBodyStr = rawBody
+          ? Buffer.isBuffer(rawBody)
+            ? rawBody.toString('utf-8')
+            : String(rawBody)
+          : null;
+
+        // SePay HMAC specification signs `${timestamp}.${raw_body}`
+        const candidates: string[] = [];
+        if (timestamp && rawBodyStr) {
+          candidates.push(`${timestamp}.${rawBodyStr}`);
+        }
+        if (rawBodyStr) {
+          candidates.push(rawBodyStr);
+        }
+        if (timestamp) {
+          candidates.push(`${timestamp}.${JSON.stringify(body)}`);
+        }
+        candidates.push(JSON.stringify(body));
+
+        for (const dataToSign of candidates) {
+          const expectedHex = createHmac('sha256', this.webhookSecret)
+            .update(dataToSign)
+            .digest('hex')
+            .toLowerCase();
+
+          try {
+            const expectedBuf = Buffer.from(expectedHex, 'utf-8');
+            const sigBuf = Buffer.from(cleanSig, 'utf-8');
+
+            if (
+              expectedBuf.length === sigBuf.length &&
+              expectedBuf.length > 0 &&
+              timingSafeEqual(expectedBuf, sigBuf)
+            ) {
+              isVerified = true;
+              break;
+            }
+          } catch {
+            // Buffer comparison failure fallback
+          }
+        }
+      }
+
+      if (!isVerified) {
+        if (!signature && !authHeader) {
+          this.logger.warn('SePay webhook rejected: missing signature or authorization header');
+          throw new BadRequestException('Missing signature or authorization header');
+        }
+        this.logger.warn(`SePay webhook rejected: invalid signature [${signature}]`);
         throw new BadRequestException('Invalid signature');
       }
+    } else {
+      this.logger.warn('SEPAY_WEBHOOK_SECRET is not configured; skipping signature verification');
     }
 
-    const content = body.content as string | undefined;
+    const content = String(body.content || '');
+    const description = String(body.description || '');
+    const code = String(body.code || '');
+    const referenceCode = String(body.referenceCode || '');
     const transferAmount = Number(body.transferAmount);
-    if (!content) throw new BadRequestException('Missing content');
 
-    const order = await this.prisma.order.findFirst({
+    if (!content && !description && !code && !referenceCode) {
+      throw new BadRequestException('Missing payment reference content');
+    }
+
+    // Try extracting AG reference pattern (e.g. AGF024ED533748 or AG...)
+    const fullText = `${code} ${content} ${description} ${referenceCode}`;
+    const refMatch =
+      fullText.match(/AG[A-Z0-9]{12}/i) ||
+      fullText.match(/AG[A-Z0-9]{6,16}/i);
+    const targetRef = refMatch
+      ? refMatch[0].toUpperCase()
+      : (code || content || description || referenceCode).trim();
+
+    // 1. Find by sepayRef
+    let order = await this.prisma.order.findFirst({
       where: {
-        sepayRef: content,
+        sepayRef: targetRef,
         status: OrderStatus.PENDING,
         paymentMethod: PaymentMethod.SEPAY,
       },
     });
+
+    // 2. Fallback: Find by orderNumber
     if (!order) {
-      this.logger.warn(`No matching order for sepayRef: ${content}`);
+      order = await this.prisma.order.findFirst({
+        where: {
+          orderNumber: targetRef,
+          status: OrderStatus.PENDING,
+          paymentMethod: PaymentMethod.SEPAY,
+        },
+      });
+    }
+
+    if (!order) {
+      this.logger.warn(`No matching pending order for reference: ${targetRef}`);
       return { success: false, message: 'No matching order' };
     }
 
@@ -99,7 +198,7 @@ export class PaymentsService {
 
     if (Number.isNaN(transferAmount) || transferAmount < Number(order.total)) {
       this.logger.warn(
-        `Insufficient payment: ${transferAmount} < ${order.total}`,
+        `Insufficient payment for order ${order.orderNumber}: received ${transferAmount}, expected ${order.total}`,
       );
       return { success: false, message: 'Insufficient amount' };
     }

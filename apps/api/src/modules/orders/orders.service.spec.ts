@@ -198,6 +198,44 @@ describe('OrdersService', () => {
       expect(typeof result.subtotal).toBe('number');
     });
 
+    it('does not send confirmation email immediately on SEPAY checkout', async () => {
+      prisma.address.findFirst.mockResolvedValue(address);
+      prisma.productVariant.findFirst.mockResolvedValue({
+        id: 'v1',
+        name: 'Black',
+        stockAvailable: 10,
+        price: 100000,
+      });
+      shippingService.calculateFee.mockResolvedValue(30000);
+      prisma.productVariant.updateMany.mockResolvedValue({ count: 1 });
+      prisma.cartItem.deleteMany.mockResolvedValue({ count: 1 });
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'user@test.com',
+        name: 'User',
+      });
+      prisma.order.create.mockResolvedValue({
+        id: 'o1',
+        orderNumber: 'AG-20260714-SEPAY',
+        status: OrderStatus.PENDING,
+        paymentMethod: PaymentMethod.SEPAY,
+        paymentStatus: PaymentStatus.UNPAID,
+        total: 230000,
+        subtotal: 200000,
+        shippingFee: 30000,
+        discount: 0,
+        items: [{ price: 100000, quantity: 2 }],
+        coupon: null,
+      });
+
+      await service.checkout('u1', {
+        addressId: 'a1',
+        paymentMethod: PaymentMethod.SEPAY,
+      });
+
+      expect(emailService.sendOrderConfirmation).not.toHaveBeenCalled();
+    });
+
     it('applies valid coupon discount', async () => {
       prisma.address.findFirst.mockResolvedValue(address);
       prisma.productVariant.findFirst.mockResolvedValue({

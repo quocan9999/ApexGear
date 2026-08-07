@@ -36,6 +36,46 @@ describe('Payments webhook (e2e)', () => {
       .expect(400);
   });
 
+  it('marks order paid on valid signed webhook with sha256 prefix and timestamp', async () => {
+    const body = {
+      gateway: 'MBBank',
+      transactionDate: '2026-08-08 00:16:48',
+      accountNumber: '0867944070',
+      code: 'AGF024ED533748',
+      content: 'AGF024ED533748',
+      transferType: 'in',
+      description: 'AGF024ED533748',
+      transferAmount: 6090000,
+      referenceCode: 'SB4CAB8D0C8C71',
+    };
+    const rawBody = JSON.stringify(body);
+    const timestamp = '1786122906';
+    const sig = createHmac('sha256', SECRET)
+      .update(`${timestamp}.${rawBody}`)
+      .digest('hex');
+
+    ctx.prisma.order.findFirst.mockResolvedValue({
+      id: 'o2',
+      total: 6090000,
+      orderNumber: 'AG-E2E-2',
+      status: 'PENDING',
+      paymentMethod: 'SEPAY',
+    });
+    ctx.prisma.order.update.mockResolvedValue({});
+
+    const res = await request(ctx.app.getHttpServer())
+      .post('/api/payments/sepay/webhook')
+      .set('x-sepay-signature', `sha256=${sig}`)
+      .set('x-sepay-timestamp', timestamp)
+      .send(body)
+      .expect(200);
+
+    expect(res.body.data).toEqual({
+      success: true,
+      orderNumber: 'AG-E2E-2',
+    });
+  });
+
   it('marks order paid on valid signed webhook', async () => {
     const body = { content: 'AGREF123', transferAmount: 250000 };
     ctx.prisma.order.findFirst.mockResolvedValue({

@@ -5,12 +5,15 @@ import {
   Body,
   Param,
   Headers,
+  Req,
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
   Sse,
   MessageEvent,
+  RawBodyRequest,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiHeader } from '@nestjs/swagger';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Observable, fromEvent, map, filter } from 'rxjs';
@@ -34,12 +37,22 @@ export class PaymentsController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'SePay payment webhook (HMAC verified)' })
-  @ApiHeader({ name: 'x-sepay-signature', required: false })
+  @ApiHeader({ name: 'x-sepay-signature', required: false, description: 'SePay HMAC signature' })
+  @ApiHeader({ name: 'x-sepay-timestamp', required: false, description: 'SePay webhook timestamp' })
+  @ApiHeader({ name: 'authorization', required: false, description: 'SePay API key authorization' })
   handleWebhook(
+    @Req() req: RawBodyRequest<Request>,
     @Body() body: Record<string, unknown>,
     @Headers('x-sepay-signature') signature?: string,
+    @Headers('x-sepay-timestamp') timestamp?: string,
+    @Headers('authorization') authHeader?: string,
   ) {
-    return this.paymentsService.handleWebhook(body, signature);
+    return this.paymentsService.handleWebhook(body, {
+      signature,
+      timestamp,
+      rawBody: req?.rawBody,
+      authHeader,
+    });
   }
 
   @Get('sepay/qr/:orderId')
@@ -68,4 +81,3 @@ export class PaymentsController {
     );
   }
 }
-

@@ -57,6 +57,7 @@ export type E2EContext = {
   prisma: PrismaMock;
   email: {
     sendResetPasswordEmail: jest.Mock;
+    sendEmailVerificationEmail: jest.Mock;
     sendOrderConfirmation: jest.Mock;
     sendDeliveryConfirmation: jest.Mock;
   };
@@ -77,6 +78,7 @@ export async function createTestApp(
 
   const email = {
     sendResetPasswordEmail: jest.fn().mockResolvedValue(undefined),
+    sendEmailVerificationEmail: jest.fn().mockResolvedValue(undefined),
     sendOrderConfirmation: jest.fn().mockResolvedValue(undefined),
     sendDeliveryConfirmation: jest.fn().mockResolvedValue(undefined),
   };
@@ -98,7 +100,7 @@ export async function createTestApp(
 
   const module = await testingModuleBuilder.compile();
 
-  const app = module.createNestApplication();
+  const app = module.createNestApplication({ rawBody: true });
   app.setGlobalPrefix('api');
   app.use(cookieParser());
   app.useGlobalPipes(
@@ -136,6 +138,7 @@ export function baseUser(overrides: Record<string, unknown> = {}) {
     role: 'CUSTOMER',
     provider: 'LOCAL',
     isActive: true,
+    emailVerifiedAt: new Date(),
     googleId: null,
     failedLoginAttempts: 0,
     lockedUntil: null,

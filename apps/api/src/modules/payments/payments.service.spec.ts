@@ -14,6 +14,7 @@ describe('PaymentsService', () => {
   let service: PaymentsService;
   let prisma: ReturnType<typeof createPrismaMock>;
   let eventEmitter: EventEmitter2;
+  let emailService: { sendOrderConfirmation: jest.Mock };
   const secret = 'test-secret';
 
   beforeEach(() => {
@@ -26,10 +27,12 @@ describe('PaymentsService', () => {
       }),
     };
     eventEmitter = { emit: jest.fn() } as unknown as EventEmitter2;
+    emailService = { sendOrderConfirmation: jest.fn().mockResolvedValue(undefined) };
     service = new PaymentsService(
       prisma as never,
       config as unknown as ConfigService,
       eventEmitter,
+      emailService as never,
     );
   });
 
@@ -166,6 +169,7 @@ describe('PaymentsService', () => {
           status: OrderStatus.PENDING,
           paymentMethod: PaymentMethod.SEPAY,
         },
+        include: { user: true },
       });
     });
 
@@ -193,7 +197,7 @@ describe('PaymentsService', () => {
       expect(result.message).toMatch(/Insufficient/);
     });
 
-    it('marks order paid on valid webhook', async () => {
+    it('marks order paid on valid webhook and sends confirmation email', async () => {
       const body = { content: 'AGREF', transferAmount: 100000 };
       prisma.order.findFirst.mockResolvedValue({
         id: 'o1',
@@ -201,6 +205,7 @@ describe('PaymentsService', () => {
         orderNumber: 'AG-1',
         status: OrderStatus.PENDING,
         paymentMethod: PaymentMethod.SEPAY,
+        user: { email: 'user@example.com', name: 'John Doe' },
       });
       prisma.order.update.mockResolvedValue({});
 
@@ -213,6 +218,15 @@ describe('PaymentsService', () => {
           paidAt: expect.any(Date),
         },
       });
+      expect(emailService.sendOrderConfirmation).toHaveBeenCalledWith(
+        'user@example.com',
+        'John Doe',
+        {
+          orderNumber: 'AG-1',
+          total: 100000,
+          paymentMethod: PaymentMethod.SEPAY,
+        },
+      );
       expect(eventEmitter.emit).toHaveBeenCalledWith('order.paid', {
         orderId: 'o1',
         orderNumber: 'AG-1',

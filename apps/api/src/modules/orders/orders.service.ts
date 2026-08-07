@@ -175,8 +175,8 @@ export class OrdersService {
     }
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (user) {
-      // Fire and forget email sending to avoid blocking the checkout response
+    if (user && order.paymentMethod === PaymentMethod.COD) {
+      // Fire and forget email sending for COD orders; online payments send upon successful webhook
       this.emailService.sendOrderConfirmation(user.email, user.name, {
         orderNumber: order.orderNumber,
         total: Number(order.total),

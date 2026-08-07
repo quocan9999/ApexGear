@@ -9,6 +9,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OrderStatus, PaymentMethod, PaymentStatus } from '../../common/enums';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EmailService } from '../../common/services/email.service';
 
 export interface WebhookVerificationOptions {
   signature?: string;
@@ -28,6 +29,7 @@ export class PaymentsService {
     private prisma: PrismaService,
     private config: ConfigService,
     private eventEmitter: EventEmitter2,
+    private emailService: EmailService,
   ) {
     this.webhookSecret = this.config.get<string>('SEPAY_WEBHOOK_SECRET', '');
     this.bankAccount = this.config.get<string>('SEPAY_BANK_ACCOUNT', '');
@@ -174,6 +176,7 @@ export class PaymentsService {
         status: OrderStatus.PENDING,
         paymentMethod: PaymentMethod.SEPAY,
       },
+      include: { user: true },
     });
 
     // 2. Fallback: Find by orderNumber
@@ -184,6 +187,7 @@ export class PaymentsService {
           status: OrderStatus.PENDING,
           paymentMethod: PaymentMethod.SEPAY,
         },
+        include: { user: true },
       });
     }
 
@@ -209,6 +213,18 @@ export class PaymentsService {
     });
 
     this.logger.log(`Payment received for order ${order.orderNumber}`);
+
+    if (order.user) {
+      this.emailService.sendOrderConfirmation(
+        order.user.email,
+        order.user.name,
+        {
+          orderNumber: order.orderNumber,
+          total: Number(order.total),
+          paymentMethod: order.paymentMethod,
+        },
+      );
+    }
 
     this.eventEmitter.emit('order.paid', {
       orderId: order.id,

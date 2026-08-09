@@ -10,7 +10,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { GoogleOAuthGuard } from './guards/google-oauth.guard';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -165,7 +165,7 @@ export class AuthController {
 
   @Get('google')
   @Public()
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleOAuthGuard)
   @ApiOperation({ summary: 'Redirect to Google OAuth' })
   async googleAuth() {
     // Guard redirects to Google
@@ -173,7 +173,7 @@ export class AuthController {
 
   @Get('google/callback')
   @Public()
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleOAuthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleCallback(@CurrentUser() googleUser: any, @Res() res: Response) {
     const { token } = await this.authService.googleLogin(googleUser);

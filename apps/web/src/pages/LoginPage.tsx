@@ -31,6 +31,34 @@ export default function LoginPage() {
     });
   };
 
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    clearError();
+    setServerError(null);
+    if (val.length > 0) {
+      const errors = validateLoginFields({ email: val, password }, t);
+      setFieldErrors((prev) => ({ ...prev, email: errors.email }));
+    } else {
+      clearFieldError('email');
+    }
+  };
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val);
+    clearError();
+    setServerError(null);
+    if (val.length > 0) {
+      clearFieldError('password');
+    }
+  };
+
+  const handleBlur = (field: 'email' | 'password') => {
+    const errors = validateLoginFields({ email, password }, t);
+    if (errors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: errors[field] }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -90,12 +118,8 @@ export default function LoginPage() {
           type="email"
           value={email}
           error={translateFieldError(fieldErrors.email)}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            clearFieldError('email');
-            clearError();
-            setServerError(null);
-          }}
+          onChange={(e) => handleEmailChange(e.target.value)}
+          onBlur={() => handleBlur('email')}
           required
         />
         <Input
@@ -104,12 +128,8 @@ export default function LoginPage() {
           type={showPassword ? 'text' : 'password'}
           value={password}
           error={translateFieldError(fieldErrors.password)}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            clearFieldError('password');
-            clearError();
-            setServerError(null);
-          }}
+          onChange={(e) => handlePasswordChange(e.target.value)}
+          onBlur={() => handleBlur('password')}
           required
           endAdornment={
             <button

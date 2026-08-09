@@ -57,8 +57,13 @@ export class OrdersService {
 
   async checkout(userId: string, dto: CreateOrderDto) {
     const cart = await this.cartService.getCart(userId);
-    if (!cart.items.length) {
-      throw new BadRequestException('Cart is empty');
+    let itemsToCheckout = cart.items;
+    if (dto.cartItemIds && dto.cartItemIds.length > 0) {
+      itemsToCheckout = cart.items.filter(item => dto.cartItemIds!.includes(item.id));
+    }
+    
+    if (!itemsToCheckout.length) {
+      throw new BadRequestException('Cart is empty or no valid items selected');
     }
 
     const address = await this.prisma.address.findFirst({
@@ -69,7 +74,7 @@ export class OrdersService {
     }
 
     // Validate stock (re-fetch variants for full fields + active product)
-    for (const item of cart.items) {
+    for (const item of itemsToCheckout) {
       const variant = await this.prisma.productVariant.findFirst({
         where: {
           id: item.variantId,
@@ -92,7 +97,7 @@ export class OrdersService {
 
     // Subtotal from cart (use sale price if present on product, else base, else variant price)
     let subtotal = 0;
-    const lineItems = cart.items.map((item) => {
+    const lineItems = itemsToCheckout.map((item) => {
       const product = item.variant.product;
       const unit =
         item.variant.price != null
@@ -149,7 +154,9 @@ export class OrdersService {
           : null;
       try {
         order = await this.createOrderTx({
-          cart,
+          cartId: cart.id,
+          purchasedItemIds: itemsToCheckout.map(i => i.id),
+          cartItems: itemsToCheckout,
           lineItems,
           subtotal,
           shippingFee,
@@ -450,7 +457,9 @@ export class OrdersService {
   }
 
   private async createOrderTx(params: {
-    cart: { id: string; items: { variantId: string; quantity: number; variant: { name: string } }[] };
+    cartId: string;
+    purchasedItemIds: string[];
+    cartItems: { variantId: string; quantity: number; variant: { name: string } }[];
     lineItems: {
       variantId: string;
       productName: string;
@@ -478,7 +487,7 @@ export class OrdersService {
   }) {
     return this.prisma.$transaction(async (tx) => {
       // Deduct stock
-      for (const item of params.cart.items) {
+      for (const item of params.cartItems) {
         const updated = await tx.productVariant.updateMany({
           where: {
             id: item.variantId,
@@ -526,7 +535,12 @@ export class OrdersService {
         include: orderInclude,
       });
 
-      await tx.cartItem.deleteMany({ where: { cartId: params.cart.id } });
+      await tx.cartItem.deleteMany({ 
+        where: { 
+          cartId: params.cartId,
+          id: { in: params.purchasedItemIds }
+        } 
+      });
       return created;
     });
   }

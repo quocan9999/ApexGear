@@ -250,6 +250,7 @@ export interface CreateOrderPayload {
   addressId: string;
   couponCode?: string;
   note?: string;
+  cartItemIds?: string[];
 }
 
 export interface OrderQueryParams {

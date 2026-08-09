@@ -29,6 +29,9 @@ export default function CartPage() {
   const updateItem = useCartStore((s) => s.updateItem);
   const removeItem = useCartStore((s) => s.removeItem);
 
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+
   const [maxStockError, setMaxStockError] = useState<{ show: boolean; max: number }>({
     show: false,
     max: 0,
@@ -47,11 +50,22 @@ export default function CartPage() {
   }, [authLoading, isAuthenticated, loadServerCart]);
 
   const items = cart?.items ?? [];
+
+  useEffect(() => {
+    if (items.length > 0 && !isInitialized) {
+      setSelectedItemIds(items.map((i) => i.id));
+      setIsInitialized(true);
+    }
+  }, [items, isInitialized]);
+
   const hasItems = isAuthenticated ? items.length > 0 : guestItems.length > 0;
 
   const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + unitPrice(item) * item.quantity, 0),
-    [items],
+    () =>
+      items
+        .filter((item) => selectedItemIds.includes(item.id))
+        .reduce((sum, item) => sum + unitPrice(item) * item.quantity, 0),
+    [items, selectedItemIds],
   );
 
   const handleQuantityChange = (id: string, qty: number) => {
@@ -63,7 +77,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
-    navigate('/checkout');
+    navigate('/checkout', { state: { selectedItemIds } });
   };
 
   if (isAuthenticated && isSyncing && items.length === 0) {
@@ -128,14 +142,28 @@ export default function CartPage() {
       <div className="mt-lg grid grid-cols-1 gap-lg lg:grid-cols-[1fr_360px]">
         <section className="rounded-xl bg-surface-container-lowest px-lg">
           {items.map((item) => (
-            <CartLineItem
-              key={item.id}
-              item={item}
-              onQuantityChange={handleQuantityChange}
-              onRemove={handleRemove}
-              disabled={isSyncing}
-              onMaxStockError={handleMaxStockError}
-            />
+            <div key={item.id} className="flex items-center gap-sm">
+              <input 
+                type="checkbox" 
+                className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
+                checked={selectedItemIds.includes(item.id)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setSelectedItemIds((prev) =>
+                    checked ? [...prev, item.id] : prev.filter((id) => id !== item.id),
+                  );
+                }}
+              />
+              <div className="flex-1">
+                <CartLineItem
+                  item={item}
+                  onQuantityChange={handleQuantityChange}
+                  onRemove={handleRemove}
+                  disabled={isSyncing}
+                  onMaxStockError={handleMaxStockError}
+                />
+              </div>
+            </div>
           ))}
         </section>
 
@@ -145,7 +173,7 @@ export default function CartPage() {
             discount={0}
             total={subtotal}
             onCheckout={handleCheckout}
-            checkoutDisabled={isSyncing || items.length === 0}
+            checkoutDisabled={isSyncing || items.length === 0 || selectedItemIds.length === 0}
           />
         </aside>
       </div>

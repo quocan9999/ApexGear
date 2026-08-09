@@ -22,7 +22,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
     <Link
       to={`/products/${product.slug}`}
       className={cn(
-        'group block rounded-xl bg-surface-container-lowest p-lg',
+        'group block rounded-xl bg-surface-container-lowest p-md lg:p-lg',
         'shadow-[var(--shadow-level-1)] hover:shadow-[var(--shadow-level-2)]',
         'transition-shadow duration-300',
         className,
@@ -34,7 +34,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           <img
             src={getCloudinaryUrl(primaryImage.url, 'medium')}
             alt={primaryImage.alt || product.name}
-            className="h-full w-full object-contain p-sm"
+            className="h-full w-full object-contain p-xs lg:p-sm"
             loading="lazy"
           />
         ) : (
@@ -67,12 +67,12 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             </span>
           </div>
         )}
-        <div className="flex flex-wrap items-baseline gap-x-sm gap-y-0 mt-xs">
-          <span className="headline-md text-primary">
+        <div className="flex flex-wrap items-baseline gap-x-xs lg:gap-x-sm gap-y-0 mt-xs">
+          <span className="title-md lg:headline-sm text-primary">
             {formatPrice(product.salePrice ?? product.basePrice)}
           </span>
           {product.salePrice && product.salePrice < product.basePrice && (
-            <span className="body-sm text-outline line-through">
+            <span className="body-xs lg:body-sm text-outline line-through">
               {formatPrice(product.basePrice)}
             </span>
           )}

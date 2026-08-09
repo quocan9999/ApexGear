@@ -17,6 +17,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -178,7 +180,7 @@ export default function RegisterPage() {
       <Input
         id="password"
         label={t('auth.password')}
-        type="password"
+        type={showPassword ? 'text' : 'password'}
         value={password}
         error={translateFieldError(fieldErrors.password)}
         onChange={(e) => {
@@ -188,11 +190,35 @@ export default function RegisterPage() {
           setServerError(null);
         }}
         required
+        endAdornment={
+          <button
+            type="button"
+            className="rounded p-2 text-outline transition-colors hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label={showPassword ? t('auth.hidePassword', 'Ẩn mật khẩu') : t('auth.showPassword', 'Hiện mật khẩu')}
+            onClick={() => setShowPassword((visible) => !visible)}
+            disabled={isLoading}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+              {showPassword ? (
+                <>
+                  <path d="M3 3l18 18" />
+                  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                  <path d="M9.9 4.2A10.6 10.6 0 0 1 12 4c5 0 9 4 10 8a12 12 0 0 1-2.1 4.1M6.6 6.6A11.8 11.8 0 0 0 2 12c1 4 5 8 10 8 1.4 0 2.7-.3 3.9-.8" />
+                </>
+              ) : (
+                <>
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                  <circle cx="12" cy="12" r="2.5" />
+                </>
+              )}
+            </svg>
+          </button>
+        }
       />
       <Input
         id="confirmPassword"
         label={t('auth.confirmPassword')}
-        type="password"
+        type={showConfirmPassword ? 'text' : 'password'}
         value={confirmPassword}
         error={translateFieldError(fieldErrors.confirmPassword)}
         onChange={(e) => {
@@ -202,6 +228,30 @@ export default function RegisterPage() {
           setServerError(null);
         }}
         required
+        endAdornment={
+          <button
+            type="button"
+            className="rounded p-2 text-outline transition-colors hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label={showConfirmPassword ? t('auth.hidePassword', 'Ẩn mật khẩu') : t('auth.showPassword', 'Hiện mật khẩu')}
+            onClick={() => setShowConfirmPassword((visible) => !visible)}
+            disabled={isLoading}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+              {showConfirmPassword ? (
+                <>
+                  <path d="M3 3l18 18" />
+                  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                  <path d="M9.9 4.2A10.6 10.6 0 0 1 12 4c5 0 9 4 10 8a12 12 0 0 1-2.1 4.1M6.6 6.6A11.8 11.8 0 0 0 2 12c1 4 5 8 10 8 1.4 0 2.7-.3 3.9-.8" />
+                </>
+              ) : (
+                <>
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                  <circle cx="12" cy="12" r="2.5" />
+                </>
+              )}
+            </svg>
+          </button>
+        }
       />
 
       <Button type="submit" isLoading={isLoading} className="w-full">

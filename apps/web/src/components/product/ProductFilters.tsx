@@ -177,11 +177,10 @@ export default function ProductFilters({
         <h3 className="label-md text-on-surface">{t('product.price')}</h3>
         <div className="grid grid-cols-2 gap-sm">
           <input
-            type="number"
+            type="text"
             inputMode="numeric"
-            min={0}
             placeholder="0"
-            value={values.minPrice}
+            value={values.minPrice ? new Intl.NumberFormat('vi-VN').format(Number(values.minPrice)) : ''}
             onChange={(e) =>
               onChange({ ...values, minPrice: e.target.value.replace(/[^0-9]/g, '') })
             }
@@ -193,11 +192,10 @@ export default function ProductFilters({
             aria-label={t('product.minPrice')}
           />
           <input
-            type="number"
+            type="text"
             inputMode="numeric"
-            min={0}
             placeholder="∞"
-            value={values.maxPrice}
+            value={values.maxPrice ? new Intl.NumberFormat('vi-VN').format(Number(values.maxPrice)) : ''}
             onChange={(e) =>
               onChange({ ...values, maxPrice: e.target.value.replace(/[^0-9]/g, '') })
             }

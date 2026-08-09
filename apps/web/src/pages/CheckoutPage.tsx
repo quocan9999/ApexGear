@@ -25,6 +25,7 @@ import type {
 interface CheckoutLocationState {
   couponCode?: string;
   discount?: number;
+  selectedItemIds?: string[];
 }
 
 interface CheckoutApiError {
@@ -82,7 +83,14 @@ export default function CheckoutPage() {
   const [shippingFee, setShippingFee] = useState<number | null>(null);
   const [isFetchingFee, setIsFetchingFee] = useState(false);
 
-  const items = useMemo(() => cart?.items ?? [], [cart]);
+  const items = useMemo(() => {
+    const allItems = cart?.items ?? [];
+    if (carried.selectedItemIds && carried.selectedItemIds.length > 0) {
+      return allItems.filter(item => carried.selectedItemIds!.includes(item.id));
+    }
+    return allItems;
+  }, [cart, carried.selectedItemIds]);
+  
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + unitPrice(item) * item.quantity, 0),
     [items],
@@ -166,9 +174,11 @@ export default function CheckoutPage() {
       addressId: selectedAddress.id,
       ...(couponCode ? { couponCode } : {}),
       ...(note.trim() ? { note: note.trim() } : {}),
+      ...(carried.selectedItemIds ? { cartItemIds: carried.selectedItemIds } : {}),
     };
     try {
       const order = await ordersService.create(payload);
+      await loadServerCart(); // refresh the cart in the store so the icon clears
       // Both COD and SEPAY land on the success page; it renders the SePay QR
       // panel when the order is SEPAY + unpaid, and the thank-you copy otherwise.
       navigate(`/checkout/success/${order.id}`);

@@ -101,10 +101,10 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Search */}
+          {/* Search (Desktop) */}
           <form
             onSubmit={handleSearchSubmit}
-            className="ml-auto flex flex-1 max-w-[480px] items-center"
+            className="ml-auto hidden lg:flex flex-1 max-w-[480px] items-center"
             role="search"
           >
             <div className="relative w-full">
@@ -132,6 +132,8 @@ export default function Header() {
               />
             </div>
           </form>
+
+          <div className="flex-1 lg:hidden" />
 
           {/* Cart */}
           <Link

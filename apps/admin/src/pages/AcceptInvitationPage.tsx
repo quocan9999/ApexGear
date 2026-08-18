@@ -44,6 +44,8 @@ export default function AcceptInvitationPage() {
         ? t('invitation.invalidToken')
         : t('invitation.genericError'));
     } finally {
+      setPassword('');
+      setConfirmation('');
       setSubmitting(false);
     }
   };

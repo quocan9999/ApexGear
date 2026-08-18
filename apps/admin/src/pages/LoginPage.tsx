@@ -70,6 +70,7 @@ export default function LoginPage() {
     } catch {
       setFormError(useAuthStore.getState().error || t('login.genericError'));
     } finally {
+      setPassword('');
       submittingRef.current = false;
       setSubmitting(false);
     }

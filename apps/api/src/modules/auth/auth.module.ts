@@ -14,9 +14,9 @@ import { StaffModule } from '../staff/staff.module';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.getOrThrow<string>('ACCESS_TOKEN_SECRET'),
+        secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: '15m',
+          expiresIn: config.get('JWT_EXPIRES_IN') || '7d',
         },
       }),
     }),

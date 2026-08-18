@@ -7,40 +7,18 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-let refreshTokenPromise: Promise<any> | null = null;
-
 api.interceptors.response.use(
   (response) => response,
-  async (error: any) => {
-    const originalConfig = error.config;
+  (error: unknown) => {
     const candidate = error as {
       message?: string;
       response?: { status?: number; data?: { message?: string, error?: { message?: string } } };
     };
     
-    const status = candidate.response?.status;
-
-    if (status === 401 && originalConfig && originalConfig.url !== '/auth/refresh' && !originalConfig._retry) {
-      originalConfig._retry = true;
-
-      if (!refreshTokenPromise) {
-        refreshTokenPromise = api.post('/auth/refresh').finally(() => {
-          refreshTokenPromise = null;
-        });
-      }
-
-      try {
-        await refreshTokenPromise;
-        return api(originalConfig);
-      } catch (refreshError) {
-        const { useAuthStore } = await import('../stores/auth.store');
-        useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false, error: null });
-      }
-    }
-
     const rawMessage =
       candidate.response?.data?.error?.message || candidate.response?.data?.message || candidate.message;
     let message = rawMessage || i18n.t('common.genericError');
+    const status = candidate.response?.status;
 
     // Map technical or backend errors to user-friendly messages
     if (status && status >= 500) {
@@ -57,7 +35,7 @@ api.interceptors.response.use(
       message = i18n.t('errors.tooManyRequests');
     }
 
-    return Promise.reject({ message, rawMessage, status, config: originalConfig });
+    return Promise.reject({ message, rawMessage, status });
   },
 );
 

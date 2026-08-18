@@ -43,33 +43,11 @@ function normalizeErrorMessage(message: string | null, status?: number): string 
   return message;
 }
 
-let refreshTokenPromise: Promise<any> | null = null;
-
 // Response interceptor: unwrap { data } envelope and translate errors
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalConfig = error.config;
+  (error) => {
     const status = error.response?.status;
-
-    if (status === 401 && originalConfig && originalConfig.url !== '/auth/refresh' && !originalConfig._retry) {
-      originalConfig._retry = true;
-
-      if (!refreshTokenPromise) {
-        refreshTokenPromise = api.post('/auth/refresh').finally(() => {
-          refreshTokenPromise = null;
-        });
-      }
-
-      try {
-        await refreshTokenPromise;
-        return api(originalConfig);
-      } catch (refreshError) {
-        const { useAuthStore } = await import('../stores/auth.store');
-        useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false });
-      }
-    }
-
     const message = normalizeErrorMessage(
       asMessage(error.response?.data?.error?.message) ||
         asMessage(error.response?.data?.message) ||
@@ -77,7 +55,7 @@ api.interceptors.response.use(
       status,
     );
 
-    return Promise.reject({ message, status, config: originalConfig });
+    return Promise.reject({ message, status });
   },
 );
 

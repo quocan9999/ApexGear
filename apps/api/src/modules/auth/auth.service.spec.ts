@@ -18,12 +18,12 @@ jest.mock('bcrypt');
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: ReturnType<typeof createPrismaMock>;
-  let jwtService: { sign: jest.Mock; verify: jest.Mock };
+  let jwtService: { sign: jest.Mock };
   let emailService: {
     sendResetPasswordEmail: jest.Mock;
     sendEmailVerificationEmail: jest.Mock;
   };
-  let configService: { get: jest.Mock; getOrThrow: jest.Mock };
+  let configService: { get: jest.Mock };
   let loginFailureThrottle: { recordFailedAttempt: jest.Mock };
 
   const baseUser = {
@@ -48,28 +48,14 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    jwtService = { 
-      sign: jest.fn((payload, options) => {
-        if (options?.secret === 'mock-access-secret') return 'mock-access-token';
-        if (options?.secret === 'mock-refresh-secret') return 'mock-refresh-token';
-        return 'jwt-token';
-      }),
-      verify: jest.fn()
-    };
+    jwtService = { sign: jest.fn().mockReturnValue('jwt-token') };
     emailService = {
       sendResetPasswordEmail: jest.fn().mockResolvedValue(undefined),
       sendEmailVerificationEmail: jest.fn().mockResolvedValue(undefined),
     };
     configService = {
       get: jest.fn(
-        (key: string, def?: string) => def ?? 'http://localhost:5173',
-      ),
-      getOrThrow: jest.fn(
-        (key: string) => {
-          if (key === 'ACCESS_TOKEN_SECRET') return 'mock-access-secret';
-          if (key === 'REFRESH_TOKEN_SECRET') return 'mock-refresh-secret';
-          return 'http://localhost:5173';
-        }
+        (_key: string, def?: string) => def ?? 'http://localhost:5173',
       ),
     };
     loginFailureThrottle = {
@@ -425,30 +411,13 @@ describe('AuthService', () => {
         password: 'Password1',
       });
 
-      expect(result.accessToken).toBe('mock-access-token');
-      expect(result.refreshToken).toBe('mock-refresh-token');
+      expect(result.token).toBe('jwt-token');
       expect(result.user.email).toBe('user@example.com');
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        {
-          sub: 'u1',
-          email: 'user@example.com',
-          role: Role.CUSTOMER,
-        },
-        {
-          secret: 'mock-access-secret',
-          expiresIn: '15m',
-        }
-      );
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        {
-          sub: 'u1',
-          jti: expect.any(String),
-        },
-        {
-          secret: 'mock-refresh-secret',
-          expiresIn: '7d',
-        }
-      );
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: 'u1',
+        email: 'user@example.com',
+        role: Role.CUSTOMER,
+      });
       expect(loginFailureThrottle.recordFailedAttempt).not.toHaveBeenCalled();
     });
 
@@ -574,24 +543,6 @@ describe('AuthService', () => {
     it('throws when user missing', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       await expect(service.getProfile('missing')).rejects.toBeInstanceOf(
-        UnauthorizedException,
-      );
-    });
-
-    it('throws when user is deactivated or deleted', async () => {
-      prisma.user.findUnique.mockResolvedValue({
-        ...baseUser,
-        isActive: false,
-      });
-      await expect(service.getProfile('u1')).rejects.toBeInstanceOf(
-        UnauthorizedException,
-      );
-
-      prisma.user.findUnique.mockResolvedValue({
-        ...baseUser,
-        deletedAt: new Date(),
-      });
-      await expect(service.getProfile('u1')).rejects.toBeInstanceOf(
         UnauthorizedException,
       );
     });
@@ -793,8 +744,7 @@ describe('AuthService', () => {
           }),
         }),
       );
-      expect(result.accessToken).toBe('mock-access-token');
-      expect(result.refreshToken).toBe('mock-refresh-token');
+      expect(result.token).toBe('jwt-token');
     });
 
     it('links googleId to existing email account and sets emailVerifiedAt if needed', async () => {

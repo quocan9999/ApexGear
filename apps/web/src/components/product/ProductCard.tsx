@@ -68,7 +68,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           </div>
         )}
         <div className="flex flex-wrap items-baseline gap-x-xs lg:gap-x-sm gap-y-0 mt-xs">
-          <span className="title-lg lg:headline-md font-bold text-primary">
+          <span className="title-md lg:headline-sm text-primary">
             {formatPrice(product.salePrice ?? product.basePrice)}
           </span>
           {product.salePrice && product.salePrice < product.basePrice && (

@@ -31,7 +31,8 @@ async function bootstrap() {
       const cleanOrigin = origin.replace(/\/$/, '');
       if (
         configuredOrigins.includes(cleanOrigin) ||
-        /^https:\/\/(apex-gear|apex-gear-admin)-[a-zA-Z0-9-]+-trinh-quoc-ans-projects\.vercel\.app$/.test(cleanOrigin)
+        /\.vercel\.app$/.test(cleanOrigin) ||
+        /\.cloud-ip\.cc$/.test(cleanOrigin)
       ) {
         return callback(null, true);
       }
@@ -66,7 +67,7 @@ async function bootstrap() {
     .setTitle('ApexGear API')
     .setDescription('ApexGear E-commerce API documentation')
     .setVersion('1.0')
-    .addCookieAuth('accessToken')
+    .addCookieAuth('jwt')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

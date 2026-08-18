@@ -66,7 +66,7 @@ async function bootstrap() {
     .setTitle('ApexGear API')
     .setDescription('ApexGear E-commerce API documentation')
     .setVersion('1.0')
-    .addCookieAuth('jwt')
+    .addCookieAuth('accessToken')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

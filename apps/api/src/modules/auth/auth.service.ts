@@ -212,7 +212,7 @@ export class AuthService {
   async login(
     dto: LoginDto,
     ip = 'unknown',
-  ): Promise<{ user: UserEntity; token: string }> {
+  ): Promise<{ user: UserEntity; accessToken: string; refreshToken: string }> {
     const user = await this.prisma.user.findFirst({
       where: { email: dto.email, deletedAt: null },
     });
@@ -278,16 +278,17 @@ export class AuthService {
       });
     }
 
-    const token = this.generateToken(user);
-    return { user: new UserEntity(user), token };
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = this.generateRefreshToken(user);
+    return { user: new UserEntity(user), accessToken, refreshToken };
   }
 
   async getProfile(userId: string): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+    if (!user || !user.isActive || user.deletedAt) {
+      throw new UnauthorizedException('User not found or inactive');
     }
     return new UserEntity(user);
   }
@@ -403,7 +404,7 @@ export class AuthService {
     email: string;
     name: string;
     avatar: string | null;
-  }): Promise<{ user: UserEntity; token: string }> {
+  }): Promise<{ user: UserEntity; accessToken: string; refreshToken: string }> {
     let user = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -442,19 +443,42 @@ export class AuthService {
       throw new UnauthorizedException('Account is deactivated');
     }
 
-    const token = this.generateToken(user);
-    return { user: new UserEntity(user), token };
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = this.generateRefreshToken(user);
+    return { user: new UserEntity(user), accessToken, refreshToken };
   }
 
-  private generateToken(user: {
+  generateAccessToken(user: {
     id: string;
     email: string;
     role: string;
   }): string {
-    return this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    });
+    return this.jwtService.sign(
+      { sub: user.id, email: user.email, role: user.role },
+      {
+        secret: this.configService.getOrThrow<string>('ACCESS_TOKEN_SECRET'),
+        expiresIn: '15m',
+      },
+    );
+  }
+
+  private generateRefreshToken(user: { id: string }): string {
+    return this.jwtService.sign(
+      { sub: user.id, jti: randomUUID() },
+      {
+        secret: this.configService.getOrThrow<string>('REFRESH_TOKEN_SECRET'),
+        expiresIn: '7d',
+      },
+    );
+  }
+
+  async verifyRefreshToken(token: string): Promise<any> {
+    try {
+      return this.jwtService.verify(token, {
+        secret: this.configService.getOrThrow<string>('REFRESH_TOKEN_SECRET'),
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }

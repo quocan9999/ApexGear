@@ -209,7 +209,9 @@ export default function ProductDetailPage() {
           )}
 
           <div className="flex items-baseline gap-md">
-            <span className="headline-lg text-primary">{formatPrice(displayPrice)}</span>
+            <span className="headline-lg font-bold text-primary">
+              {formatPrice(displayPrice)}
+            </span>
             {originalPrice && originalPrice > displayPrice && (
               <>
                 <span className="body-md text-on-surface-variant line-through">

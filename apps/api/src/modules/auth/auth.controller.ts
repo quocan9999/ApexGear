@@ -9,6 +9,7 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { GoogleOAuthGuard } from './guards/google-oauth.guard';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -36,7 +37,22 @@ export class AuthController {
     private staffService: StaffService,
   ) {}
 
-  private getCookieOptions() {
+  private getAccessTokenCookieOptions() {
+    const isProd = process.env.NODE_ENV === 'production';
+    const sameSite: 'lax' | 'strict' | 'none' =
+      (process.env.COOKIE_SAME_SITE as any) ||
+      (process.env.COOKIE_DOMAIN ? 'lax' : isProd ? 'none' : 'lax');
+    return {
+      httpOnly: true,
+      secure: isProd,
+      sameSite,
+      domain: process.env.COOKIE_DOMAIN || undefined,
+      maxAge: 15 * 60 * 1000, // 15 minutes
+      path: '/',
+    };
+  }
+
+  private getRefreshTokenCookieOptions() {
     const isProd = process.env.NODE_ENV === 'production';
     const sameSite: 'lax' | 'strict' | 'none' =
       (process.env.COOKIE_SAME_SITE as any) ||
@@ -47,6 +63,7 @@ export class AuthController {
       sameSite,
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/api/auth/refresh',
     };
   }
 
@@ -93,23 +110,54 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    const { user, token } = await this.authService.login(dto, ip);
-    res.cookie('jwt', token, this.getCookieOptions());
+    const { user, accessToken, refreshToken } = await this.authService.login(dto, ip);
+    res.cookie('accessToken', accessToken, this.getAccessTokenCookieOptions());
+    res.cookie('refreshToken', refreshToken, this.getRefreshTokenCookieOptions());
     return user;
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Logout and clear JWT cookie' })
+  @ApiOperation({ summary: 'Logout and clear JWT cookies' })
   async logout(@Res({ passthrough: true }) res: Response) {
-    const opts = this.getCookieOptions();
-    res.clearCookie('jwt', {
-      httpOnly: opts.httpOnly,
-      secure: opts.secure,
-      sameSite: opts.sameSite,
-      domain: opts.domain,
+    const accessOpts = this.getAccessTokenCookieOptions();
+    const refreshOpts = this.getRefreshTokenCookieOptions();
+    res.clearCookie('accessToken', {
+      httpOnly: accessOpts.httpOnly,
+      secure: accessOpts.secure,
+      sameSite: accessOpts.sameSite,
+      domain: accessOpts.domain,
+      path: accessOpts.path,
+    });
+    res.clearCookie('refreshToken', {
+      httpOnly: refreshOpts.httpOnly,
+      secure: refreshOpts.secure,
+      sameSite: refreshOpts.sameSite,
+      domain: refreshOpts.domain,
+      path: refreshOpts.path,
     });
     return { message: 'Logged out successfully' };
+  }
+
+  @Post('refresh')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh access token' })
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('No refresh token provided');
+    }
+    
+    const payload = await this.authService.verifyRefreshToken(refreshToken);
+    const user = await this.authService.getProfile(payload.sub);
+    const accessToken = this.authService.generateAccessToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+    res.cookie('accessToken', accessToken, this.getAccessTokenCookieOptions());
+    return { message: 'ok' };
   }
 
   @Get('me')
@@ -176,8 +224,9 @@ export class AuthController {
   @UseGuards(GoogleOAuthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleCallback(@CurrentUser() googleUser: any, @Res() res: Response) {
-    const { token } = await this.authService.googleLogin(googleUser);
-    res.cookie('jwt', token, this.getCookieOptions());
+    const { accessToken, refreshToken } = await this.authService.googleLogin(googleUser);
+    res.cookie('accessToken', accessToken, this.getAccessTokenCookieOptions());
+    res.cookie('refreshToken', refreshToken, this.getRefreshTokenCookieOptions());
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     res.redirect(`${frontendUrl}/auth/callback`);
   }

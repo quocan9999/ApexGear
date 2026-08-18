@@ -14,10 +14,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: (req: Request) => {
-        return req?.cookies?.jwt || null;
+        return req?.cookies?.accessToken || null;
       },
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
+      secretOrKey: configService.getOrThrow<string>('ACCESS_TOKEN_SECRET'),
     });
   }
 

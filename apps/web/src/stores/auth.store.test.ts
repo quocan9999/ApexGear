@@ -34,7 +34,7 @@ describe('useAuthStore', () => {
       useAuthStore.getState().login({ email: 'a@x.com', password: 'secret123' }),
     ).rejects.toThrow('Vui lòng xác minh email trước khi đăng nhập');
 
-    expect(useAuthStore.getState().error).toBe('Vui lòng xác minh email trước khi đăng nhập');
+    expect(useAuthStore.getState().error).toBe('Email này đã được đăng ký nhưng chưa xác thực. Chúng tôi đã gửi lại email xác thực, vui lòng kiểm tra hộp thư.');
   });
 
   it('normalizes common backend login errors to localized copy', async () => {

@@ -106,6 +106,9 @@ export default function RegisterPage() {
     } catch (err: any) {
       const message = typeof err?.message === 'string' ? err.message : null;
       setServerError(message === 'Email already registered' ? t('auth.emailAlreadyRegisteredResent') : null);
+    } finally {
+      setPassword('');
+      setConfirmPassword('');
     }
   };
 

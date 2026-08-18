@@ -46,13 +46,13 @@ export default function ChangePasswordForm() {
     try {
       await authService.changePassword({ currentPassword, newPassword });
       setStatus({ type: 'success', message: t('account.password.success') });
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmNewPassword('');
     } catch (err) {
       const message = (err as { message?: string })?.message ?? t('common.error');
       setStatus({ type: 'error', message });
     } finally {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
       setSubmitting(false);
     }
   };

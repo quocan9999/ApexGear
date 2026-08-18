@@ -82,6 +82,8 @@ export default function LoginPage() {
     } catch (err: any) {
       const message = typeof err?.message === 'string' ? err.message : null;
       setServerError(message === 'Vui lòng xác minh email trước khi đăng nhập' ? t('auth.loginUnverifiedResent') : null);
+    } finally {
+      setPassword('');
     }
   };
 

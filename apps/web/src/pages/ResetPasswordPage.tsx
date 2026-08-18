@@ -47,6 +47,8 @@ export default function ResetPasswordPage() {
     } catch (err: any) {
       setError(err?.message ?? t('common.error'));
     } finally {
+      setNewPassword('');
+      setConfirmPassword('');
       setIsLoading(false);
     }
   };

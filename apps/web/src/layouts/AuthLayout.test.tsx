@@ -43,7 +43,7 @@ describe('AuthLayout', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('link', { name: /ApexGear/i })).toHaveAttribute('href', '/');
+    expect(screen.getAllByRole('link', { name: /ApexGear/i })[0]).toHaveAttribute('href', '/');
     expect(screen.queryByRole('link', { name: 'Quay lại trang chủ' })).not.toBeInTheDocument();
   });
 });
